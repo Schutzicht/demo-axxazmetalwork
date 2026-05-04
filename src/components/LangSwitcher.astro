@@ -58,7 +58,8 @@ const links = alternateLinks(currentLang, currentPath);
 
 <script>
   function initLangSearch() {
-    document.querySelectorAll('.lang-switcher').forEach(sw => {
+    const switchers = document.querySelectorAll<HTMLDetailsElement>('.lang-switcher');
+    switchers.forEach(sw => {
       const input = sw.querySelector<HTMLInputElement>('.lang-search');
       const items = sw.querySelectorAll<HTMLElement>('.lang-item');
       const empty = sw.querySelector<HTMLElement>('.lang-empty');
@@ -78,15 +79,31 @@ const links = alternateLinks(currentLang, currentPath);
       };
 
       input.addEventListener('input', filter);
-      // focus search when dropdown opens
       sw.addEventListener('toggle', () => {
-        if ((sw as HTMLDetailsElement).open) {
+        if (sw.open) {
           setTimeout(() => input.focus(), 50);
           input.value = '';
           filter();
         }
       });
     });
+
+    // Close any open switcher on outside click or Escape (idempotent re-bind)
+    if (!(window as any).__langSwitcherOutside) {
+      document.addEventListener('click', (e) => {
+        const target = e.target as Node;
+        document.querySelectorAll<HTMLDetailsElement>('.lang-switcher[open]').forEach(sw => {
+          if (!sw.contains(target)) sw.open = false;
+        });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll<HTMLDetailsElement>('.lang-switcher[open]').forEach(sw => {
+          sw.open = false;
+        });
+      });
+      (window as any).__langSwitcherOutside = true;
+    }
   }
 
   if (document.readyState !== 'loading') initLangSearch();
