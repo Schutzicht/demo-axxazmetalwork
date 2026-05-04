@@ -152,7 +152,7 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
   <div class="py-9 md:py-11">
     <div class="marquee">
       <div class="marquee-track">
-        {[...trustClients, ...trustClients].map(c => (
+        {[...trustClients, ...trustClients, ...trustClients, ...trustClients].map(c => (
           <ClientLogo name={c.name} domain={c.domain} slug={c.slug} logo={c.logo} industry={c.industry} />
         ))}
       </div>
