@@ -40,14 +40,11 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
     <div class="absolute inset-0 bg-gradient-to-r from-[var(--color-axxaz-navy-deep)] via-[var(--color-axxaz-navy-deep)]/95 to-[var(--color-axxaz-navy-deep)]/70"></div>
   </div>
 
-  <div class="relative z-10 container-x py-12 sm:py-16 md:py-24 lg:py-28">
-    <div class="grid lg:grid-cols-[1.1fr_1fr] gap-8 sm:gap-10 lg:gap-16 items-center">
+  <div class="relative z-10 container-x py-14 sm:py-20 md:py-28 lg:py-32">
+    <div class="grid lg:grid-cols-[1.1fr_1fr] gap-10 sm:gap-12 lg:gap-20 items-center">
       <!-- LEFT: copy for jobseekers -->
       <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur text-xs font-semibold tracking-widest uppercase text-white/85">
-          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)] animate-pulse"></span>
-          {t('hero.kicker')}
-        </div>
+        <div class="eyebrow eyebrow-light">{t('hero.kicker')}</div>
         <h1 class="mt-5 sm:mt-6 text-[2.25rem] sm:text-5xl md:text-6xl lg:text-7xl !text-white leading-[0.95] font-extrabold tracking-[-0.04em]">
           {t('hero.titleA')}<br/>
           <span class="text-gradient-spark">{t('hero.titleB')}</span>,<br/>
@@ -157,43 +154,45 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
   </div>
 </section>
 
-<!-- TRUST STRIP -->
-<section class="border-y border-[var(--color-line)] bg-white mt-12 md:mt-20" data-reveal>
-  <div class="container-x py-8 md:py-10">
-    <div class="text-center mb-6 md:mb-7">
-      <div class="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-mute)]">{t('trust.title')}</div>
+<!-- TRUST STRIP — auto-scrolling marquee -->
+<section class="border-y border-[var(--color-line)] bg-white mt-16 md:mt-24" data-reveal>
+  <div class="py-9 md:py-11">
+    <div class="container-x text-center mb-7">
+      <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-mute)]">{t('trust.title')}</div>
     </div>
-    <div class="flex gap-x-8 sm:gap-x-12 md:gap-x-16 gap-y-5 flex-wrap items-center justify-center">
-      {trustClients.map(c => (
-        <ClientLogo name={c.name} domain={c.domain} slug={c.slug} logo={c.logo} industry={c.industry} />
-      ))}
+    <div class="marquee">
+      <div class="marquee-track">
+        {[...trustClients, ...trustClients].map(c => (
+          <ClientLogo name={c.name} domain={c.domain} slug={c.slug} logo={c.logo} industry={c.industry} />
+        ))}
+      </div>
     </div>
   </div>
 </section>
 
-<!-- BIG STATS -->
+<!-- BIG STATS — horizontale rij met dunne dividers -->
 <section class="section" data-reveal>
   <div class="container-x">
-    <div class="text-center max-w-2xl mx-auto mb-14">
-      <div class="eyebrow justify-center">{t('stats.kicker')}</div>
+    <div class="max-w-2xl mb-12 md:mb-16">
+      <div class="eyebrow">{t('stats.kicker')}</div>
       <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('stats.title')}</h2>
     </div>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <div class="bg-[var(--color-axxaz-navy)] rounded-2xl p-7 md:p-9 text-white">
-        <div class="stat-num text-4xl sm:text-5xl md:text-6xl !text-white">22<span class="text-[var(--color-spark)]">+</span></div>
-        <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-white/70">{t('stats.years')}</p>
+    <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-[var(--color-line)] border border-[var(--color-line)] rounded-2xl overflow-hidden">
+      <div class="p-6 sm:p-8 md:p-10">
+        <div class="stat-num text-4xl sm:text-5xl md:text-6xl">22<span class="text-[var(--color-spark)]">+</span></div>
+        <p class="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-ink-mute)]">{t('stats.years')}</p>
       </div>
-      <div class="bg-[var(--color-axxaz-mist)] rounded-2xl p-7 md:p-9 relative overflow-hidden">
+      <div class="p-6 sm:p-8 md:p-10">
         <div class="stat-num text-4xl sm:text-5xl md:text-6xl">{site.europeOffices + site.asiaOffices}</div>
-        <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-[var(--color-axxaz-navy)]">{t('stats.offices')}</p>
+        <p class="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-ink-mute)]">{t('stats.offices')}</p>
       </div>
-      <div class="rounded-2xl p-7 md:p-9 relative overflow-hidden text-white" style="background:linear-gradient(135deg,var(--color-spark-bright) 0%,var(--color-spark-deep) 100%)">
-        <div class="stat-num text-4xl sm:text-5xl md:text-6xl !text-white">100<span class="text-white/85">%</span></div>
-        <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-white/85">{t('stats.tested')}</p>
+      <div class="p-6 sm:p-8 md:p-10">
+        <div class="stat-num text-4xl sm:text-5xl md:text-6xl">100<span class="text-[var(--color-spark)]">%</span></div>
+        <p class="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-ink-mute)]">{t('stats.tested')}</p>
       </div>
-      <div class="bg-[var(--color-axxaz-mist)] rounded-2xl p-7 md:p-9">
+      <div class="p-6 sm:p-8 md:p-10">
         <div class="stat-num text-4xl sm:text-5xl md:text-6xl">14<span class="text-[var(--color-spark)] text-2xl sm:text-3xl ml-1">{t('stats.placementUnit')}</span></div>
-        <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-[var(--color-axxaz-navy)]">{t('stats.placement')}</p>
+        <p class="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-ink-mute)]">{t('stats.placement')}</p>
       </div>
     </div>
   </div>
@@ -209,20 +208,19 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
       </div>
       <a href={localizePath(lang, '/werkgevers')} class="text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold inline-flex items-center gap-1.5 text-sm">{t('services.all')} <Icon name="arrow-right" size={14} stroke={2.25} /></a>
     </div>
-    <div class="grid md:grid-cols-3 gap-4">
-      {services.map((s, i) => (
-        <article class="card card-hover p-7 md:p-9 bg-white flex flex-col">
-          <div class="text-xs font-mono font-bold tracking-widest text-[var(--color-spark)]">0{i+1}</div>
-          <h3 class="mt-3 text-xl md:text-2xl">{s.title}</h3>
-          <ul class="mt-6 space-y-3 flex-grow">
+    <div class="grid md:grid-cols-3 gap-3 md:gap-4">
+      {services.map(s => (
+        <article class="card card-hover p-7 md:p-8 bg-white flex flex-col">
+          <h3 class="text-lg md:text-xl">{s.title}</h3>
+          <ul class="mt-5 space-y-2.5 flex-grow">
             {s.items.map(it => (
-              <li class="flex gap-3 items-start">
-                <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0"><Icon name="arrow-right" size={14} stroke={2.5} /></span>
+              <li class="flex gap-2.5 items-start text-[var(--color-ink-soft)]">
+                <span class="text-[var(--color-axxaz-navy)] mt-1.5 flex-shrink-0 w-1 h-1 rounded-full bg-current"></span>
                 <span class="text-sm leading-relaxed">{it}</span>
               </li>
             ))}
           </ul>
-          <a href={localizePath(lang, '/werkgevers')} class="mt-8 inline-flex items-center gap-1.5 font-semibold text-sm text-[var(--color-axxaz-navy)] hover:text-[var(--color-spark)] transition-colors">
+          <a href={localizePath(lang, '/werkgevers')} class="mt-7 inline-flex items-center gap-1.5 font-semibold text-sm text-[var(--color-axxaz-navy)] hover:text-[var(--color-spark)] transition-colors">
             {t('cta.lezen')} <Icon name="arrow-right" size={13} stroke={2.5} />
           </a>
         </article>
@@ -327,37 +325,34 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
   </div>
 </section>
 
-<!-- REVIEWS BLOCK -->
+<!-- REVIEWS BLOCK — featured quote -->
 <section class="section bg-[var(--color-axxaz-mist)]/40 border-y border-[var(--color-line)]">
   <div class="container-x">
-    <div class="grid lg:grid-cols-[auto_1fr] gap-12 lg:gap-20 items-start">
-      <div class="lg:max-w-xs">
+    <div class="grid lg:grid-cols-[auto_1fr] gap-12 lg:gap-20 items-center max-w-5xl">
+      <div class="lg:max-w-[200px]">
         <div class="eyebrow">{t('rev.kicker')}</div>
-        <div class="mt-5 stat-num text-6xl md:text-7xl !text-[var(--color-spark)]">{reviewSummary.google}</div>
-        <div class="flex gap-1 mt-4">
+        <div class="mt-5 flex items-baseline gap-2">
+          <div class="stat-num text-6xl md:text-7xl !text-[var(--color-axxaz-navy)]">{reviewSummary.google}</div>
+          <div class="text-2xl text-[var(--color-ink-mute)] font-mono">/5</div>
+        </div>
+        <div class="flex gap-0.5 mt-3">
           {[1,2,3,4,5].map(s => (
-            <Icon name="star" size={22} class="text-[var(--color-ember)] fill-[var(--color-ember)]" stroke={1.5} />
+            <Icon name="star" size={18} class="text-[var(--color-ember)] fill-[var(--color-ember)]" stroke={1.5} />
           ))}
         </div>
-        <p class="mt-4 text-sm">{t('rev.basis').replace('{n}', String(reviewSummary.googleCount))}</p>
-        <a href="#" class="mt-6 btn btn-outline btn-sm">{t('rev.all')}</a>
+        <p class="mt-4 text-xs text-[var(--color-ink-soft)]">{reviewSummary.googleCount} reviews op Google</p>
       </div>
-      <div class="grid sm:grid-cols-2 gap-4">
-        {reviews.slice(0, 4).map(r => (
-          <article class="card p-6 bg-white">
-            <div class="flex gap-0.5 mb-4">
-              {[1,2,3,4,5].map(s => (
-                <Icon name="star" size={14} class="text-[var(--color-ember)] fill-[var(--color-ember)]" stroke={1.5} />
-              ))}
-            </div>
-            <p class="text-sm leading-relaxed">"{r.text}"</p>
-            <div class="mt-5 pt-4 border-t border-[var(--color-line)] text-xs">
-              <div class="font-semibold text-[var(--color-ink)]">{r.name}</div>
-              <div class="text-[var(--color-ink-mute)] mt-0.5">{r.role}</div>
-            </div>
-          </article>
-        ))}
-      </div>
+      <figure>
+        <p class="text-2xl md:text-3xl lg:text-4xl !text-[var(--color-axxaz-navy-deep)] leading-tight tracking-tight" style="font-family:Manrope,sans-serif">"{reviews[0].text}"</p>
+        <figcaption class="mt-7 flex items-center gap-3 text-sm">
+          <div class="w-10 h-10 rounded-full bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)] font-bold text-xs">{reviews[0].name.split(' ').map(w => w[0]).slice(0, 2).join('')}</div>
+          <div>
+            <div class="font-semibold text-[var(--color-ink)]">{reviews[0].name}</div>
+            <div class="text-[var(--color-ink-mute)] text-xs">{reviews[0].role}</div>
+          </div>
+          <a href="#" class="ml-auto text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold text-sm inline-flex items-center gap-1">{t('rev.all')} <Icon name="arrow-right" size={13} stroke={2.5} /></a>
+        </figcaption>
+      </figure>
     </div>
   </div>
 </section>

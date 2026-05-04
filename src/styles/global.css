@@ -227,28 +227,54 @@
     border: 1px solid var(--color-line-soft);
   }
 
-  /* === EYEBROW === */
+  /* === EYEBROW (refined dot-prefix) === */
   .eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 0.625rem;
+    gap: 0.5rem;
     font-family: var(--font-display);
     font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-spark);
   }
   .eyebrow::before {
     content: "";
-    width: 28px;
-    height: 1.5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
     background: var(--color-spark);
+    flex-shrink: 0;
   }
   .eyebrow-dark { color: var(--color-axxaz-navy); }
   .eyebrow-dark::before { background: var(--color-axxaz-navy); }
   .eyebrow-light { color: rgba(255,255,255,0.85); }
   .eyebrow-light::before { background: var(--color-spark); }
+
+  /* === MARQUEE === */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 4rem;
+    padding-right: 4rem;
+    animation: marquee 40s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+  }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
 
   /* === GLASS / STICKY HEADER === */
   .glass {
