@@ -34,16 +34,11 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 ---
 
 <!-- HERO -->
-<section class="relative overflow-hidden bg-mesh-dark text-white">
-  <!-- Background photo -->
+<section class="relative overflow-hidden bg-[var(--color-axxaz-navy-deep)] text-white">
   <div class="absolute inset-0 z-0">
-    <img src="/img/site/workshop-1.jpg" alt="" class="w-full h-full object-cover opacity-25" />
-    <div class="absolute inset-0 bg-gradient-to-r from-[var(--color-axxaz-navy-darker)] via-[var(--color-axxaz-navy-deep)]/95 to-[var(--color-axxaz-navy-deep)]/60"></div>
+    <img src="/img/site/workshop-1.jpg" alt="" class="w-full h-full object-cover opacity-20" />
+    <div class="absolute inset-0 bg-gradient-to-r from-[var(--color-axxaz-navy-deep)] via-[var(--color-axxaz-navy-deep)]/95 to-[var(--color-axxaz-navy-deep)]/70"></div>
   </div>
-  <!-- Grid overlay -->
-  <div class="absolute inset-0 pattern-grid opacity-40 pointer-events-none z-0"></div>
-  <!-- Subtle radial accent -->
-  <div class="absolute -right-32 top-0 w-[600px] h-[600px] rounded-full bg-[var(--color-spark)]/15 blur-[120px] pointer-events-none"></div>
 
   <div class="relative z-10 container-x py-12 sm:py-16 md:py-24 lg:py-28">
     <div class="grid lg:grid-cols-[1.1fr_1fr] gap-8 sm:gap-10 lg:gap-16 items-center">
@@ -184,12 +179,9 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
       <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('stats.title')}</h2>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <div class="bg-[var(--color-axxaz-navy)] rounded-2xl p-7 md:p-9 text-white relative overflow-hidden group">
-        <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-[var(--color-spark)]/15 blur-2xl group-hover:bg-[var(--color-spark)]/25 transition-colors"></div>
-        <div class="relative">
-          <div class="stat-num text-4xl sm:text-5xl md:text-6xl !text-white">22<span class="text-[var(--color-spark)]">+</span></div>
-          <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-white/70">{t('stats.years')}</p>
-        </div>
+      <div class="bg-[var(--color-axxaz-navy)] rounded-2xl p-7 md:p-9 text-white">
+        <div class="stat-num text-4xl sm:text-5xl md:text-6xl !text-white">22<span class="text-[var(--color-spark)]">+</span></div>
+        <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-white/70">{t('stats.years')}</p>
       </div>
       <div class="bg-[var(--color-axxaz-mist)] rounded-2xl p-7 md:p-9 relative overflow-hidden">
         <div class="stat-num text-4xl sm:text-5xl md:text-6xl">{site.europeOffices + site.asiaOffices}</div>
@@ -273,9 +265,8 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 </section>
 
 <!-- TEST CENTER -->
-<section class="bg-mesh-dark text-white relative overflow-hidden">
-  <div class="absolute inset-0 pattern-grid opacity-40 pointer-events-none"></div>
-  <div class="container-x py-20 md:py-28 lg:py-32 relative grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x py-20 md:py-28 lg:py-32 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
     <div>
       <div class="eyebrow eyebrow-light">{t('tc.kicker')}</div>
       <h2 class="mt-5 text-3xl md:text-4xl lg:text-5xl !text-white">{t('tc.title')}</h2>
@@ -395,9 +386,8 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 </section>
 
 <!-- COMMUNITY -->
-<section class="section bg-mesh-dark text-white relative overflow-hidden">
-  <div class="absolute inset-0 pattern-grid opacity-40 pointer-events-none"></div>
-  <div class="container-x relative">
+<section class="section bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x">
     <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
       <div class="max-w-xl">
         <div class="eyebrow eyebrow-light">{t('comm.kicker')}</div>
@@ -545,10 +535,8 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 <!-- BIG CTA -->
 <section class="section">
   <div class="container-x">
-    <div class="rounded-3xl bg-mesh-dark text-white p-10 md:p-16 lg:p-20 relative overflow-hidden">
-      <div class="absolute inset-0 pattern-grid opacity-50 pointer-events-none"></div>
-      <div class="absolute -right-24 -bottom-24 w-[500px] h-[500px] rounded-full bg-[var(--color-spark)]/15 blur-[100px] pointer-events-none"></div>
-      <div class="relative max-w-3xl">
+    <div class="rounded-3xl bg-[var(--color-axxaz-navy-deep)] text-white p-10 md:p-16 lg:p-20">
+      <div class="max-w-3xl">
         <div class="eyebrow eyebrow-light">{t('bigcta.kicker')}</div>
         <h2 class="mt-5 text-3xl md:text-5xl lg:text-6xl !text-white tracking-tight">{t('bigcta.title')}</h2>
         <div class="mt-10 flex flex-wrap gap-3">
