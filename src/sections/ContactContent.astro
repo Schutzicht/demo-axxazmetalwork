@@ -51,20 +51,35 @@ const t = useTranslations(lang);
         </div>
       </div>
 
-      <div class="mt-6 rounded-xl overflow-hidden bg-[var(--color-axxaz-mist)] aspect-[16/8] relative border border-[var(--color-line)]">
-        <svg viewBox="0 0 600 300" class="w-full h-full">
-          <rect width="600" height="300" fill="#EEF2FA"/>
-          <path d="M0 200 Q150 150 300 180 T600 170 V300 H0 Z" fill="#DCE5F2"/>
-          <path d="M0 200 Q150 150 300 180 T600 170" stroke="#1A2C5C" stroke-width="1" fill="none" opacity="0.2"/>
-          <path d="M100 100 L160 80 L200 110 L180 160 L120 150 Z" fill="#1A2C5C" opacity="0.12"/>
-          <path d="M380 90 L450 100 L470 150 L420 170 Z" fill="#1A2C5C" opacity="0.12"/>
-          <circle cx="160" cy="130" r="8" fill="#E85D1F"/>
-          <circle cx="160" cy="130" r="16" fill="#E85D1F" opacity="0.25"/>
-          <text x="180" y="135" font-family="Manrope" font-size="13" fill="#1A2C5C" font-weight="700">Willemstad</text>
-          <circle cx="430" cy="130" r="8" fill="#1A2C5C"/>
-          <circle cx="430" cy="130" r="16" fill="#1A2C5C" opacity="0.25"/>
-          <text x="450" y="135" font-family="Manrope" font-size="13" fill="#1A2C5C" font-weight="700">Tholen</text>
-        </svg>
+      <div class="mt-6 rounded-xl overflow-hidden bg-[var(--color-axxaz-mist)] relative border border-[var(--color-line)]">
+        <iframe
+          src="https://www.openstreetmap.org/export/embed.html?bbox=4.10%2C51.48%2C4.55%2C51.74&amp;layer=mapnik"
+          class="block w-full aspect-[16/8] border-0"
+          title="Kaart met Willemstad (hoofdkantoor) en Tholen (vak- en lastestcentrum)"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+        <div class="absolute top-3 left-3 bg-white/95 backdrop-blur rounded-lg shadow-md text-xs leading-tight px-3 py-2.5 border border-[var(--color-line)] max-w-[14rem]">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[var(--color-spark)] flex-shrink-0"></span>
+            <span class="font-semibold">Willemstad</span>
+            <span class="text-[var(--color-ink-mute)] text-[11px]">HQ</span>
+          </div>
+          <div class="flex items-center gap-2 mt-1.5">
+            <span class="w-2 h-2 rounded-full bg-[var(--color-axxaz-navy)] flex-shrink-0"></span>
+            <span class="font-semibold">Tholen</span>
+            <span class="text-[var(--color-ink-mute)] text-[11px]">testcentrum</span>
+          </div>
+          <div class="mt-2 pt-2 border-t border-[var(--color-line)] text-[var(--color-ink-mute)] font-mono text-[11px]">~26 km · 30 min</div>
+        </div>
+        <a
+          href="https://www.openstreetmap.org/directions?from=Raadhuisstraat%202%2C%204797%20AX%20Willemstad&to=Ambachtsweg%207%2C%204691%20SB%20Tholen"
+          target="_blank"
+          rel="noopener"
+          class="absolute bottom-3 right-3 bg-white/95 backdrop-blur rounded-lg shadow-md text-xs font-semibold px-3 py-2 border border-[var(--color-line)] hover:border-[var(--color-axxaz-navy)] transition-colors inline-flex items-center gap-1.5"
+        >
+          Route plannen <Icon name="arrow-up-right" size={12} stroke={2.25} />
+        </a>
       </div>
     </div>
 
