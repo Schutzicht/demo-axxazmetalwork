@@ -66,7 +66,7 @@ const nl = {
 
   // Stats
   'stats.kicker': 'In cijfers',
-  'stats.title': 'Sinds 2004, een gevestigd metaal-begrip',
+  'stats.title': 'In cijfers',
   'stats.years': 'Jaar in de metaal',
   'stats.offices': 'Eigen vestigingen',
   'stats.tested': 'Kandidaten getest',
@@ -75,7 +75,7 @@ const nl = {
 
   // Services 3-card
   'services.kicker': 'Diensten',
-  'services.title': 'Van uitzenden tot detacheren, wat past bij jou?',
+  'services.title': 'Wat past bij jou?',
   'services.all': 'Alle diensten',
   'services.uitzenden.title': 'Uitzenden',
   'services.uitzenden.i1': 'Contract: flexibel in uren en duur',
@@ -92,7 +92,7 @@ const nl = {
 
   // Vakgebieden
   'vak.kicker': 'Vakgebieden',
-  'vak.title': 'Werk dat hier start, kies je vakgebied',
+  'vak.title': 'Kies je vakgebied',
   'vak.count': '{n} vacatures',
   'vak.lassenMigMag': 'MIG/MAG-lassen',
   'vak.lassenTig': 'TIG-lassen',
@@ -148,18 +148,18 @@ const nl = {
   'blog.all': 'Bekijk alle blogs',
 
   // Cert strip
-  'certstrip.title': 'Gecertificeerd & geborgd',
+  'certstrip.title': 'Gecertificeerd',
   'certstrip.all': 'Alle certificaten',
 
   // Big CTA
   'bigcta.kicker': 'Werken met AXXAZ',
-  'bigcta.title': 'Sinds 2004 uw partner in vakbekwame metaal medewerkers',
+  'bigcta.title': 'Werken met AXXAZ?',
 
   // Trust + Cases
   'trust.kicker': 'Onze klanten',
   'trust.title': 'Voor wie wij werken',
   'cases.kicker': 'Cases',
-  'cases.title': 'Echte verhalen, echte resultaten',
+  'cases.title': 'Cases',
   'cases.sub': 'Selectie van onze partnerships, wat we leverden en hoe het uitpakte.',
   'cases.metrics': 'In cijfers',
   'cases.story': 'Het verhaal',
@@ -522,7 +522,7 @@ const en: Record<keyof typeof nl, string> = {
   'duo.personeel.cta': 'Our services',
 
   'stats.kicker': 'In numbers',
-  'stats.title': 'Since 2004, an established name in metal',
+  'stats.title': 'In numbers',
   'stats.years': 'Years in metal',
   'stats.offices': 'Own offices',
   'stats.tested': 'Candidates tested',
@@ -530,7 +530,7 @@ const en: Record<keyof typeof nl, string> = {
   'stats.placementUnit': 'days',
 
   'services.kicker': 'Services',
-  'services.title': 'From staffing to secondment, what suits you?',
+  'services.title': 'What suits you?',
   'services.all': 'All services',
   'services.uitzenden.title': 'Staffing',
   'services.uitzenden.i1': 'Contract: flexible in hours and duration',
@@ -546,7 +546,7 @@ const en: Record<keyof typeof nl, string> = {
   'services.detachering.i3': 'Worker cannot leave at will',
 
   'vak.kicker': 'Disciplines',
-  'vak.title': 'Work that starts here, pick your discipline',
+  'vak.title': 'Pick your discipline',
   'vak.count': '{n} vacancies',
   'vak.lassenMigMag': 'MIG/MAG welding',
   'vak.lassenTig': 'TIG welding',
@@ -595,16 +595,16 @@ const en: Record<keyof typeof nl, string> = {
   'blog.title': 'Our latest stories',
   'blog.all': 'View all blogs',
 
-  'certstrip.title': 'Certified & secured',
+  'certstrip.title': 'Certified',
   'certstrip.all': 'All certificates',
 
   'bigcta.kicker': 'Working with AXXAZ',
-  'bigcta.title': 'Your partner in skilled metal professionals, since 2004',
+  'bigcta.title': 'Working with AXXAZ?',
 
   'trust.kicker': 'Our clients',
   'trust.title': 'Who we work for',
   'cases.kicker': 'Cases',
-  'cases.title': 'Real stories, real results',
+  'cases.title': 'Cases',
   'cases.sub': 'A selection of our partnerships, what we delivered and how it played out.',
   'cases.metrics': 'In numbers',
   'cases.story': 'The story',
@@ -951,7 +951,7 @@ const tl: Record<keyof typeof nl, string> = {
   'duo.personeel.cta': 'Aming mga serbisyo',
 
   'stats.kicker': 'Sa numero',
-  'stats.title': 'Mula 2004, established sa metal',
+  'stats.title': 'Sa numero',
   'stats.years': 'Taon sa metal',
   'stats.offices': 'Sariling tanggapan',
   'stats.tested': 'Kandidatong nasubok',
@@ -959,7 +959,7 @@ const tl: Record<keyof typeof nl, string> = {
   'stats.placementUnit': 'araw',
 
   'services.kicker': 'Mga serbisyo',
-  'services.title': 'Mula staffing hanggang secondment, alin ang akma sa iyo?',
+  'services.title': 'Alin ang akma sa iyo?',
   'services.all': 'Lahat ng serbisyo',
   'services.uitzenden.title': 'Staffing',
   'services.uitzenden.i1': 'Kontrata: flexible sa oras at tagal',
@@ -975,7 +975,7 @@ const tl: Record<keyof typeof nl, string> = {
   'services.detachering.i3': 'Hindi basta-bastang aalis ang manggagawa',
 
   'vak.kicker': 'Mga vakgebied',
-  'vak.title': 'Trabaho na nagsisimula dito, pumili ng iyong vakgebied',
+  'vak.title': 'Pumili ng vakgebied',
   'vak.count': '{n} na trabaho',
   'vak.lassenMigMag': 'MIG/MAG welding',
   'vak.lassenTig': 'TIG welding',
@@ -1024,16 +1024,16 @@ const tl: Record<keyof typeof nl, string> = {
   'blog.title': 'Aming pinakabagong kwento',
   'blog.all': 'Tingnan lahat ng blog',
 
-  'certstrip.title': 'Sertipikado at secured',
+  'certstrip.title': 'Sertipikado',
   'certstrip.all': 'Lahat ng sertipiko',
 
   'bigcta.kicker': 'Pakikipagtulungan sa AXXAZ',
-  'bigcta.title': 'Iyong partner sa bihasang metal pros, mula 2004',
+  'bigcta.title': 'Makipagtulungan sa AXXAZ?',
 
   'trust.kicker': 'Aming mga kliyente',
   'trust.title': 'Para kanino kami nagtatrabaho',
   'cases.kicker': 'Cases',
-  'cases.title': 'Tunay na kwento, tunay na resulta',
+  'cases.title': 'Cases',
   'cases.sub': 'Seleksyon ng aming partnerships.',
   'cases.metrics': 'Sa numero',
   'cases.story': 'Ang kwento',
@@ -1380,7 +1380,7 @@ const de: Record<keyof typeof nl, string> = {
   'duo.personeel.cta': 'Unsere Dienstleistungen',
 
   'stats.kicker': 'In Zahlen',
-  'stats.title': 'Seit 2004, ein etablierter Begriff im Metall',
+  'stats.title': 'In Zahlen',
   'stats.years': 'Jahre im Metall',
   'stats.offices': 'Eigene Niederlassungen',
   'stats.tested': 'Kandidaten getestet',
@@ -1388,7 +1388,7 @@ const de: Record<keyof typeof nl, string> = {
   'stats.placementUnit': 'Tage',
 
   'services.kicker': 'Dienstleistungen',
-  'services.title': 'Von Zeitarbeit bis Entsendung, was passt?',
+  'services.title': 'Was passt?',
   'services.all': 'Alle Dienste',
   'services.uitzenden.title': 'Zeitarbeit',
   'services.uitzenden.i1': 'Vertrag: flexibel in Stunden und Dauer',
@@ -1404,7 +1404,7 @@ const de: Record<keyof typeof nl, string> = {
   'services.detachering.i3': 'Mitarbeiter kann nicht einfach kündigen',
 
   'vak.kicker': 'Fachgebiete',
-  'vak.title': 'Arbeit beginnt hier, wählen Sie Ihr Fachgebiet',
+  'vak.title': 'Wählen Sie Ihr Fachgebiet',
   'vak.count': '{n} Stellen',
   'vak.lassenMigMag': 'MIG/MAG-Schweißen',
   'vak.lassenTig': 'TIG-Schweißen',
@@ -1453,16 +1453,16 @@ const de: Record<keyof typeof nl, string> = {
   'blog.title': 'Unsere neuesten Geschichten',
   'blog.all': 'Alle Blogs ansehen',
 
-  'certstrip.title': 'Zertifiziert & geprüft',
+  'certstrip.title': 'Zertifiziert',
   'certstrip.all': 'Alle Zertifikate',
 
   'bigcta.kicker': 'Mit AXXAZ arbeiten',
-  'bigcta.title': 'Ihr Partner für qualifizierte Metall-Fachkräfte, seit 2004',
+  'bigcta.title': 'Mit AXXAZ arbeiten?',
 
   'trust.kicker': 'Unsere Kunden',
   'trust.title': 'Für wen wir arbeiten',
   'cases.kicker': 'Cases',
-  'cases.title': 'Echte Geschichten, echte Ergebnisse',
+  'cases.title': 'Cases',
   'cases.sub': 'Auswahl unserer Partnerschaften.',
   'cases.metrics': 'In Zahlen',
   'cases.story': 'Die Geschichte',
@@ -1809,7 +1809,7 @@ const pl: Record<keyof typeof nl, string> = {
   'duo.personeel.cta': 'Nasze usługi',
 
   'stats.kicker': 'W liczbach',
-  'stats.title': 'Od 2004, uznana marka w metalu',
+  'stats.title': 'W liczbach',
   'stats.years': 'Lat w metalu',
   'stats.offices': 'Własnych biur',
   'stats.tested': 'Kandydatów przetestowanych',
@@ -1817,7 +1817,7 @@ const pl: Record<keyof typeof nl, string> = {
   'stats.placementUnit': 'dni',
 
   'services.kicker': 'Usługi',
-  'services.title': 'Od pracy tymczasowej do oddelegowania, co Ci pasuje?',
+  'services.title': 'Co Ci pasuje?',
   'services.all': 'Wszystkie usługi',
   'services.uitzenden.title': 'Praca tymczasowa',
   'services.uitzenden.i1': 'Umowa: elastyczna w godzinach i czasie',
@@ -1833,7 +1833,7 @@ const pl: Record<keyof typeof nl, string> = {
   'services.detachering.i3': 'Pracownik nie może łatwo odejść',
 
   'vak.kicker': 'Specjalności',
-  'vak.title': 'Praca zaczyna się tutaj, wybierz specjalność',
+  'vak.title': 'Wybierz specjalność',
   'vak.count': '{n} ofert',
   'vak.lassenMigMag': 'Spawanie MIG/MAG',
   'vak.lassenTig': 'Spawanie TIG',
@@ -1882,16 +1882,16 @@ const pl: Record<keyof typeof nl, string> = {
   'blog.title': 'Nasze najnowsze historie',
   'blog.all': 'Zobacz wszystkie blogi',
 
-  'certstrip.title': 'Certyfikowane i sprawdzone',
+  'certstrip.title': 'Certyfikowane',
   'certstrip.all': 'Wszystkie certyfikaty',
 
   'bigcta.kicker': 'Praca z AXXAZ',
-  'bigcta.title': 'Twój partner w wykwalifikowanych fachowcach metalu, od 2004',
+  'bigcta.title': 'Praca z AXXAZ?',
 
   'trust.kicker': 'Nasi klienci',
   'trust.title': 'Dla kogo pracujemy',
   'cases.kicker': 'Cases',
-  'cases.title': 'Prawdziwe historie, prawdziwe wyniki',
+  'cases.title': 'Cases',
   'cases.sub': 'Wybór naszych partnerstw.',
   'cases.metrics': 'W liczbach',
   'cases.story': 'Historia',
