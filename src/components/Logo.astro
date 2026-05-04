@@ -1,11 +1,14 @@
 ---
-interface Props { variant?: 'light' | 'dark'; class?: string; height?: number }
-const { variant = 'dark', class: className = '', height = 32 } = Astro.props;
+import { localizePath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+interface Props { variant?: 'light' | 'dark'; class?: string; height?: number; lang?: Lang; href?: string }
+const { variant = 'dark', class: className = '', height = 32, lang = 'nl' as Lang, href } = Astro.props;
 // natural aspect 1545:340 ~ 4.544
 const width = Math.round(height * 4.544);
+const to = href ?? localizePath(lang, '/home');
 ---
 
-<a href="/" class={`inline-flex items-center ${className}`} aria-label="AXXAZ Metalwork">
+<a href={to} class={`inline-flex items-center ${className}`} aria-label="AXXAZ Metalwork">
   <img
     src="/img/site/axxaz-logo.webp"
     alt="AXXAZ Metalwork"

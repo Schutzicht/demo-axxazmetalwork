@@ -1,0 +1,83 @@
+---
+import { localizePath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const copy: Record<string, { kicker: string; title: string; sub: string; bullets: string[]; cta: string; note: string; auteur: string; }> = {
+  nl: {
+    kicker: 'Demo voor het AXXAZ team',
+    title: 'Je staat op het punt een demo te bekijken.',
+    sub: 'Deze website is gebouwd om te laten zien hoe een moderne, meertalige presentatie van AXXAZ Metalwork eruit kan zien, inclusief een werkend ATS-portaal voor pools, broadcasts en certificaat-bewaking.',
+    bullets: [
+      '30 talen, mobile-first, snelle laadtijden',
+      'Volledig werkend ATS-prototype achter de ATS-knop',
+      'Echte interacties: filters, broadcasts, drag-drop test-planner',
+    ],
+    cta: 'Bekijk de demo',
+    note: 'Alle persoonsgegevens, vacatures en cijfers zijn fictief en dienen alleen ter illustratie. De definitieve site wordt gevuld met echte AXXAZ-content.',
+    auteur: 'Gebouwd door Jorik Schut, vertrouwelijk voor Sem Goddijn en het AXXAZ team.',
+  },
+  en: {
+    kicker: 'Demo for the AXXAZ team',
+    title: 'You are about to view a demo.',
+    sub: 'This website is built to show how a modern, multilingual presentation of AXXAZ Metalwork could look, including a working ATS portal for pools, broadcasts and certificate monitoring.',
+    bullets: [
+      '30 languages, mobile-first, fast load times',
+      'Fully working ATS prototype behind the ATS button',
+      'Real interactions: filters, broadcasts, drag-drop test planner',
+    ],
+    cta: 'View the demo',
+    note: 'All personal data, vacancies and numbers are fictional and only for illustration. The final site will be filled with real AXXAZ content.',
+    auteur: 'Built by Jorik Schut, confidential for Sem Goddijn and the AXXAZ team.',
+  },
+};
+const c = copy[lang] ?? copy.en;
+---
+
+<main class="min-h-[100dvh] flex flex-col bg-[var(--color-paper)] relative overflow-hidden">
+  <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+    <div class="absolute -top-40 -right-40 w-[44rem] h-[44rem] rounded-full bg-[var(--color-spark)]/[0.07] blur-3xl"></div>
+    <div class="absolute -bottom-48 -left-48 w-[40rem] h-[40rem] rounded-full bg-[var(--color-axxaz-blue)]/[0.09] blur-3xl"></div>
+  </div>
+
+  <div class="relative z-10 container-x flex-grow flex flex-col justify-center py-14 sm:py-20">
+    <div class="max-w-3xl">
+      <div class="inline-flex items-center gap-2 rounded-full bg-[var(--color-spark)]/10 border border-[var(--color-spark)]/30 px-3 py-1 mb-7">
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)] animate-pulse"></span>
+        <span class="text-[11px] font-bold tracking-[0.16em] uppercase text-[var(--color-spark-deep)]">{c.kicker}</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.04em] leading-[1.02]">
+        {c.title}
+      </h1>
+      <p class="mt-7 text-base md:text-lg text-[var(--color-ink-soft)] leading-relaxed max-w-2xl">{c.sub}</p>
+
+      <ul class="mt-9 space-y-3.5 max-w-xl">
+        {c.bullets.map(b => (
+          <li class="flex gap-3 items-start text-[var(--color-ink)]">
+            <span class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-spark)]/12 text-[var(--color-spark-deep)] inline-flex items-center justify-center"><Icon name="check" size={14} stroke={2.5} /></span>
+            <span class="leading-relaxed">{b}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div class="mt-11 flex flex-wrap items-center gap-4">
+        <a href={localizePath(lang, '/home')} class="btn btn-spark btn-lg">
+          {c.cta}
+          <Icon name="arrow-right" size={16} stroke={2.5} />
+        </a>
+        <span class="text-xs text-[var(--color-ink-mute)]">geen registratie nodig</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative z-10 border-t border-[var(--color-line)]">
+    <div class="container-x py-6 flex flex-col sm:flex-row gap-3 sm:gap-6 sm:items-center text-xs text-[var(--color-ink-soft)]">
+      <p class="leading-relaxed max-w-3xl">{c.note}</p>
+      <p class="sm:ml-auto sm:text-right text-[var(--color-ink-mute)] flex-shrink-0">{c.auteur}</p>
+    </div>
+  </div>
+</main>

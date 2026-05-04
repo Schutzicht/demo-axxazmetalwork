@@ -1,0 +1,48 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import HomeContent from '../../sections/HomeContent.astro';
+import { ui, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return (Object.keys(ui) as Lang[])
+    .filter(l => l !== 'nl')
+    .map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const titles: Partial<Record<Lang, string>> = {
+  nl: 'Vakbekwame metaalmensen, wereldwijd gesourced',
+  en: 'Skilled metal professionals, sourced worldwide',
+  tl: 'Bihasang metal workers, na-source globally',
+  de: 'Qualifizierte Metall-Profis, weltweit gesourced',
+  pl: 'Wykwalifikowani fachowcy metalu, sourcowani globalnie',
+  fr: 'Métallurgistes qualifiés, recrutés dans le monde entier',
+  es: 'Profesionales del metal, contratados en todo el mundo',
+  it: 'Metalmeccanici qualificati, reclutati in tutto il mondo',
+  pt: 'Profissionais do metal, recrutados em todo o mundo',
+  ro: 'Specialiști calificați în metal, recrutați la nivel mondial',
+  hu: 'Szakképzett fémmunkások, világszerte toborozva',
+  cs: 'Kvalifikovaní kovodělníci, získaní z celého světa',
+  sk: 'Kvalifikovaní kovorobotníci, získaní z celého sveta',
+  uk: 'Кваліфіковані металісти, із усього світу',
+  bg: 'Квалифицирани металисти от целия свят',
+  hr: 'Kvalificirani metalci, regrutirani diljem svijeta',
+  el: 'Εξειδικευμένοι μεταλλουργοί, από όλον τον κόσμο',
+  lt: 'Kvalifikuoti metalo specialistai iš viso pasaulio',
+  lv: 'Kvalificēti metāla speciālisti no visas pasaules',
+  et: 'Kvalifitseeritud metallitööstuse spetsialistid kogu maailmast',
+  sl: 'Kvalificirani kovinarji iz vsega sveta',
+  da: 'Kvalificerede metalfagfolk, rekrutteret verden over',
+  sv: 'Kvalificerade metallarbetare, rekryterade världen över',
+  no: 'Kvalifiserte metallfagfolk, rekruttert verden over',
+  fi: 'Päteviä metallialan ammattilaisia maailmanlaajuisesti',
+  tr: 'Kalifiye metal ustaları, dünya genelinden tedarik',
+  vi: 'Thợ kim loại lành nghề tuyển trên toàn thế giới',
+  id: 'Pekerja logam terampil dari seluruh dunia',
+  hi: 'दुनिया भर से कुशल धातु कारीगर',
+  bn: 'বিশ্বজুড়ে দক্ষ ধাতু কর্মী',
+};
+---
+<Layout title={titles[lang] ?? titles.en ?? ''}>
+  <HomeContent lang={lang} />
+</Layout>
