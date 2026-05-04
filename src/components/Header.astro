@@ -184,13 +184,20 @@ const navTree: Array<
       }
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
+    if (!(window as any).__headerScrollBound) {
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      (window as any).__headerScrollBound = true;
+    }
     update();
 
-    btn?.addEventListener('click', () => {
-      menu?.classList.toggle('hidden');
-    });
+    if (btn && !btn.dataset.bound) {
+      btn.dataset.bound = 'true';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu?.classList.toggle('hidden');
+      });
+    }
   }
 
   if (document.readyState !== 'loading') initHeader();
