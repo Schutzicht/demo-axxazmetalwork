@@ -46,6 +46,12 @@ const navItems = [
         <Icon name="phone" size={14} stroke={2.25} />
         <span class="hidden xl:inline">{site.phoneOfficeShort}</span>
       </a>
+      <a href={localizePath(lang, '/ats')}
+         class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold tracking-[0.12em] uppercase text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] hover:bg-[var(--color-spark)]/8 transition-colors"
+         title="Applicant Tracking System (demo)">
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)]"></span>
+        ATS
+      </a>
       <LangSwitcher currentLang={lang} currentPath={currentPath} />
       <a href={localizePath(lang, '/contact')}
          class="hidden sm:inline-flex btn btn-primary btn-sm">
