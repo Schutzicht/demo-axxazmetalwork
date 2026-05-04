@@ -1,83 +1,144 @@
 ---
 import { localizePath } from '../i18n/utils';
 import type { Lang } from '../i18n/ui';
+import Logo from '../components/Logo.astro';
 import Icon from '../components/Icon.astro';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 
-const copy: Record<string, { kicker: string; title: string; sub: string; bullets: string[]; cta: string; note: string; auteur: string; }> = {
+const copy: Record<string, { kicker: string; titleA: string; titleB: string; titleC: string; sub: string; bullets: string[]; cta: string; secondary: string; note: string; auteur: string; preview: string; }> = {
   nl: {
-    kicker: 'Demo voor het AXXAZ team',
-    title: 'Je staat op het punt een demo te bekijken.',
-    sub: 'Deze website is gebouwd om te laten zien hoe een moderne, meertalige presentatie van AXXAZ Metalwork eruit kan zien, inclusief een werkend ATS-portaal voor pools, broadcasts en certificaat-bewaking.',
+    kicker: 'Vertrouwelijk · voor het AXXAZ team',
+    titleA: 'Je staat op het punt een',
+    titleB: 'demo',
+    titleC: 'te bekijken.',
+    sub: 'Een moderne, meertalige presentatie van AXXAZ Metalwork, inclusief een werkend ATS-prototype. Klik door om de site te ervaren zoals een bezoeker dat zou doen.',
     bullets: [
-      '30 talen, mobile-first, snelle laadtijden',
-      'Volledig werkend ATS-prototype achter de ATS-knop',
-      'Echte interacties: filters, broadcasts, drag-drop test-planner',
+      '30 talen sitewide',
+      'Werkend ATS-portaal achter de ATS-knop',
+      'Mobile-first, geoptimaliseerd voor snelle laadtijden',
     ],
     cta: 'Bekijk de demo',
-    note: 'Alle persoonsgegevens, vacatures en cijfers zijn fictief en dienen alleen ter illustratie. De definitieve site wordt gevuld met echte AXXAZ-content.',
-    auteur: 'Gebouwd door Jorik Schut, vertrouwelijk voor Sem Goddijn en het AXXAZ team.',
+    secondary: 'Direct naar het ATS',
+    note: 'Alle persoonsgegevens, vacatures en cijfers in deze demo zijn fictief en dienen alleen ter illustratie.',
+    auteur: 'Gebouwd door Jorik Schut · vertrouwelijk voor Sem Goddijn',
+    preview: 'voorvertoning',
   },
   en: {
-    kicker: 'Demo for the AXXAZ team',
-    title: 'You are about to view a demo.',
-    sub: 'This website is built to show how a modern, multilingual presentation of AXXAZ Metalwork could look, including a working ATS portal for pools, broadcasts and certificate monitoring.',
+    kicker: 'Confidential · for the AXXAZ team',
+    titleA: 'You are about to view a',
+    titleB: 'demo',
+    titleC: '',
+    sub: 'A modern, multilingual presentation of AXXAZ Metalwork, including a working ATS prototype. Click through to experience the site as a visitor would.',
     bullets: [
-      '30 languages, mobile-first, fast load times',
-      'Fully working ATS prototype behind the ATS button',
-      'Real interactions: filters, broadcasts, drag-drop test planner',
+      '30 languages site-wide',
+      'Working ATS portal behind the ATS button',
+      'Mobile-first, optimised for fast load times',
     ],
     cta: 'View the demo',
-    note: 'All personal data, vacancies and numbers are fictional and only for illustration. The final site will be filled with real AXXAZ content.',
-    auteur: 'Built by Jorik Schut, confidential for Sem Goddijn and the AXXAZ team.',
+    secondary: 'Straight to the ATS',
+    note: 'All personal data, vacancies and figures in this demo are fictional and for illustration only.',
+    auteur: 'Built by Jorik Schut · confidential for Sem Goddijn',
+    preview: 'preview',
   },
 };
 const c = copy[lang] ?? copy.en;
 ---
 
-<main class="min-h-[100dvh] flex flex-col bg-[var(--color-paper)] relative overflow-hidden">
+<main class="intro-page min-h-[100dvh] flex flex-col bg-[var(--color-paper)] relative overflow-hidden">
+  <!-- decorative orbs -->
   <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
-    <div class="absolute -top-40 -right-40 w-[44rem] h-[44rem] rounded-full bg-[var(--color-spark)]/[0.07] blur-3xl"></div>
-    <div class="absolute -bottom-48 -left-48 w-[40rem] h-[40rem] rounded-full bg-[var(--color-axxaz-blue)]/[0.09] blur-3xl"></div>
+    <div class="absolute -top-32 -right-32 w-[44rem] h-[44rem] rounded-full bg-[var(--color-spark)]/[0.07] blur-3xl"></div>
+    <div class="absolute -bottom-48 -left-40 w-[40rem] h-[40rem] rounded-full bg-[var(--color-axxaz-blue)]/[0.10] blur-3xl"></div>
   </div>
 
-  <div class="relative z-10 container-x flex-grow flex flex-col justify-center py-14 sm:py-20">
-    <div class="max-w-3xl">
-      <div class="inline-flex items-center gap-2 rounded-full bg-[var(--color-spark)]/10 border border-[var(--color-spark)]/30 px-3 py-1 mb-7">
-        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)] animate-pulse"></span>
-        <span class="text-[11px] font-bold tracking-[0.16em] uppercase text-[var(--color-spark-deep)]">{c.kicker}</span>
+  <!-- top bar with logo + kicker chip -->
+  <header class="relative z-10 container-x pt-7 sm:pt-9 flex items-center justify-between gap-4">
+    <Logo height={28} lang={lang} href={lang === 'nl' ? '/' : `/${lang}/`} />
+    <div class="hidden sm:inline-flex items-center gap-2 rounded-full bg-white border border-[var(--color-line)] px-3 py-1 shadow-sm">
+      <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)] animate-pulse"></span>
+      <span class="text-[10px] font-bold tracking-[0.16em] uppercase text-[var(--color-spark-deep)]">{c.kicker}</span>
+    </div>
+  </header>
+
+  <!-- main grid -->
+  <div class="relative z-10 container-x flex-grow flex items-center py-10 sm:py-14 md:py-20">
+    <div class="grid lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-20 items-center w-full">
+      <!-- LEFT: content -->
+      <div>
+        <div class="sm:hidden inline-flex items-center gap-2 rounded-full bg-white border border-[var(--color-line)] px-3 py-1 mb-6 shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)] animate-pulse"></span>
+          <span class="text-[10px] font-bold tracking-[0.16em] uppercase text-[var(--color-spark-deep)]">{c.kicker}</span>
+        </div>
+
+        <h1 class="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-7xl text-[var(--color-ink)] leading-[0.98] tracking-[-0.04em] font-extrabold">
+          {c.titleA}
+          {' '}<span class="text-gradient-spark">{c.titleB}</span>
+          {c.titleC && <> {c.titleC}</>}
+        </h1>
+
+        <p class="mt-7 text-base md:text-lg text-[var(--color-ink-soft)] leading-relaxed max-w-xl">{c.sub}</p>
+
+        <ul class="mt-9 space-y-3.5 max-w-xl">
+          {c.bullets.map(b => (
+            <li class="flex gap-3 items-start text-[var(--color-ink)]">
+              <span class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-spark)]/12 text-[var(--color-spark-deep)] inline-flex items-center justify-center"><Icon name="check" size={14} stroke={2.5} /></span>
+              <span class="leading-relaxed">{b}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div class="mt-11 flex flex-wrap items-center gap-3">
+          <a href={localizePath(lang, '/home')} class="btn btn-primary btn-lg">
+            {c.cta}
+            <Icon name="arrow-right" size={16} stroke={2.5} />
+          </a>
+          <a href={localizePath(lang, '/ats')} class="btn btn-ghost">
+            {c.secondary}
+            <Icon name="arrow-up-right" size={14} stroke={2.25} />
+          </a>
+        </div>
       </div>
 
-      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.04em] leading-[1.02]">
-        {c.title}
-      </h1>
-      <p class="mt-7 text-base md:text-lg text-[var(--color-ink-soft)] leading-relaxed max-w-2xl">{c.sub}</p>
+      <!-- RIGHT: stylised preview frame met workshop foto -->
+      <aside class="relative hidden lg:block">
+        <!-- stack of cards -->
+        <div class="absolute -inset-6 rounded-3xl bg-gradient-to-br from-[var(--color-spark)]/10 via-transparent to-[var(--color-axxaz-blue)]/15 blur-2xl pointer-events-none"></div>
 
-      <ul class="mt-9 space-y-3.5 max-w-xl">
-        {c.bullets.map(b => (
-          <li class="flex gap-3 items-start text-[var(--color-ink)]">
-            <span class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-spark)]/12 text-[var(--color-spark-deep)] inline-flex items-center justify-center"><Icon name="check" size={14} stroke={2.5} /></span>
-            <span class="leading-relaxed">{b}</span>
-          </li>
-        ))}
-      </ul>
+        <!-- back navy block (depth) -->
+        <div class="absolute top-8 -right-4 w-[88%] h-[88%] rounded-2xl bg-[var(--color-axxaz-navy-deep)] opacity-90"></div>
 
-      <div class="mt-11 flex flex-wrap items-center gap-4">
-        <a href={localizePath(lang, '/home')} class="btn btn-spark btn-lg">
-          {c.cta}
-          <Icon name="arrow-right" size={16} stroke={2.5} />
-        </a>
-        <span class="text-xs text-[var(--color-ink-mute)]">geen registratie nodig</span>
-      </div>
+        <!-- main image card -->
+        <div class="relative rounded-2xl overflow-hidden shadow-[0_30px_70px_-20px_rgba(14,26,61,0.35)] border border-white">
+          <img src="/img/site/welding-1.webp" alt="" class="w-full aspect-[4/5] object-cover" loading="eager" fetchpriority="high" decoding="async" width="800" height="1000" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[var(--color-axxaz-navy-deep)]/80 via-[var(--color-axxaz-navy-deep)]/20 to-transparent"></div>
+
+          <!-- top-left preview chip -->
+          <div class="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/95 backdrop-blur px-3 py-1 shadow-md">
+            <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)]"></span>
+            <span class="text-[10px] font-bold tracking-[0.18em] uppercase text-[var(--color-axxaz-navy)]">{c.preview}</span>
+          </div>
+
+          <!-- bottom info card -->
+          <div class="absolute left-4 right-4 bottom-4 rounded-xl bg-white/95 backdrop-blur p-4 border border-white/50 shadow-lg">
+            <div class="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-spark-deep)]">AXXAZ Metalwork</div>
+            <div class="mt-1 font-semibold text-[var(--color-ink)] leading-tight">Sinds 2004 metaal &amp; techniek specialist</div>
+            <div class="mt-3 pt-3 border-t border-[var(--color-line)] flex items-center justify-between text-xs">
+              <span class="text-[var(--color-ink-mute)] font-mono">22+ jaar · 15 vestigingen</span>
+              <span class="inline-flex items-center gap-1 text-[var(--color-spark-deep)] font-semibold">10 EU + 5 AZ <Icon name="arrow-right" size={12} stroke={2.5} /></span>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
 
-  <div class="relative z-10 border-t border-[var(--color-line)]">
-    <div class="container-x py-6 flex flex-col sm:flex-row gap-3 sm:gap-6 sm:items-center text-xs text-[var(--color-ink-soft)]">
+  <!-- footer line -->
+  <footer class="relative z-10 border-t border-[var(--color-line)] bg-white/40 backdrop-blur">
+    <div class="container-x py-5 flex flex-col sm:flex-row gap-2 sm:gap-6 sm:items-center text-xs text-[var(--color-ink-soft)]">
       <p class="leading-relaxed max-w-3xl">{c.note}</p>
       <p class="sm:ml-auto sm:text-right text-[var(--color-ink-mute)] flex-shrink-0">{c.auteur}</p>
     </div>
-  </div>
+  </footer>
 </main>
