@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import VacatureDetail from '../../sections/VacatureDetail.astro';
+import { vacancies } from '../../data/site';
+
+export function getStaticPaths() {
+  return vacancies.map(v => ({ params: { slug: v.slug }, props: { title: v.title } }));
+}
+const { slug } = Astro.params;
+const { title } = Astro.props;
+---
+<Layout title={title}>
+  <VacatureDetail lang="nl" slug={slug!} />
+</Layout>

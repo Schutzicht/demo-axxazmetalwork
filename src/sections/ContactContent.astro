@@ -1,0 +1,93 @@
+---
+import { useTranslations } from '../i18n/utils';
+import { site } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+<PageHero
+  kicker={t('ct.kicker')}
+  title={t('ct.title')}
+  sub={t('ct.sub')}
+/>
+
+<section class="section-tight">
+  <div class="container-x grid lg:grid-cols-[1.2fr_1fr] gap-10">
+    <div>
+      <div class="grid sm:grid-cols-2 gap-5">
+        <div class="card p-7">
+          <div class="eyebrow">{t('ct.hq')}</div>
+          <h3 class="mt-3 text-lg">{site.hq.name}</h3>
+          <p class="mt-4 text-sm leading-relaxed">{site.hq.street}<br />{site.hq.city}<br />{site.hq.country}</p>
+          <p class="mt-3 text-xs text-[var(--color-ink-mute)] inline-flex items-center gap-1.5"><Icon name="clock" size={12} stroke={2} />{site.hours}</p>
+          <a href={`tel:${site.phoneOffice.replace(/\s/g,'')}`} class="block mt-5 text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold text-base">{site.phoneOffice}</a>
+          <a href={`mailto:${site.email}`} class="block text-sm text-[var(--color-axxaz-navy)] hover:text-[var(--color-spark)] mt-1 break-all">{site.email}</a>
+        </div>
+        <div class="card p-7">
+          <div class="eyebrow">{t('ct.tc')}</div>
+          <h3 class="mt-3 text-lg">{site.testcenter.name}</h3>
+          <p class="mt-4 text-sm leading-relaxed">{site.testcenter.street}<br />{site.testcenter.city}<br />{site.testcenter.country}</p>
+          <p class="mt-3 text-xs text-[var(--color-ink-mute)]">{t('ct.tcOnAfspraak')}</p>
+          <a href={`tel:${site.phoneOffice.replace(/\s/g,'')}`} class="block mt-5 text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold text-base">{site.phoneOffice}</a>
+        </div>
+      </div>
+
+      <div class="mt-6 card p-7 bg-[var(--color-axxaz-mist)]/40 border-[var(--color-axxaz-mist-deep)]">
+        <h3 class="text-lg">{t('ct.afterHrs.title')}</h3>
+        <p class="mt-2 text-sm">{t('ct.afterHrs.sub')}</p>
+        <div class="mt-6 grid sm:grid-cols-2 gap-3">
+          <a href={`tel:${site.phoneSem.replace(/\s/g,'')}`} class="flex items-center gap-3 bg-white border border-[var(--color-line)] rounded-lg p-4 hover:border-[var(--color-axxaz-navy)] transition-colors">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-axxaz-mist)] text-[var(--color-axxaz-navy)] inline-flex items-center justify-center font-bold text-sm">SG</div>
+            <div><div class="font-semibold leading-tight">Sem Goddijn</div><div class="text-sm text-[var(--color-ink-soft)] mt-0.5">{site.phoneSem}</div></div>
+          </a>
+          <a href={`tel:${site.phoneRody.replace(/\s/g,'')}`} class="flex items-center gap-3 bg-white border border-[var(--color-line)] rounded-lg p-4 hover:border-[var(--color-axxaz-navy)] transition-colors">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-axxaz-mist)] text-[var(--color-axxaz-navy)] inline-flex items-center justify-center font-bold text-sm">RS</div>
+            <div><div class="font-semibold leading-tight">Rody Sinke</div><div class="text-sm text-[var(--color-ink-soft)] mt-0.5">{site.phoneRody}</div></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-xl overflow-hidden bg-[var(--color-axxaz-mist)] aspect-[16/8] relative border border-[var(--color-line)]">
+        <svg viewBox="0 0 600 300" class="w-full h-full">
+          <rect width="600" height="300" fill="#EEF2FA"/>
+          <path d="M0 200 Q150 150 300 180 T600 170 V300 H0 Z" fill="#DCE5F2"/>
+          <path d="M0 200 Q150 150 300 180 T600 170" stroke="#1A2C5C" stroke-width="1" fill="none" opacity="0.2"/>
+          <path d="M100 100 L160 80 L200 110 L180 160 L120 150 Z" fill="#1A2C5C" opacity="0.12"/>
+          <path d="M380 90 L450 100 L470 150 L420 170 Z" fill="#1A2C5C" opacity="0.12"/>
+          <circle cx="160" cy="130" r="8" fill="#E85D1F"/>
+          <circle cx="160" cy="130" r="16" fill="#E85D1F" opacity="0.25"/>
+          <text x="180" y="135" font-family="Manrope" font-size="13" fill="#1A2C5C" font-weight="700">Willemstad</text>
+          <circle cx="430" cy="130" r="8" fill="#1A2C5C"/>
+          <circle cx="430" cy="130" r="16" fill="#1A2C5C" opacity="0.25"/>
+          <text x="450" y="135" font-family="Manrope" font-size="13" fill="#1A2C5C" font-weight="700">Tholen</text>
+        </svg>
+      </div>
+    </div>
+
+    <aside class="card p-8 self-start">
+      <h2 class="text-2xl">{t('ct.form.title')}</h2>
+      <p class="mt-2 text-sm">{t('ct.form.sub')}</p>
+      <form class="mt-7 space-y-4" onsubmit="event.preventDefault();this.querySelector('button').textContent='✓';this.querySelector('button').disabled=true;">
+        <fieldset>
+          <legend class="text-xs uppercase tracking-widest text-[var(--color-ink-mute)] font-bold mb-2.5">{t('ct.form.role')}</legend>
+          <div class="grid grid-cols-3 gap-2">
+            {[t('ct.form.werkgever'), t('ct.form.vakman'), t('ct.form.anders')].map(r => (
+              <label class="cursor-pointer rounded-lg border border-[var(--color-line)] px-3 py-2.5 text-center font-semibold text-xs has-checked:border-[var(--color-axxaz-navy)] has-checked:bg-[var(--color-axxaz-mist)] transition-colors">
+                <input type="radio" name="role" class="sr-only" /> {r}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <input placeholder={t('ct.form.naam')} required class="field" />
+        <input type="email" placeholder={t('ct.form.email')} required class="field" />
+        <input type="tel" placeholder={t('ct.form.tel')} class="field" />
+        <textarea rows="4" placeholder={t('ct.form.bericht')} required class="field"></textarea>
+        <button class="btn btn-primary w-full">{t('ct.form.send')} <Icon name="send" size={14} stroke={2} /></button>
+      </form>
+    </aside>
+  </div>
+</section>

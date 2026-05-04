@@ -1,0 +1,136 @@
+---
+import { useTranslations } from '../i18n/utils';
+import { certifications } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const today = new Date('2026-05-01');
+function daysUntil(d: string) {
+  const target = new Date(d);
+  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+function statusFor(d: string) {
+  const days = daysUntil(d);
+  if (days < 0) return 'expired';
+  if (days <= 14) return 'expiring';
+  return 'ok';
+}
+
+const certRows = certifications.map(c => {
+  const days = daysUntil(c.expires);
+  const status = statusFor(c.expires);
+  const reminderTriggered = (days > 0) && (days <= 14);
+  const which = days <= 3 ? '3' : days <= 7 ? '7' : days <= 14 ? '14' : '–';
+  return { ...c, days, status, reminderTriggered, which };
+});
+---
+<PageHero kicker={t('cert.title')} title={t('cert.title')} sub={t('cert.intro')} />
+
+<section class="section-tight">
+  <div class="container-x">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {certRows.map(c => (
+        <article class={`card p-7 ${c.status === 'expiring' ? '!border-[var(--color-spark)]' : ''}`}>
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="chip font-mono">{c.code}</span>
+              <h3 class="mt-4 text-base">{c.name}</h3>
+            </div>
+            <div class="text-right text-xs">
+              {c.status === 'ok' && <span class="inline-flex items-center gap-1.5 text-green-700"><span class="w-2 h-2 rounded-full bg-green-500"></span>{t('cert.statusOK')}</span>}
+              {c.status === 'expiring' && <span class="inline-flex items-center gap-1.5 text-[var(--color-spark-deep)]"><span class="w-2 h-2 rounded-full bg-[var(--color-spark)]"></span>{t('cert.statusBijna')}</span>}
+              {c.status === 'expired' && <span class="inline-flex items-center gap-1.5 text-red-700"><span class="w-2 h-2 rounded-full bg-red-500"></span>{t('cert.statusVerlopen')}</span>}
+            </div>
+          </div>
+          <p class="mt-4 text-sm leading-relaxed">{c.description}</p>
+          <div class="mt-6 pt-5 border-t border-[var(--color-line)] flex items-center justify-between text-xs">
+            <span class="text-[var(--color-ink-mute)]">{t('cert.geldigTot')}: <strong class="text-[var(--color-ink)]">{c.expires}</strong>{c.status === 'expiring' && <span class="ml-1.5 text-[var(--color-spark-deep)] font-bold">({c.days}d)</span>}</span>
+            <a href={c.pdf} download class="text-[var(--color-spark)] font-semibold hover:text-[var(--color-spark-deep)] inline-flex items-center gap-1">{t('cert.download')} <Icon name="download" size={12} stroke={2.25} /></a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x py-20">
+    <div class="grid lg:grid-cols-[1fr_auto] gap-6 items-end mb-10 flex-wrap">
+      <div class="max-w-2xl">
+        <div class="eyebrow eyebrow-light">{t('cert.adminKicker')}</div>
+        <h2 class="mt-3 !text-white text-3xl md:text-4xl">{t('cert.adminTitle')}</h2>
+        <p class="mt-4 text-white/70 leading-relaxed">{t('cert.adminSub')}</p>
+      </div>
+      <span class="chip chip-dark font-mono whitespace-nowrap">{t('cert.adminBadge')}</span>
+    </div>
+
+    <div class="rounded-xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur">
+      <table class="w-full text-sm">
+        <thead class="bg-white/5">
+          <tr class="text-left text-xs uppercase tracking-widest text-white/50">
+            <th class="px-5 py-4 font-semibold">{t('cert.tbl.cert')}</th>
+            <th class="px-5 py-4 font-semibold hidden sm:table-cell">{t('cert.tbl.until')}</th>
+            <th class="px-5 py-4 font-semibold">{t('cert.tbl.days')}</th>
+            <th class="px-5 py-4 font-semibold">{t('cert.tbl.status')}</th>
+            <th class="px-5 py-4 font-semibold">{t('cert.tbl.reminder')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {certRows.map(c => (
+            <tr class="border-t border-white/10 hover:bg-white/[0.03] transition-colors">
+              <td class="px-5 py-4">
+                <div class="font-bold text-white font-mono text-xs uppercase tracking-wider">{c.code}</div>
+                <div class="text-white/60 text-xs mt-0.5">{c.name}</div>
+              </td>
+              <td class="px-5 py-4 hidden sm:table-cell text-white/80 font-mono">{c.expires}</td>
+              <td class={`px-5 py-4 font-bold font-mono ${c.days <= 14 ? 'text-[var(--color-spark)]' : 'text-white/80'}`}>{c.days}d</td>
+              <td class="px-5 py-4">
+                {c.status === 'ok' && <span class="text-green-400 inline-flex items-center gap-1.5 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>{t('cert.actueel')}</span>}
+                {c.status === 'expiring' && <span class="text-[var(--color-spark)] inline-flex items-center gap-1.5 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)]"></span>{t('cert.verloopt')}</span>}
+                {c.status === 'expired' && <span class="text-red-400 inline-flex items-center gap-1.5 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>{t('cert.verlopen')}</span>}
+              </td>
+              <td class="px-5 py-4">
+                {c.reminderTriggered ? (
+                  <span class="inline-flex items-center gap-2">
+                    <span class="chip-spark chip font-mono">−{c.which}d</span>
+                    <span class="text-white/50 text-xs">{t('cert.verzonden')}</span>
+                  </span>
+                ) : (
+                  <span class="text-white/30 text-xs">-</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-6 grid sm:grid-cols-3 gap-3 text-sm">
+      <div class="rounded-lg bg-white/5 backdrop-blur p-5 border border-white/10">
+        <div class="text-white/50 text-xs uppercase tracking-widest font-semibold">{t('cert.r14.t')}</div>
+        <div class="font-semibold mt-1.5 !text-white">{t('cert.r14.d')}</div>
+      </div>
+      <div class="rounded-lg bg-white/5 backdrop-blur p-5 border border-white/10">
+        <div class="text-white/50 text-xs uppercase tracking-widest font-semibold">{t('cert.r7.t')}</div>
+        <div class="font-semibold mt-1.5 !text-white">{t('cert.r7.d')}</div>
+      </div>
+      <div class="rounded-lg bg-[var(--color-spark)]/15 backdrop-blur p-5 border border-[var(--color-spark)]/40">
+        <div class="text-[var(--color-spark)] text-xs uppercase tracking-widest font-bold">{t('cert.r3.t')}</div>
+        <div class="font-semibold mt-1.5 !text-white">{t('cert.r3.d')}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section text-center">
+  <div class="container-narrow">
+    <div class="eyebrow justify-center">{t('cert.cliKicker')}</div>
+    <h2 class="mt-3 text-3xl">{t('cert.cliTitle')}</h2>
+    <p class="mt-4 max-w-xl mx-auto">{t('cert.cliSub')}</p>
+  </div>
+</section>

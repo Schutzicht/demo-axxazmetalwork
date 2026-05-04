@@ -1,0 +1,75 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import TopBar from '../components/TopBar.astro';
+import FloatingCTA from '../components/FloatingCTA.astro';
+import { getLangFromUrl, alternateLinks } from '../i18n/utils';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title: string;
+  description?: string;
+  hideTopBar?: boolean;
+  bare?: boolean;
+}
+const { title, description = 'AXXAZ Metalwork, sinds 2004 uw partner in vakbekwame metaal medewerkers.', hideTopBar, bare } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const path = Astro.url.pathname;
+const alternates = alternateLinks(lang, path);
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} · AXXAZ Metalwork</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {alternates.map(a => (
+      <link rel="alternate" hreflang={a.lang} href={a.href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={alternates.find(a => a.lang === 'nl')?.href ?? '/'} />
+    <ClientRouter />
+    <script is:inline>
+      // Scroll reveal, Intersection Observer with reduced-motion respect
+      function initReveal() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.querySelectorAll('[data-reveal]').forEach(el => el.dataset.revealed = 'true');
+          return;
+        }
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              e.target.dataset.revealed = 'true';
+              obs.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+        document.querySelectorAll('[data-reveal]:not([data-revealed])').forEach(el => obs.observe(el));
+      }
+      if (document.readyState !== 'loading') initReveal();
+      else document.addEventListener('DOMContentLoaded', initReveal);
+      document.addEventListener('astro:page-load', initReveal);
+    </script>
+  </head>
+  <body>
+    {!bare && (
+      <>
+        {!hideTopBar && <TopBar lang={lang} currentPath={path} />}
+        <Header lang={lang} currentPath={path} />
+      </>
+    )}
+    <main>
+      <slot />
+    </main>
+    {!bare && (
+      <>
+        <Footer lang={lang} />
+        <FloatingCTA lang={lang} />
+      </>
+    )}
+  </body>
+</html>

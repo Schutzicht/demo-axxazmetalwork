@@ -1,0 +1,110 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+import { useTranslations, localizePath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+
+const colWerknemers = [
+  { href: '/vacatures', label: t('nav.vacatures') },
+  { href: '/open-sollicitatie', label: t('cta.openSollicitatie') },
+  { href: '/vak-en-lastestcentrum', label: t('nav.lastest') },
+];
+const colWerkgevers = [
+  { href: '/werkgevers', label: t('nav.werkgevers') },
+  { href: '/sourcing', label: t('nav.sourcing') },
+  { href: '/certificaten', label: t('nav.certificaten') },
+];
+const colBedrijf = [
+  { href: '/wie-wij-zijn', label: t('nav.wieZijnWij') },
+  { href: '/community', label: t('nav.community') },
+  { href: '/contact', label: t('nav.contact') },
+];
+---
+
+<footer class="mt-20 bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="accent-line"></div>
+  <div class="container-x py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-12">
+    <div class="lg:col-span-4 space-y-5">
+      <Logo variant="light" height={32} />
+      <p class="text-white/60 text-sm leading-relaxed max-w-sm">{t('footer.tagline')}</p>
+      <div class="space-y-2 text-sm text-white/70">
+        <div class="flex items-start gap-2.5">
+          <Icon name="building" size={14} class="mt-0.5 flex-shrink-0 text-white/50" stroke={2} />
+          <div>
+            <div class="font-semibold text-white text-xs uppercase tracking-wider">{t('footer.kantoor')}</div>
+            <div class="mt-0.5">{site.hq.street}, {site.hq.city}</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <Icon name="tool" size={14} class="mt-0.5 flex-shrink-0 text-white/50" stroke={2} />
+          <div>
+            <div class="font-semibold text-white text-xs uppercase tracking-wider">{t('footer.testcentrum')}</div>
+            <div class="mt-0.5">{site.testcenter.street}, {site.testcenter.city}</div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <a href={site.socials.facebook} target="_blank" rel="noopener" aria-label="Facebook" class="rounded-md bg-white/8 hover:bg-white/15 w-9 h-9 inline-flex items-center justify-center transition-colors">
+          <Icon name="facebook" size={14} />
+        </a>
+        <a href={site.socials.linkedin} target="_blank" rel="noopener" aria-label="LinkedIn" class="rounded-md bg-white/8 hover:bg-white/15 w-9 h-9 inline-flex items-center justify-center transition-colors">
+          <Icon name="linkedin" size={14} />
+        </a>
+        <a href={site.socials.instagram} target="_blank" rel="noopener" aria-label="Instagram" class="rounded-md bg-white/8 hover:bg-white/15 w-9 h-9 inline-flex items-center justify-center transition-colors">
+          <Icon name="instagram" size={14} stroke={2} />
+        </a>
+        <a href={site.socials.tiktok} target="_blank" rel="noopener" aria-label="TikTok" class="rounded-md bg-white/8 hover:bg-white/15 w-9 h-9 inline-flex items-center justify-center transition-colors">
+          <Icon name="tiktok" size={14} />
+        </a>
+        <a href={site.socials.youtube} target="_blank" rel="noopener" aria-label="YouTube" class="rounded-md bg-white/8 hover:bg-white/15 w-9 h-9 inline-flex items-center justify-center transition-colors">
+          <Icon name="youtube" size={14} />
+        </a>
+      </div>
+    </div>
+
+    <div class="lg:col-span-2">
+      <h4 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.werknemers')}</h4>
+      <ul class="space-y-2.5 text-sm">
+        {colWerknemers.map(l => (<li><a href={localizePath(lang, l.href)} class="text-white/60 hover:text-white transition-colors">{l.label}</a></li>))}
+      </ul>
+    </div>
+
+    <div class="lg:col-span-2">
+      <h4 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.werkgevers')}</h4>
+      <ul class="space-y-2.5 text-sm">
+        {colWerkgevers.map(l => (<li><a href={localizePath(lang, l.href)} class="text-white/60 hover:text-white transition-colors">{l.label}</a></li>))}
+      </ul>
+    </div>
+
+    <div class="lg:col-span-2">
+      <h4 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.bedrijf')}</h4>
+      <ul class="space-y-2.5 text-sm">
+        {colBedrijf.map(l => (<li><a href={localizePath(lang, l.href)} class="text-white/60 hover:text-white transition-colors">{l.label}</a></li>))}
+      </ul>
+    </div>
+
+    <div class="lg:col-span-2">
+      <h4 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">Contact</h4>
+      <ul class="space-y-2.5 text-sm">
+        <li><a href={`tel:${site.phoneOffice.replace(/\s/g,'')}`} class="text-white/85 hover:text-[var(--color-spark)] transition-colors font-semibold inline-flex items-center gap-1.5"><Icon name="phone" size={12} stroke={2} />{site.phoneOfficeShort}</a></li>
+        <li><a href={`mailto:${site.email}`} class="text-white/60 hover:text-white transition-colors break-all">{site.email}</a></li>
+        <li class="text-white/50 text-xs pt-1">{site.hours}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="container-x py-5 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-xs text-white/40">
+      <p>© {year} AXXAZ Metalwork, {t('footer.rights')}</p>
+      <div class="flex gap-5">
+        <a href="#" class="hover:text-white/70 transition-colors">Privacy</a>
+        <a href="#" class="hover:text-white/70 transition-colors">Algemene voorwaarden</a>
+      </div>
+    </div>
+  </div>
+</footer>

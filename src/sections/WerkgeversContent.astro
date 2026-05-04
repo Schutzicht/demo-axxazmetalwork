@@ -1,0 +1,140 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import { site } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const services = [
+  { icon: 'users' as const, title: t('services.werving.title'), text: t('services.werving.i1') + ' · ' + t('services.werving.i2') + ' · ' + t('services.werving.i3') },
+  { icon: 'cog' as const, title: t('services.uitzenden.title'), text: t('services.uitzenden.i1') + ' · ' + t('services.uitzenden.i2') + ' · ' + t('services.uitzenden.i3') },
+  { icon: 'briefcase' as const, title: t('services.detachering.title'), text: t('services.detachering.i1') + ' · ' + t('services.detachering.i2') + ' · ' + t('services.detachering.i3') },
+  { icon: 'graduation' as const, title: 'BBL', text: t('tc.b3') },
+];
+
+const branches = ['Scheepsbouw','Petrochemie','Machinebouw','Apparatenbouw','Voedingsmiddelen-industrie','Infra & utiliteit','Offshore','Jachtbouw'];
+const steps = [
+  { n: '1', t: t('wg.aanpak.s1.t'), d: t('wg.aanpak.s1.d') },
+  { n: '2', t: t('wg.aanpak.s2.t'), d: t('wg.aanpak.s2.d') },
+  { n: '3', t: t('wg.aanpak.s3.t'), d: t('wg.aanpak.s3.d') },
+  { n: '4', t: t('wg.aanpak.s4.t'), d: t('wg.aanpak.s4.d') },
+];
+---
+<PageHero
+  kicker={t('wg.kicker')}
+  title={t('wg.title')}
+  sub={t('wg.sub')}
+>
+  <div class="mt-9 flex flex-wrap gap-3">
+    <a href={localizePath(lang, '/contact')} class="btn btn-spark">{t('cta.kennismaken')}</a>
+    <a href="#diensten" class="btn btn-on-dark">{t('wg.s.kicker')}</a>
+  </div>
+</PageHero>
+
+<section class="border-b border-[var(--color-line)]">
+  <div class="container-x grid md:grid-cols-3 divide-x divide-[var(--color-line)]">
+    <div class="px-6 py-12 text-center">
+      <div class="stat-num text-4xl">22<span class="text-[var(--color-spark)]">+</span></div>
+      <p class="mt-3 text-sm text-[var(--color-ink-soft)] font-medium">{t('wg.stat1')}</p>
+    </div>
+    <div class="px-6 py-12 text-center">
+      <div class="stat-num text-4xl">14 {t('stats.placementUnit')}</div>
+      <p class="mt-3 text-sm text-[var(--color-ink-soft)] font-medium">{t('wg.stat2')}</p>
+    </div>
+    <div class="px-6 py-12 text-center">
+      <div class="stat-num text-4xl">100%</div>
+      <p class="mt-3 text-sm text-[var(--color-ink-soft)] font-medium">{t('wg.stat3')}</p>
+    </div>
+  </div>
+</section>
+
+<section id="diensten" class="section">
+  <div class="container-x">
+    <div class="max-w-2xl">
+      <div class="eyebrow">{t('wg.s.kicker')}</div>
+      <h2 class="mt-3 text-3xl md:text-4xl">{t('wg.s.title')}</h2>
+    </div>
+    <div class="mt-12 grid sm:grid-cols-2 gap-5">
+      {services.map(s => (
+        <article class="card p-8 card-hover">
+          <div class="w-11 h-11 rounded-lg bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)]">
+            <Icon name={s.icon} size={22} stroke={1.75} />
+          </div>
+          <h3 class="mt-5 text-xl">{s.title}</h3>
+          <p class="mt-3 text-sm leading-relaxed">{s.text}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x py-20 md:py-24 grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+    <div>
+      <div class="eyebrow eyebrow-light">{t('wg.aanpak.kicker')}</div>
+      <h2 class="mt-3 !text-white text-3xl md:text-4xl">{t('wg.aanpak.title')}</h2>
+      <ol class="mt-10 space-y-7">
+        {steps.map(s => (
+          <li class="flex gap-5">
+            <span class="num-badge num-badge-dark">{s.n}</span>
+            <div>
+              <h4 class="!text-white">{s.t}</h4>
+              <p class="text-white/70 text-sm mt-1.5 leading-relaxed">{s.d}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+    <div class="rounded-xl bg-white/5 p-8 backdrop-blur space-y-5 border border-white/10">
+      <h3 class="!text-white text-xl">{t('wg.form.title')}</h3>
+      <form class="space-y-3.5" onsubmit="event.preventDefault();this.querySelector('button').textContent='✓';this.querySelector('button').disabled=true;">
+        <input placeholder={t('wg.form.bedrijf')} required class="field field-dark" />
+        <input placeholder={t('wg.form.contact')} required class="field field-dark" />
+        <div class="grid grid-cols-2 gap-3">
+          <input placeholder={t('soll.email')} type="email" required class="field field-dark" />
+          <input placeholder={t('soll.tel')} type="tel" class="field field-dark" />
+        </div>
+        <select class="field field-dark">
+          <option class="text-[var(--color-ink)]">{t('wg.form.functie')}</option>
+          <option class="text-[var(--color-ink)]">MIG/MAG</option>
+          <option class="text-[var(--color-ink)]">TIG</option>
+          <option class="text-[var(--color-ink)]">Pijpfitter</option>
+          <option class="text-[var(--color-ink)]">CNC</option>
+        </select>
+        <textarea rows="3" placeholder={t('wg.form.bericht')} class="field field-dark"></textarea>
+        <fieldset>
+          <legend class="text-xs uppercase tracking-widest text-white/60 mb-2">{t('wg.form.voorkeur')}</legend>
+          <div class="flex gap-2 flex-wrap">
+            {[t('wg.form.belMij'), 'WhatsApp', t('soll.email')].map(l => (
+              <label class="inline-flex items-center gap-2 rounded-full border border-white/20 px-3.5 py-1.5 text-sm cursor-pointer has-checked:border-[var(--color-spark)] has-checked:bg-[var(--color-spark)]/15 transition-colors">
+                <input type="radio" name="ct" class="accent-[var(--color-spark)]" /> {l}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <button class="btn btn-spark w-full mt-2">{t('wg.form.send')}</button>
+      </form>
+      <p class="text-xs text-white/50 leading-relaxed pt-1">{t('wg.form.alt')} <a href={`tel:${site.phoneOffice.replace(/\s/g,'')}`} class="text-[var(--color-spark)] font-semibold">{site.phoneOffice}</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-x">
+    <div class="rounded-xl bg-[var(--color-axxaz-mist)]/50 p-10 md:p-14">
+      <div class="max-w-xl">
+        <div class="eyebrow">{t('wg.branches.kicker')}</div>
+        <h2 class="mt-3 text-2xl md:text-3xl">{t('wg.branches.title')}</h2>
+      </div>
+      <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+        {branches.map(s => (
+          <div class="rounded-lg border border-[var(--color-line)] bg-white px-5 py-4 font-semibold text-[var(--color-axxaz-navy)]">{s}</div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

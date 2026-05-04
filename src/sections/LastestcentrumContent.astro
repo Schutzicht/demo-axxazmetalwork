@@ -1,0 +1,104 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import { site } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const tests = [
+  { code: 'EN ISO 9606-1', name: t('lc.cli.b1'), positions: 'PA · PB · PC · PE · PF · PH · 5G · 6G' },
+  { code: 'WPQR', name: t('lc.cli.b2'), positions: '' },
+  { code: 'NEN 3140', name: '', positions: '' },
+  { code: 'NEN-EN ISO 14732', name: '', positions: '' },
+];
+
+const cliBullets = [t('lc.cli.b1'), t('lc.cli.b2'), t('lc.cli.b3'), t('lc.cli.b4')];
+---
+<PageHero kicker={t('lc.kicker')} title={t('lc.title')} sub={t('lc.sub')} />
+
+<section class="section">
+  <div class="container-x grid lg:grid-cols-[1.4fr_1fr] gap-12 lg:gap-16 items-start">
+    <div>
+      <div class="eyebrow">{t('lc.cli.kicker')}</div>
+      <h2 class="mt-3 text-3xl">{t('lc.cli.title')}</h2>
+      <p class="mt-5 leading-relaxed">{t('lc.cli.p')}</p>
+      <ul class="mt-7 space-y-3">
+        {cliBullets.map(item => (
+          <li class="flex gap-3">
+            <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0"><Icon name="check" size={18} stroke={2.25} /></span>
+            <span class="leading-relaxed">{item}</span>
+          </li>
+        ))}
+      </ul>
+      <a href={localizePath(lang, '/contact')} class="btn btn-primary mt-9">{t('lc.cli.cta')}</a>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <img src="/img/site/welding-1.png" alt="" class="rounded-lg aspect-[3/4] object-cover col-span-2" loading="lazy" />
+      <img src="/img/site/welding-2.png" alt="" class="rounded-lg aspect-square object-cover" loading="lazy" />
+      <img src="/img/site/workshop-2.jpg" alt="" class="rounded-lg aspect-square object-cover" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x py-20">
+    <div class="max-w-2xl">
+      <div class="eyebrow eyebrow-light">{t('lc.tests.kicker')}</div>
+      <h2 class="mt-3 !text-white text-3xl md:text-4xl">{t('lc.tests.title')}</h2>
+    </div>
+    <div class="mt-14 grid md:grid-cols-2 gap-5">
+      {tests.map(test => (
+        <article class="rounded-xl bg-white/5 backdrop-blur p-7 border border-white/10">
+          <span class="chip chip-dark font-mono">{test.code}</span>
+          <h3 class="mt-4 !text-white text-lg">{test.name || test.code}</h3>
+          {test.positions && <p class="mt-2 text-white/70 text-sm leading-relaxed">{test.positions}</p>}
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-x grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+    <div>
+      <div class="eyebrow">{t('lc.cand.kicker')}</div>
+      <h2 class="mt-3 text-3xl">{t('lc.cand.title')}</h2>
+      <p class="mt-5 leading-relaxed">{t('lc.cand.p1')}</p>
+      <p class="mt-4 leading-relaxed">{t('lc.cand.p2')}</p>
+      <a href={localizePath(lang, '/open-sollicitatie')} class="btn btn-spark mt-7">{t('lc.cand.cta')}</a>
+    </div>
+    <div class="card p-8 bg-[var(--color-axxaz-mist)]/40 border-[var(--color-axxaz-mist-deep)]">
+      <h3 class="text-lg">{t('lc.evc.title')}</h3>
+      <ol class="mt-6 space-y-5">
+        <li class="flex gap-4">
+          <span class="num-badge">1</span>
+          <div><h4 class="text-base">{t('lc.evc.s1.t')}</h4><p class="text-sm mt-1 leading-relaxed">{t('lc.evc.s1.d')}</p></div>
+        </li>
+        <li class="flex gap-4">
+          <span class="num-badge">2</span>
+          <div><h4 class="text-base">{t('lc.evc.s2.t')}</h4><p class="text-sm mt-1 leading-relaxed">{t('lc.evc.s2.d')}</p></div>
+        </li>
+        <li class="flex gap-4">
+          <span class="num-badge num-badge-spark">3</span>
+          <div><h4 class="text-base">{t('lc.evc.s3.t')}</h4><p class="text-sm mt-1 leading-relaxed">{t('lc.evc.s3.d')}</p></div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="container-x pb-20">
+  <div class="rounded-xl bg-[var(--color-axxaz-navy)] text-white p-10 md:p-12">
+    <div class="grid md:grid-cols-[1fr_auto] gap-6 items-center">
+      <div>
+        <h3 class="!text-white text-2xl">{t('lc.bigCta.title')}</h3>
+        <p class="mt-2 text-white/75">{t('lc.bigCta.sub').replace('{phone}', site.phoneOfficeShort)}</p>
+      </div>
+      <a href={localizePath(lang, '/contact')} class="btn btn-spark">{t('lc.bigCta.btn')}</a>
+    </div>
+  </div>
+</section>

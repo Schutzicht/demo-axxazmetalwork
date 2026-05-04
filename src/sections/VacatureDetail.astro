@@ -1,0 +1,119 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import { site, vacancies } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang; slug: string }
+const { lang, slug } = Astro.props;
+const t = useTranslations(lang);
+const v = vacancies.find(x => x.slug === slug);
+if (!v) return Astro.redirect(localizePath(lang, '/vacatures'));
+const tel = site.phoneOffice.replace(/\s/g, '');
+const wa = site.whatsapp.replace(/[^0-9]/g, '');
+const offer = [t('vacD.offer1'), t('vacD.offer2'), t('vacD.offer3'), t('vacD.offer4'), t('vacD.offer5')];
+---
+<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x pt-12 pb-14">
+    <a href={localizePath(lang, '/vacatures')} class="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors">
+      <Icon name="arrow-right" size={14} stroke={2} class="rotate-180" /> {t('vacD.back')}
+    </a>
+    <div class="mt-6 flex items-start justify-between gap-8 flex-wrap">
+      <div class="max-w-2xl">
+        <div class="flex gap-2 mb-4">
+          {v.urgent && <span class="chip-spark chip"><Icon name="flame" size={11} stroke={2} /> {t('spoed.urgent')}</span>}
+          <span class="chip chip-dark"><Icon name="pin" size={11} stroke={2} />{v.location}</span>
+        </div>
+        <h1 class="text-3xl md:text-5xl !text-white leading-tight">{v.title}</h1>
+        <p class="mt-5 text-white/80 text-lg max-w-xl leading-relaxed">{v.summary}</p>
+      </div>
+      <div class="rounded-lg bg-white/5 backdrop-blur p-6 min-w-[260px] border border-white/10">
+        <div class="text-xs uppercase tracking-widest text-white/60 font-bold">{t('vacD.salary')}</div>
+        <div class="text-2xl font-bold mt-1 !text-white">{v.salary}</div>
+        <div class="mt-4 text-xs uppercase tracking-widest text-white/60 font-bold">{t('vacD.type')}</div>
+        <div class="font-semibold !text-white">{v.type}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container-x grid lg:grid-cols-[1fr_320px] gap-10">
+    <article class="space-y-10 max-w-2xl">
+      <div>
+        <h2 class="text-2xl">{t('vacD.tasks')}</h2>
+        <ul class="mt-5 space-y-3">
+          {v.tasks.map(taskText => (
+            <li class="flex gap-3">
+              <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0"><Icon name="check" size={16} stroke={2.25} /></span>
+              <span class="leading-relaxed">{taskText}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2 class="text-2xl">{t('vacD.req')}</h2>
+        <ul class="mt-5 space-y-3">
+          {v.requirements.map(r => (
+            <li class="flex gap-3">
+              <span class="text-[var(--color-axxaz-navy)] mt-0.5 flex-shrink-0"><Icon name="check" size={16} stroke={2.25} /></span>
+              <span class="leading-relaxed">{r}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="card p-7 bg-[var(--color-axxaz-mist)]/40 border-[var(--color-axxaz-mist-deep)]">
+        <h3 class="text-lg">{t('vacD.offer')}</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          {offer.map(item => (
+            <li class="flex gap-2.5">
+              <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0"><Icon name="check" size={14} stroke={2.25} /></span>
+              <span class="leading-relaxed">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="rounded-xl bg-[var(--color-axxaz-navy-deep)] text-white p-8">
+        <h3 class="!text-white text-xl">{t('vacD.ready')}</h3>
+        <p class="text-white/75 mt-2 text-sm leading-relaxed">{t('vacD.readySub')}</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href={localizePath(lang, `/open-sollicitatie?vac=${v.slug}`)} class="btn btn-spark">{t('cta.solliciteer')}</a>
+          <a href={`tel:${tel}`} class="btn btn-on-dark">
+            <Icon name="phone" size={14} stroke={2} />
+            {site.phoneOfficeShort}
+          </a>
+          <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener" class="btn btn-on-dark">
+            <Icon name="whatsapp" size={14} />
+            WhatsApp
+          </a>
+        </div>
+      </div>
+    </article>
+    <aside class="space-y-5 lg:sticky lg:top-32 self-start">
+      <div class="card p-6">
+        <h4 class="font-semibold uppercase text-xs tracking-widest text-[var(--color-ink-mute)]">{t('vacD.contact')}</h4>
+        <div class="mt-4 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)] font-bold text-sm">SG</div>
+            <div>
+              <div class="font-semibold leading-tight text-sm">Sem Goddijn</div>
+              <a href={`tel:${site.phoneSem.replace(/\s/g,'')}`} class="text-sm text-[var(--color-spark)]">{site.phoneSem}</a>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)] font-bold text-sm">RS</div>
+            <div>
+              <div class="font-semibold leading-tight text-sm">Rody Sinke</div>
+              <a href={`tel:${site.phoneRody.replace(/\s/g,'')}`} class="text-sm text-[var(--color-spark)]">{site.phoneRody}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6 bg-[var(--color-axxaz-navy)] !border-transparent text-white">
+        <h4 class="!text-white font-semibold uppercase text-xs tracking-widest">{t('vacD.location')}</h4>
+        <p class="mt-3 text-sm text-white/85">{v.location}</p>
+        <p class="mt-3 text-xs text-white/60 leading-relaxed">{t('vacD.locationSub')}</p>
+      </div>
+    </aside>
+  </div>
+</section>

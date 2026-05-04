@@ -1,0 +1,210 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import { vacancies } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const locations = [...new Set(vacancies.map(v => v.location))].sort();
+---
+
+<!-- Hero with persistent search -->
+<section class="relative overflow-hidden bg-mesh-dark text-white">
+  <div class="absolute inset-0 pattern-grid opacity-40 pointer-events-none"></div>
+  <div class="relative z-10 container-x py-10 sm:py-14 md:py-20">
+    <div class="max-w-3xl">
+      <div class="eyebrow eyebrow-light">{t('nav.vacatures')}</div>
+      <h1 class="mt-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl !text-white tracking-tight">{t('vacOv.title')}</h1>
+      <p class="mt-4 text-sm sm:text-base md:text-lg text-white/75 max-w-2xl leading-relaxed">{t('vacOv.sub')}</p>
+
+      <form id="vac-search-form" class="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-2 max-w-3xl p-2 sm:p-1.5 rounded-2xl sm:rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+        <div class="flex-grow relative">
+          <span class="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-[var(--color-ink-mute)] pointer-events-none">
+            <Icon name="briefcase" size={18} stroke={1.75} />
+          </span>
+          <input id="vac-q" type="text" name="q" placeholder={t('hero.searchPlaceholder')}
+                 class="w-full bg-white text-[var(--color-ink)] rounded-lg sm:rounded-full pl-11 sm:pl-12 pr-4 py-3 text-sm sm:text-base placeholder:text-[var(--color-ink-mute)] focus:outline-none focus:ring-3 focus:ring-[var(--color-spark)]/30" />
+        </div>
+        <select id="vac-loc" name="loc" class="rounded-lg sm:rounded-full px-4 sm:px-5 py-3 text-sm bg-white text-[var(--color-ink)] focus:outline-none focus:ring-3 focus:ring-[var(--color-spark)]/30 sm:min-w-[160px]">
+          <option value="">Alle locaties</option>
+          {locations.map(l => <option value={l}>{l}</option>)}
+        </select>
+        <button class="btn btn-spark whitespace-nowrap !px-6 justify-center">
+          Zoeken
+          <Icon name="arrow-right" size={14} stroke={2.5} />
+        </button>
+      </form>
+      <div id="vac-active-filters" class="mt-4 flex flex-wrap gap-2 text-xs"></div>
+    </div>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0 accent-line"></div>
+</section>
+
+<section class="section-tight">
+  <div class="container-x">
+    <div class="flex flex-wrap gap-2 mb-8 items-center pb-6 border-b border-[var(--color-line)]">
+      <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-ink-mute)] mr-3">{t('vacOv.filter')}</span>
+      <button class="chip chip-spark active" data-filter="all">{t('vacOv.filterAll')} ({vacancies.length})</button>
+      <button class="chip chip-ghost" data-filter="urgent">{t('vacOv.filterUrgent')} ({vacancies.filter(v=>v.urgent).length})</button>
+      <button class="chip chip-ghost" data-filter="vast">{t('vacOv.filterVast')}</button>
+      <button class="chip chip-ghost" data-filter="detachering">{t('vacOv.filterDet')}</button>
+      <span class="ml-auto text-sm text-[var(--color-ink-mute)]"><span id="match-count">{vacancies.length}</span> {t('vacOv.results')}</span>
+    </div>
+
+    <div id="vacatures" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {vacancies.map(v => (
+        <a href={localizePath(lang, `/vacatures/${v.slug}`)}
+           data-urgent={v.urgent}
+           data-type={v.type.toLowerCase()}
+           data-title={v.title.toLowerCase()}
+           data-loc={v.location.toLowerCase()}
+           data-summary={v.summary.toLowerCase()}
+           data-reqs={v.requirements.join(' ').toLowerCase()}
+           class="vac-card card card-hover group p-7 flex flex-col">
+          <div class="flex items-center justify-between gap-2 mb-5">
+            {v.urgent ? (
+              <span class="chip chip-spark"><Icon name="flame" size={11} stroke={2} /> {t('spoed.urgent')}</span>
+            ) : (
+              <span class="chip chip-ghost">{t('g.open')}</span>
+            )}
+            <span class="text-xs text-[var(--color-ink-mute)] inline-flex items-center gap-1"><Icon name="pin" size={12} stroke={2} />{v.location}</span>
+          </div>
+          <h3 class="text-lg leading-snug group-hover:text-[var(--color-axxaz-navy)] transition-colors">{v.title}</h3>
+          <p class="mt-3 text-sm flex-grow truncate-3">{v.summary}</p>
+          <div class="mt-6 pt-5 border-t border-[var(--color-line)] space-y-2 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[var(--color-ink-mute)]">{t('spoed.salary')}</span>
+              <span class="font-semibold text-[var(--color-axxaz-navy)]">{v.salary}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[var(--color-ink-mute)]">{t('spoed.type')}</span>
+              <span class="text-[var(--color-ink)]">{v.type}</span>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <div id="vac-empty" class="hidden mt-12 rounded-xl bg-[var(--color-axxaz-mist)]/50 p-8 md:p-12 text-center">
+      <h3 class="text-2xl">{t('vacOv.noMatch')}</h3>
+      <p class="mt-3 max-w-xl mx-auto">{t('vacOv.noMatchSub')}</p>
+      <a href={localizePath(lang, '/open-sollicitatie')} class="btn btn-primary mt-6">{t('cta.openSollicitatie')}</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  type FilterState = { q: string; loc: string; cat: string };
+  const state: FilterState = { q: '', loc: '', cat: 'all' };
+
+  function readURL() {
+    const sp = new URLSearchParams(window.location.search);
+    state.q = sp.get('q')?.trim().toLowerCase() ?? '';
+    state.loc = sp.get('loc')?.trim() ?? '';
+    state.cat = sp.get('cat')?.trim() ?? 'all';
+  }
+
+  function writeURL() {
+    const sp = new URLSearchParams();
+    if (state.q) sp.set('q', state.q);
+    if (state.loc) sp.set('loc', state.loc);
+    if (state.cat && state.cat !== 'all') sp.set('cat', state.cat);
+    const qs = sp.toString();
+    const newUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    window.history.replaceState(null, '', newUrl);
+  }
+
+  function applyFilters() {
+    let visible = 0;
+    document.querySelectorAll<HTMLElement>('.vac-card').forEach(card => {
+      const ds = card.dataset;
+      let show = true;
+      if (state.q) {
+        const haystack = `${ds.title} ${ds.summary} ${ds.reqs} ${ds.loc}`;
+        if (!haystack.includes(state.q)) show = false;
+      }
+      if (state.loc && ds.loc !== state.loc.toLowerCase()) show = false;
+      if (state.cat === 'urgent' && ds.urgent !== 'true') show = false;
+      if (state.cat === 'vast' && !ds.type?.includes('vast')) show = false;
+      if (state.cat === 'detachering' && !ds.type?.includes('detachering')) show = false;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    const counter = document.getElementById('match-count');
+    if (counter) counter.textContent = String(visible);
+    const empty = document.getElementById('vac-empty');
+    if (empty) empty.classList.toggle('hidden', visible > 0);
+    renderActiveFilters();
+  }
+
+  function renderActiveFilters() {
+    const wrap = document.getElementById('vac-active-filters');
+    if (!wrap) return;
+    const parts: string[] = [];
+    if (state.q) parts.push(`<button data-clear="q" class="chip chip-dark hover:bg-[var(--color-spark)] hover:border-[var(--color-spark)] cursor-pointer">"${state.q}" ✕</button>`);
+    if (state.loc) parts.push(`<button data-clear="loc" class="chip chip-dark hover:bg-[var(--color-spark)] hover:border-[var(--color-spark)] cursor-pointer">${state.loc} ✕</button>`);
+    if (state.cat !== 'all') parts.push(`<button data-clear="cat" class="chip chip-dark hover:bg-[var(--color-spark)] hover:border-[var(--color-spark)] cursor-pointer">${state.cat} ✕</button>`);
+    wrap.innerHTML = parts.length ? `<span class="text-white/60 mr-1">Filters:</span>${parts.join('')}` : '';
+    wrap.querySelectorAll('[data-clear]').forEach(b => {
+      b.addEventListener('click', () => {
+        const key = b.getAttribute('data-clear');
+        if (key === 'q') { state.q = ''; (document.getElementById('vac-q') as HTMLInputElement).value = ''; }
+        if (key === 'loc') { state.loc = ''; (document.getElementById('vac-loc') as HTMLSelectElement).value = ''; }
+        if (key === 'cat') {
+          state.cat = 'all';
+          document.querySelectorAll('[data-filter]').forEach(b2 => {
+            b2.classList.remove('chip-spark', 'active');
+            b2.classList.add('chip-ghost');
+          });
+          document.querySelector('[data-filter="all"]')?.classList.add('chip-spark', 'active');
+        }
+        writeURL();
+        applyFilters();
+      });
+    });
+  }
+
+  // Init from URL
+  readURL();
+  const qInput = document.getElementById('vac-q') as HTMLInputElement;
+  const locSel = document.getElementById('vac-loc') as HTMLSelectElement;
+  if (qInput) qInput.value = state.q;
+  if (locSel) locSel.value = state.loc;
+  // Set active filter chip from URL
+  if (state.cat !== 'all') {
+    document.querySelectorAll('[data-filter]').forEach(b => {
+      b.classList.remove('chip-spark', 'active');
+      b.classList.add('chip-ghost');
+    });
+    const active = document.querySelector(`[data-filter="${state.cat}"]`);
+    active?.classList.remove('chip-ghost');
+    active?.classList.add('chip-spark', 'active');
+  }
+  applyFilters();
+
+  // Search form submit
+  document.getElementById('vac-search-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    state.q = qInput.value.trim().toLowerCase();
+    state.loc = locSel.value;
+    writeURL();
+    applyFilters();
+  });
+
+  // Live filter on category-chip click
+  document.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter]').forEach(b => {
+        b.classList.remove('chip-spark', 'active');
+        b.classList.add('chip-ghost');
+      });
+      btn.classList.remove('chip-ghost');
+      btn.classList.add('chip-spark', 'active');
+      state.cat = btn.getAttribute('data-filter') ?? 'all';
+      writeURL();
+      applyFilters();
+    });
+  });
+</script>

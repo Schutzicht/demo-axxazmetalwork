@@ -1,0 +1,23 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import HomeContent from '../../sections/HomeContent.astro';
+import { ui, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return (Object.keys(ui) as Lang[])
+    .filter(l => l !== 'nl')
+    .map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const titles: Record<Lang, string> = {
+  nl: 'Vakbekwame metaalmensen, wereldwijd gesourced',
+  en: 'Skilled metal professionals, sourced worldwide',
+  tl: 'Bihasang metal workers, na-source globally',
+  de: 'Qualifizierte Metall-Profis, weltweit gesourced',
+  pl: 'Wykwalifikowani fachowcy metalu, sourcowani globalnie',
+};
+---
+<Layout title={titles[lang]}>
+  <HomeContent lang={lang} />
+</Layout>

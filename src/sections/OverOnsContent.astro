@@ -1,0 +1,167 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import { founders, teamExtras, site } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import PageHero from '../components/PageHero.astro';
+import Bubble from '../components/Bubble.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const milestones = [
+  { year: 2004, title: lang === 'nl' ? 'Oprichting' : 'Founding', text: 'Rody en Sem starten met bemiddeling voor de scheepsbouw in Zuidwest-Nederland.' },
+  { year: 2008, title: lang === 'nl' ? 'Eerste eigen vestiging EU' : 'First own EU office', text: 'Uitbreiding naar Polen voor sourcing in Centraal-Europa.' },
+  { year: 2014, title: t('lc.kicker'), text: 'Eigen testlocatie geopend met procedure-las en kwalificaties volgens EN ISO 9606-1.' },
+  { year: 2018, title: 'Manilla', text: 'Eerste sourcing-hub in Azië, Tagalog, Cebuano, Engels.' },
+  { year: 2022, title: 'NEN 4400-1 + NBBU', text: 'Volledig gecertificeerd en aangesloten bij NBBU.' },
+  { year: 2026, title: lang === 'nl' ? '15 vestigingen' : '15 offices', text: '10 in Europa, 5 in Azië, eigen beheer over de hele rekrutingsketen.' },
+];
+
+const values = [
+  { title: lang === 'nl' ? 'Kwaliteit' : 'Quality', text: 'No-nonsense, getest, gecertificeerd. Wat we leveren staat als een huis.' },
+  { title: lang === 'nl' ? 'Betrouwbaar' : 'Reliable', text: 'Geen avonturen, afspraken worden nagekomen.' },
+  { title: lang === 'nl' ? 'Familiair' : 'Family-feel', text: 'Korte lijnen, persoonlijke band.' },
+  { title: lang === 'nl' ? 'Zakelijke etiek' : 'Business ethics', text: 'MVO, ILO-conform, eerlijke loonsommen.' },
+  { title: lang === 'nl' ? 'Zelfstandig' : 'Independent', text: 'Financieel onafhankelijk, ruim 22 jaar.' },
+  { title: lang === 'nl' ? 'Internationaal' : 'International', text: 'Sourcing in 15+ landen.' },
+];
+---
+<PageHero kicker={t('ww.kicker')} title={t('ww.title')} sub={t('ww.sub')} />
+
+<section class="section">
+  <div class="container-x">
+    <div class="grid lg:grid-cols-[1fr_1.1fr] gap-12 lg:gap-16 items-center">
+      <div>
+        <div class="eyebrow">{t('ww.intro.kicker')}</div>
+        <h2 class="mt-3 text-3xl md:text-4xl">{t('ww.intro.title')}</h2>
+        <p class="mt-5 leading-relaxed text-base md:text-lg">{t('ww.intro.p1').replace('{year}', String(site.founded))}</p>
+        <p class="mt-4 leading-relaxed">{t('ww.intro.p2')}</p>
+      </div>
+      <div class="relative">
+        <img src="/img/team/founders-duo.jpg" alt="Sem Goddijn & Rody Sinke" class="rounded-xl aspect-[4/3] object-cover w-full shadow-sm" />
+        <div class="absolute -bottom-5 -left-5 bg-white border border-[var(--color-line)] rounded-lg p-5 max-w-[260px] hidden md:block shadow-lg">
+          <div class="text-xs uppercase tracking-widest text-[var(--color-ink-mute)] font-bold">Sem & Rody</div>
+          <div class="mt-1.5 font-semibold text-sm leading-snug">{t('founders.tag.role')} · {t('founders.tag.years')}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-mist)]/40 border-y border-[var(--color-line)]">
+  <div class="container-x py-20">
+    <div class="text-center max-w-xl mx-auto mb-14">
+      <div class="eyebrow justify-center">{t('ww.fnd.kicker').replace('{n}', String(founders.length))}</div>
+      <h2 class="mt-3 text-3xl md:text-4xl">{t('ww.fnd.title')}</h2>
+      <p class="mt-4">{t('ww.fnd.sub')}</p>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
+      {founders.map(f => (
+        <Bubble name={f.name} role={t('founders.tag.role')} image={f.photo} size="md" />
+      ))}
+    </div>
+    <div class="mt-14 grid md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+      {founders.map(f => (
+        <article class="card p-6">
+          <h3 class="text-lg">{f.name}</h3>
+          <div class="text-xs uppercase tracking-widest text-[var(--color-spark)] font-bold mt-1">{t('founders.tag.role')} · {f.yearsInIndustry} {t('stats.years').toLowerCase()}</div>
+          <p class="mt-4 text-sm leading-relaxed">{f.bio}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-x">
+    <div class="max-w-xl">
+      <div class="eyebrow">{t('ww.tl.kicker')}</div>
+      <h2 class="mt-3 text-3xl md:text-4xl">{t('ww.tl.title')}</h2>
+    </div>
+    <div class="mt-14 relative max-w-4xl mx-auto">
+      <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-[var(--color-line)] sm:left-1/2 sm:-translate-x-1/2"></div>
+      <ol class="space-y-12">
+        {milestones.map((m, i) => (
+          <li class={`relative grid sm:grid-cols-2 gap-6 ${i % 2 === 0 ? '' : 'sm:[&>:first-child]:order-2 sm:[&>:first-child]:text-left sm:[&>:first-child]:pl-12 sm:[&>:first-child]:pr-0'}`}>
+            <div class="pl-12 sm:pl-0 sm:pr-12 sm:text-right">
+              <div class="stat-num text-3xl md:text-4xl">{m.year}</div>
+              <h4 class="mt-2 text-lg">{m.title}</h4>
+              <p class="text-sm mt-1.5 leading-relaxed">{m.text}</p>
+            </div>
+            <div class="hidden sm:block"></div>
+            <span class="absolute left-4 top-1.5 sm:left-1/2 w-3 h-3 rounded-full bg-[var(--color-spark)] ring-4 ring-white sm:-translate-x-1/2"></span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-mist)]/30 border-y border-[var(--color-line)]">
+  <div class="container-x py-20">
+    <div class="max-w-xl">
+      <div class="eyebrow">{t('ww.values.kicker')}</div>
+      <h2 class="mt-3 text-3xl md:text-4xl">{t('ww.values.title')}</h2>
+    </div>
+    <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {values.map((v, i) => (
+        <article class="card p-7">
+          <span class="text-[var(--color-spark)] font-mono text-xs font-bold tracking-widest">0{i + 1}</span>
+          <h3 class="mt-3 text-lg">{v.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed">{v.text}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x py-20">
+    <div class="max-w-xl">
+      <div class="eyebrow eyebrow-light">{t('ww.team.kicker')}</div>
+      <h2 class="mt-3 !text-white text-3xl md:text-4xl">{t('ww.team.title')}</h2>
+      <p class="mt-4 text-white/70">{t('ww.team.sub')}</p>
+    </div>
+    <div class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-8">
+      {teamExtras.map(p => (
+        <div class="text-center">
+          <div class="bubble mx-auto w-24 bg-white/8 border-white/15">
+            <div class="absolute inset-0 flex items-center justify-center text-white font-semibold text-base" style="font-family:Manrope,sans-serif">{p.role}</div>
+          </div>
+          <div class="mt-3 font-semibold text-sm !text-white">{p.name}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-x grid md:grid-cols-2 gap-6">
+    <article class="card p-8">
+      <div class="eyebrow">{t('ww.loc.hq')}</div>
+      <h3 class="mt-3 text-xl">{site.hq.name}</h3>
+      <p class="mt-2 text-sm">{t('ww.loc.hqSub')}</p>
+      <p class="mt-4 text-sm font-medium leading-relaxed">{site.hq.street}<br />{site.hq.city}<br />{site.hq.country}</p>
+      <img src="/img/site/hero-aerial.jpg" class="mt-6 rounded-lg aspect-[16/9] object-cover" alt="" loading="lazy" />
+    </article>
+    <article class="card p-8">
+      <div class="eyebrow">{t('ww.loc.tc')}</div>
+      <h3 class="mt-3 text-xl">{site.testcenter.name}</h3>
+      <p class="mt-2 text-sm">{t('ww.loc.tcSub')}</p>
+      <p class="mt-4 text-sm font-medium leading-relaxed">{site.testcenter.street}<br />{site.testcenter.city}<br />{site.testcenter.country}</p>
+      <img src="/img/site/workshop-1.jpg" class="mt-6 rounded-lg aspect-[16/9] object-cover" alt="" loading="lazy" />
+    </article>
+  </div>
+</section>
+
+<section class="container-x pb-20">
+  <div class="rounded-xl bg-[var(--color-axxaz-navy-deep)] text-white p-10 md:p-14 text-center">
+    <h2 class="text-3xl md:text-4xl !text-white">{t('ww.cta.title')}</h2>
+    <p class="mt-3 text-white/75 max-w-xl mx-auto">{t('ww.cta.sub')}</p>
+    <div class="mt-8 flex flex-wrap gap-3 justify-center">
+      <a href={localizePath(lang, '/werkgevers')} class="btn btn-spark">{t('ww.cta.wg')}</a>
+      <a href={localizePath(lang, '/vacatures')} class="btn btn-on-dark">{t('ww.cta.vac')}</a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import VacatureDetail from '../../../sections/VacatureDetail.astro';
+import { vacancies } from '../../../data/site';
+import { ui, type Lang } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+  const langs = (Object.keys(ui) as Lang[]).filter(l => l !== 'nl');
+  return langs.flatMap(lang => vacancies.map(v => ({
+    params: { lang, slug: v.slug },
+    props: { title: v.title },
+  })));
+}
+const { lang, slug } = Astro.params as { lang: Lang; slug: string };
+const { title } = Astro.props;
+---
+<Layout title={title}>
+  <VacatureDetail lang={lang} slug={slug} />
+</Layout>

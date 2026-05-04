@@ -1,0 +1,28 @@
+---
+interface Props {
+  kicker?: string;
+  title: string;
+  sub?: string;
+  align?: 'left' | 'center';
+  variant?: 'navy' | 'mist';
+}
+const { kicker, title, sub, align = 'left', variant = 'navy' } = Astro.props;
+const isDark = variant === 'navy';
+---
+<section class={`relative overflow-hidden ${isDark ? 'bg-mesh-dark text-white' : 'bg-[var(--color-axxaz-mist)]'}`}>
+  {isDark && (
+    <>
+      <div class="absolute inset-0 pattern-grid opacity-50 pointer-events-none"></div>
+      <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"></div>
+    </>
+  )}
+  <div class={`container-x py-10 sm:py-16 md:py-24 lg:py-28 relative ${align === 'center' ? 'text-center' : ''}`}>
+    {kicker && <div class={`${isDark ? 'eyebrow eyebrow-light' : 'eyebrow eyebrow-dark'} ${align === 'center' ? 'justify-center' : ''}`}>{kicker}</div>}
+    <h1 class={`mt-4 sm:mt-5 text-3xl sm:text-4xl md:text-5xl lg:text-6xl max-w-4xl tracking-tight ${isDark ? '!text-white' : ''}`} style={align === 'center' ? 'margin-left:auto;margin-right:auto;' : ''}>
+      {title}
+    </h1>
+    {sub && <p class={`mt-4 sm:mt-6 text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed ${isDark ? 'text-white/75' : 'text-[var(--color-ink-soft)]'} ${align === 'center' ? 'mx-auto' : ''}`}>{sub}</p>}
+    <slot />
+  </div>
+  {isDark && <div class="absolute bottom-0 left-0 right-0 accent-line"></div>}
+</section>

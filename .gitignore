@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# editor / OS
+.DS_Store
+*.log
+.vscode/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# vertrouwelijk — niet pushen
+nieuwe website text.docx
+www.axxazmetalwork.nl_*/

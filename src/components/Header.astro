@@ -1,0 +1,95 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { useTranslations, localizePath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props { lang: Lang; currentPath: string }
+const { lang, currentPath } = Astro.props;
+const t = useTranslations(lang);
+
+const navItems = [
+  { href: '/vacatures', label: t('nav.vacatures') },
+  { href: '/werkgevers', label: t('nav.werkgevers') },
+  { href: '/sourcing', label: t('nav.sourcing') },
+  { href: '/vak-en-lastestcentrum', label: t('nav.lastest') },
+  { href: '/cases', label: t('nav.cases') },
+  { href: '/wie-wij-zijn', label: t('nav.wieZijnWij') },
+  { href: '/community', label: t('nav.community') },
+];
+---
+
+<header id="site-header" class="sticky top-0 z-40 glass" data-scrolled="false">
+  <div class="container-x flex items-center gap-6 py-3.5 transition-[padding] duration-300" id="header-inner">
+    <Logo height={28} />
+
+    <nav class="hidden lg:flex items-center gap-0.5 ml-auto text-[0.875rem]">
+      {navItems.map(item => {
+        const href = localizePath(lang, item.href);
+        const isActive = currentPath === href || currentPath === href + '/';
+        return (
+          <a href={href}
+             data-active={isActive}
+             class={`nav-link relative px-3 py-2 font-medium transition-colors ${isActive ? 'text-[var(--color-axxaz-navy)]' : 'text-[var(--color-ink-soft)] hover:text-[var(--color-axxaz-navy)]'}`}>
+            {item.label}
+          </a>
+        );
+      })}
+    </nav>
+
+    <div class="ml-auto lg:ml-0 flex items-center gap-2.5">
+      <a href={localizePath(lang, '/contact')}
+         class="hidden sm:inline-flex btn btn-primary btn-sm">
+        {t('nav.contact')}
+        <Icon name="arrow-right" size={14} stroke={2.25} />
+      </a>
+      <button id="mobile-menu-btn" class="lg:hidden p-2 -mr-2 text-[var(--color-axxaz-navy)] inline-flex items-center" aria-label="Menu">
+        <Icon name="menu" size={22} />
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="lg:hidden hidden border-t border-[var(--color-line)] bg-white">
+    <nav class="container-x py-4 flex flex-col text-sm">
+      {navItems.map(item => (
+        <a href={localizePath(lang, item.href)}
+           class="px-3 py-2.5 rounded-md text-[var(--color-ink-soft)] hover:text-[var(--color-axxaz-navy)] hover:bg-[var(--color-axxaz-mist)] font-medium">
+          {item.label}
+        </a>
+      ))}
+      <div class="rule my-2"></div>
+      <a href={localizePath(lang, '/contact')} class="px-3 py-2.5 rounded-md text-[var(--color-axxaz-navy)] font-semibold">{t('nav.contact')}</a>
+      <a href={localizePath(lang, '/open-sollicitatie')} class="px-3 py-2.5 rounded-md text-[var(--color-axxaz-navy)] font-semibold">{t('cta.openSollicitatie')}</a>
+      <a href={localizePath(lang, '/ats')} class="px-3 py-2.5 rounded-md text-[var(--color-spark-deep)] font-semibold tracking-wider text-xs">ATS DEMO →</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.getElementById('site-header');
+  const inner = document.getElementById('header-inner');
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+
+  let lastY = -1;
+  const onScroll = () => {
+    const y = window.scrollY;
+    if (y === lastY) return;
+    lastY = y;
+    const scrolled = y > 8;
+    if (header) header.dataset.scrolled = String(scrolled);
+    if (inner) {
+      if (scrolled) {
+        inner.style.paddingTop = '0.625rem';
+        inner.style.paddingBottom = '0.625rem';
+      } else {
+        inner.style.paddingTop = '';
+        inner.style.paddingBottom = '';
+      }
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+</script>

@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CaseDetail from '../../sections/CaseDetail.astro';
+import { cases } from '../../data/site';
+
+export function getStaticPaths() {
+  return cases.map(c => ({ params: { slug: c.slug }, props: { title: c.client } }));
+}
+const { slug } = Astro.params;
+const { title } = Astro.props;
+---
+<Layout title={`Case · ${title}`}>
+  <CaseDetail lang="nl" slug={slug!} />
+</Layout>

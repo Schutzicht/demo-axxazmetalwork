@@ -1,0 +1,569 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import { site, founders, certifications, facebookFeed, linkedinFeed, vacancies, vakgebieden, reviews, reviewSummary, blogPosts, trustClients, cases } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const urgentVacs = vacancies.filter(v => v.urgent).slice(0, 3);
+const validCerts = certifications.slice(0, 6);
+const totalVacs = vacancies.length + 38;
+
+const services = [
+  { title: t('services.uitzenden.title'), items: [t('services.uitzenden.i1'), t('services.uitzenden.i2'), t('services.uitzenden.i3')] },
+  { title: t('services.werving.title'), items: [t('services.werving.i1'), t('services.werving.i2'), t('services.werving.i3')] },
+  { title: t('services.detachering.title'), items: [t('services.detachering.i1'), t('services.detachering.i2'), t('services.detachering.i3')] },
+];
+
+const vakLabels: Record<string, string> = {
+  'lassen-mig-mag': t('vak.lassenMigMag'),
+  'lassen-tig': t('vak.lassenTig'),
+  'pijpfitten': t('vak.pijpfitten'),
+  'constructiebankwerk': t('vak.constructie'),
+  'plaatwerk': t('vak.plaatwerk'),
+  'cnc-verspanen': t('vak.cnc'),
+  'apparatenbouw': t('vak.apparatenbouw'),
+  'monteur-metaal': t('vak.monteur'),
+  'staalbouw': t('vak.staalbouw'),
+};
+
+const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
+---
+
+<!-- HERO -->
+<section class="relative overflow-hidden bg-mesh-dark text-white">
+  <!-- Background photo -->
+  <div class="absolute inset-0 z-0">
+    <img src="/img/site/workshop-1.jpg" alt="" class="w-full h-full object-cover opacity-25" />
+    <div class="absolute inset-0 bg-gradient-to-r from-[var(--color-axxaz-navy-darker)] via-[var(--color-axxaz-navy-deep)]/95 to-[var(--color-axxaz-navy-deep)]/60"></div>
+  </div>
+  <!-- Grid overlay -->
+  <div class="absolute inset-0 pattern-grid opacity-40 pointer-events-none z-0"></div>
+  <!-- Subtle radial accent -->
+  <div class="absolute -right-32 top-0 w-[600px] h-[600px] rounded-full bg-[var(--color-spark)]/15 blur-[120px] pointer-events-none"></div>
+
+  <div class="relative z-10 container-x py-12 sm:py-16 md:py-24 lg:py-28">
+    <div class="grid lg:grid-cols-[1.1fr_1fr] gap-8 sm:gap-10 lg:gap-16 items-center">
+      <!-- LEFT: copy for jobseekers -->
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur text-xs font-semibold tracking-widest uppercase text-white/85">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)] animate-pulse"></span>
+          {t('hero.kicker')}
+        </div>
+        <h1 class="mt-5 sm:mt-6 text-[2.25rem] sm:text-5xl md:text-6xl lg:text-7xl !text-white leading-[0.95] font-extrabold tracking-[-0.04em]">
+          {t('hero.titleA')}<br/>
+          <span class="text-gradient-spark">{t('hero.titleB')}</span>,<br/>
+          {t('hero.titleC')}
+        </h1>
+        <p class="mt-7 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">{t('hero.sub')}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={localizePath(lang, '/open-sollicitatie')} class="btn btn-on-dark"><Icon name="send" size={14} stroke={2} /> {t('cta.openSollicitatie')}</a>
+          <a href={localizePath(lang, '/werkgevers')} class="btn btn-ghost !text-white/70 hover:!text-white hover:!bg-white/5">{t('cta.zoekWerknemers')} →</a>
+        </div>
+        <p class="mt-10 text-xs text-white/35 max-w-md">{t('hero.tagline')}</p>
+      </div>
+
+      <!-- RIGHT: vacature search card -->
+      <aside class="relative">
+        <div class="absolute -inset-3 rounded-3xl bg-gradient-to-br from-[var(--color-spark)]/20 via-transparent to-[var(--color-axxaz-blue)]/20 blur-2xl pointer-events-none"></div>
+        <div class="relative rounded-2xl bg-white/[0.06] border border-white/15 backdrop-blur-xl p-5 sm:p-6 md:p-8 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.5)]">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div class="text-xs font-bold uppercase tracking-widest text-[var(--color-spark)]">Vind jouw baan</div>
+            <span class="chip chip-dark text-[10px] font-mono">{totalVacs} open</span>
+          </div>
+          <h2 class="!text-white text-2xl md:text-3xl tracking-tight">Direct zoeken in onze vacatures</h2>
+          <p class="mt-2 text-sm text-white/60 leading-relaxed">Zoek op functie, locatie of certificaat. Of bekijk alle vacatures.</p>
+
+          <form action={localizePath(lang, '/vacatures')} class="mt-6 space-y-3">
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-mute)] pointer-events-none">
+                <Icon name="briefcase" size={16} stroke={1.75} />
+              </span>
+              <input type="text" name="q" placeholder={t('hero.searchPlaceholder')}
+                     class="w-full bg-white text-[var(--color-ink)] rounded-lg pl-11 pr-4 py-3 text-sm placeholder:text-[var(--color-ink-mute)] focus:outline-none focus:ring-3 focus:ring-[var(--color-spark)]/30" />
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <select name="loc" class="bg-white text-[var(--color-ink)] rounded-lg px-3.5 py-3 text-sm focus:outline-none focus:ring-3 focus:ring-[var(--color-spark)]/30">
+                <option value="">Alle locaties</option>
+                {[...new Set(vacancies.map(v => v.location))].sort().map(l => <option value={l}>{l}</option>)}
+              </select>
+              <select name="cat" class="bg-white text-[var(--color-ink)] rounded-lg px-3.5 py-3 text-sm focus:outline-none focus:ring-3 focus:ring-[var(--color-spark)]/30">
+                <option value="all">Alle types</option>
+                <option value="urgent">Urgent</option>
+                <option value="vast">Vast</option>
+                <option value="detachering">Detachering</option>
+              </select>
+            </div>
+            <button class="btn btn-spark btn-lg w-full justify-center">
+              {t('hero.searchCta').replace('{n}', String(totalVacs))}
+              <Icon name="arrow-right" size={15} stroke={2.5} />
+            </button>
+          </form>
+
+          <div class="mt-6 pt-5 border-t border-white/10">
+            <div class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3">Populair</div>
+            <div class="flex flex-wrap gap-1.5">
+              {vakgebieden.slice(0, 5).map(v => (
+                <a href={localizePath(lang, `/vacatures?cat=${v.slug}`)}
+                   class="chip chip-dark hover:bg-[var(--color-spark)] hover:border-[var(--color-spark)] hover:text-white transition-colors">
+                  {v.name}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="absolute bottom-0 left-0 right-0 accent-line"></div>
+</section>
+
+<!-- DUO CTA -->
+<section class="-mt-12 md:-mt-20 relative z-20">
+  <div class="container-x">
+    <div class="grid md:grid-cols-2 gap-4">
+      <a href={localizePath(lang, '/vacatures')}
+         class="group relative overflow-hidden rounded-2xl bg-[var(--color-axxaz-navy)] aspect-[16/8] sm:aspect-[16/6] md:aspect-[5/3] transition-all duration-500 hover:-translate-y-1.5 shadow-[0_24px_60px_-24px_rgba(14,26,61,0.5)]">
+        <img src="/img/site/welding-2.png" alt="" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-65 transition-opacity duration-500 group-hover:scale-105" />
+        <div class="absolute inset-0 bg-gradient-to-tr from-[var(--color-axxaz-navy-darker)] via-[var(--color-axxaz-navy)]/85 to-transparent"></div>
+        <div class="relative z-10 h-full p-7 md:p-10 flex flex-col justify-end text-white">
+          <div class="text-xs uppercase tracking-[0.18em] font-bold text-[var(--color-spark)]">{t('duo.werk.kicker')}</div>
+          <h2 class="mt-2 text-2xl md:text-3xl lg:text-4xl !text-white tracking-tight">{t('duo.werk.title')}</h2>
+          <p class="mt-3 text-white/70 text-sm md:text-base max-w-md leading-relaxed">{t('duo.werk.sub')}</p>
+          <div class="mt-6 inline-flex items-center gap-2.5 font-semibold">
+            {t('duo.werk.cta')}
+            <span class="bg-[var(--color-spark)] rounded-full w-9 h-9 inline-flex items-center justify-center group-hover:translate-x-1 transition-transform shadow-[0_8px_20px_-4px_rgba(232,93,31,0.5)]">
+              <Icon name="arrow-right" size={15} stroke={2.5} />
+            </span>
+          </div>
+        </div>
+      </a>
+      <a href={localizePath(lang, '/werkgevers')}
+         class="group relative overflow-hidden rounded-2xl bg-[var(--color-spark-deep)] aspect-[16/8] sm:aspect-[16/6] md:aspect-[5/3] transition-all duration-500 hover:-translate-y-1.5 shadow-[0_24px_60px_-24px_rgba(184,65,15,0.5)]">
+        <img src="/img/site/workshop-3.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-65 transition-opacity duration-500 group-hover:scale-105" />
+        <div class="absolute inset-0 bg-gradient-to-tr from-[var(--color-spark-deep)] via-[var(--color-spark-deep)]/80 to-transparent"></div>
+        <div class="relative z-10 h-full p-7 md:p-10 flex flex-col justify-end text-white">
+          <div class="text-xs uppercase tracking-[0.18em] font-bold text-white/85">{t('duo.personeel.kicker')}</div>
+          <h2 class="mt-2 text-2xl md:text-3xl lg:text-4xl !text-white tracking-tight">{t('duo.personeel.title')}</h2>
+          <p class="mt-3 text-white/85 text-sm md:text-base max-w-md leading-relaxed">{t('duo.personeel.sub')}</p>
+          <div class="mt-6 inline-flex items-center gap-2.5 font-semibold">
+            {t('duo.personeel.cta')}
+            <span class="bg-white text-[var(--color-spark-deep)] rounded-full w-9 h-9 inline-flex items-center justify-center group-hover:translate-x-1 transition-transform shadow-lg">
+              <Icon name="arrow-right" size={15} stroke={2.5} />
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<section class="border-y border-[var(--color-line)] bg-[var(--color-axxaz-mist)]/40 mt-12 md:mt-20" data-reveal>
+  <div class="container-x py-8 md:py-10">
+    <div class="flex items-center gap-6 flex-wrap justify-center md:justify-between">
+      <div class="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-mute)]">{t('trust.title')}</div>
+      <div class="flex gap-x-7 gap-y-3 flex-wrap items-center justify-center">
+        {trustClients.map(c => (
+          <div class="flex items-center gap-2 grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition-all duration-300">
+            <div class="w-9 h-9 rounded-md bg-[var(--color-axxaz-navy)] inline-flex items-center justify-center text-white font-extrabold text-xs" style="font-family:Manrope,sans-serif">{c.name.split(' ').map(w => w[0]).slice(0,2).join('')}</div>
+            <div class="text-sm">
+              <div class="font-bold leading-tight text-[var(--color-axxaz-navy)]">{c.name}</div>
+              <div class="text-[10px] uppercase tracking-wider text-[var(--color-ink-mute)] font-semibold">{c.industry}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BIG STATS -->
+<section class="section" data-reveal>
+  <div class="container-x">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="eyebrow justify-center">{t('stats.kicker')}</div>
+      <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('stats.title')}</h2>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="bg-[var(--color-axxaz-navy)] rounded-2xl p-7 md:p-9 text-white relative overflow-hidden group">
+        <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-[var(--color-spark)]/15 blur-2xl group-hover:bg-[var(--color-spark)]/25 transition-colors"></div>
+        <div class="relative">
+          <div class="stat-num text-4xl sm:text-5xl md:text-6xl !text-white">22<span class="text-[var(--color-spark)]">+</span></div>
+          <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-white/70">{t('stats.years')}</p>
+        </div>
+      </div>
+      <div class="bg-[var(--color-axxaz-mist)] rounded-2xl p-7 md:p-9 relative overflow-hidden">
+        <div class="stat-num text-4xl sm:text-5xl md:text-6xl">{site.europeOffices + site.asiaOffices}</div>
+        <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-[var(--color-axxaz-navy)]">{t('stats.offices')}</p>
+      </div>
+      <div class="rounded-2xl p-7 md:p-9 relative overflow-hidden text-white" style="background:linear-gradient(135deg,var(--color-spark-bright) 0%,var(--color-spark-deep) 100%)">
+        <div class="stat-num text-4xl sm:text-5xl md:text-6xl !text-white">100<span class="text-white/85">%</span></div>
+        <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-white/85">{t('stats.tested')}</p>
+      </div>
+      <div class="bg-[var(--color-axxaz-mist)] rounded-2xl p-7 md:p-9">
+        <div class="stat-num text-4xl sm:text-5xl md:text-6xl">14<span class="text-[var(--color-spark)] text-2xl sm:text-3xl ml-1">{t('stats.placementUnit')}</span></div>
+        <p class="mt-5 text-sm font-semibold uppercase tracking-wider text-[var(--color-axxaz-navy)]">{t('stats.placement')}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 SERVICES -->
+<section class="section bg-[var(--color-axxaz-mist)]/40 border-y border-[var(--color-line)]">
+  <div class="container-x">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
+      <div class="max-w-xl">
+        <div class="eyebrow">{t('services.kicker')}</div>
+        <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('services.title')}</h2>
+      </div>
+      <a href={localizePath(lang, '/werkgevers')} class="text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold inline-flex items-center gap-1.5 text-sm">{t('services.all')} <Icon name="arrow-right" size={14} stroke={2.25} /></a>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4">
+      {services.map((s, i) => (
+        <article class="card card-hover p-7 md:p-9 bg-white flex flex-col">
+          <div class="text-xs font-mono font-bold tracking-widest text-[var(--color-spark)]">0{i+1}</div>
+          <h3 class="mt-3 text-xl md:text-2xl">{s.title}</h3>
+          <ul class="mt-6 space-y-3 flex-grow">
+            {s.items.map(it => (
+              <li class="flex gap-3 items-start">
+                <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0"><Icon name="arrow-right" size={14} stroke={2.5} /></span>
+                <span class="text-sm leading-relaxed">{it}</span>
+              </li>
+            ))}
+          </ul>
+          <a href={localizePath(lang, '/werkgevers')} class="mt-8 inline-flex items-center gap-1.5 font-semibold text-sm text-[var(--color-axxaz-navy)] hover:text-[var(--color-spark)] transition-colors">
+            {t('cta.lezen')} <Icon name="arrow-right" size={13} stroke={2.5} />
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- VAKGEBIEDEN GRID -->
+<section class="section">
+  <div class="container-x">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
+      <div class="max-w-xl">
+        <div class="eyebrow">{t('vak.kicker')}</div>
+        <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('vak.title')}</h2>
+      </div>
+      <a href={localizePath(lang, '/vacatures')} class="btn btn-outline btn-sm">
+        {t('cta.alleVacatures')}
+        <Icon name="arrow-right" size={14} stroke={2.25} />
+      </a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3">
+      {vakgebieden.map(v => (
+        <a href={localizePath(lang, `/vacatures?cat=${v.slug}`)}
+           class="group flex items-center justify-between gap-4 rounded-xl border border-[var(--color-line)] bg-white px-5 py-5 hover:border-[var(--color-axxaz-navy)] hover:shadow-[0_8px_24px_-8px_rgba(14,26,61,0.15)] hover:-translate-y-0.5 transition-all duration-300">
+          <div class="flex items-center gap-4 min-w-0">
+            <span class="w-11 h-11 rounded-xl bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)] flex-shrink-0 group-hover:bg-[var(--color-spark)] group-hover:text-white transition-colors">
+              <Icon name={v.icon} size={20} />
+            </span>
+            <div class="min-w-0">
+              <div class="font-semibold leading-tight truncate">{vakLabels[v.slug] ?? v.name}</div>
+              <div class="text-xs text-[var(--color-ink-mute)] mt-0.5 font-mono">{t('vak.count').replace('{n}', String(v.count))}</div>
+            </div>
+          </div>
+          <Icon name="arrow-up-right" size={16} stroke={2} class="text-[var(--color-ink-mute)] group-hover:text-[var(--color-spark)] flex-shrink-0 transition-colors" />
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- TEST CENTER -->
+<section class="bg-mesh-dark text-white relative overflow-hidden">
+  <div class="absolute inset-0 pattern-grid opacity-40 pointer-events-none"></div>
+  <div class="container-x py-20 md:py-28 lg:py-32 relative grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+    <div>
+      <div class="eyebrow eyebrow-light">{t('tc.kicker')}</div>
+      <h2 class="mt-5 text-3xl md:text-4xl lg:text-5xl !text-white">{t('tc.title')}</h2>
+      <p class="mt-6 text-white/70 leading-relaxed text-lg">{t('tc.sub')}</p>
+      <ul class="mt-10 space-y-4">
+        {tcBullets.map(item => (
+          <li class="flex gap-3.5 text-white/85">
+            <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-spark)]/15 inline-flex items-center justify-center"><Icon name="check" size={14} stroke={2.5} /></span>
+            <span class="leading-relaxed">{item}</span>
+          </li>
+        ))}
+      </ul>
+      <a href={localizePath(lang, '/vak-en-lastestcentrum')} class="btn btn-spark btn-lg mt-10">
+        {t('tc.cta')}
+        <Icon name="arrow-right" size={16} stroke={2.5} />
+      </a>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="img-zoom rounded-2xl">
+        <img src="/img/site/welding-1.png" alt="" class="aspect-[3/4] object-cover w-full" loading="lazy"/>
+      </div>
+      <div class="img-zoom rounded-2xl translate-y-10">
+        <img src="/img/site/workshop-2.jpg" alt="" class="aspect-[3/4] object-cover w-full" loading="lazy"/>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VACATURES STRIP -->
+<section class="section">
+  <div class="container-x">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
+      <div class="max-w-xl">
+        <div class="eyebrow">{t('spoed.kicker')}</div>
+        <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('spoed.title')}</h2>
+      </div>
+      <a href={localizePath(lang, '/vacatures')} class="btn btn-outline">
+        {t('cta.alleVacatures')}
+        <Icon name="arrow-right" size={14} stroke={2.25} />
+      </a>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4">
+      {urgentVacs.map(v => (
+        <a href={localizePath(lang, `/vacatures/${v.slug}`)} class="card card-hover group p-7 flex flex-col">
+          <div class="flex items-center justify-between gap-2 mb-5">
+            <span class="chip chip-spark"><Icon name="flame" size={11} stroke={2} /> {t('spoed.urgent')}</span>
+            <span class="text-xs text-[var(--color-ink-mute)] inline-flex items-center gap-1"><Icon name="pin" size={12} stroke={2} />{v.location}</span>
+          </div>
+          <h3 class="text-xl leading-snug group-hover:text-[var(--color-axxaz-navy)] transition-colors">{v.title}</h3>
+          <p class="mt-3 text-sm flex-grow truncate-3">{v.summary}</p>
+          <div class="mt-6 pt-5 border-t border-[var(--color-line)] flex items-center justify-between text-sm">
+            <span class="font-semibold text-[var(--color-axxaz-navy)] font-mono">{v.salary}</span>
+            <span class="w-8 h-8 rounded-full bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)] group-hover:bg-[var(--color-spark)] group-hover:text-white transition-colors"><Icon name="arrow-right" size={14} stroke={2.5} /></span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS BLOCK -->
+<section class="section bg-[var(--color-axxaz-mist)]/40 border-y border-[var(--color-line)]">
+  <div class="container-x">
+    <div class="grid lg:grid-cols-[auto_1fr] gap-12 lg:gap-20 items-start">
+      <div class="lg:max-w-xs">
+        <div class="eyebrow">{t('rev.kicker')}</div>
+        <div class="mt-5 stat-num text-6xl md:text-7xl !text-[var(--color-spark)]">{reviewSummary.google}</div>
+        <div class="flex gap-1 mt-4">
+          {[1,2,3,4,5].map(s => (
+            <Icon name="star" size={22} class="text-[var(--color-ember)] fill-[var(--color-ember)]" stroke={1.5} />
+          ))}
+        </div>
+        <p class="mt-4 text-sm">{t('rev.basis').replace('{n}', String(reviewSummary.googleCount))}</p>
+        <a href="#" class="mt-6 btn btn-outline btn-sm">{t('rev.all')}</a>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {reviews.slice(0, 4).map(r => (
+          <article class="card p-6 bg-white">
+            <div class="flex gap-0.5 mb-4">
+              {[1,2,3,4,5].map(s => (
+                <Icon name="star" size={14} class="text-[var(--color-ember)] fill-[var(--color-ember)]" stroke={1.5} />
+              ))}
+            </div>
+            <p class="text-sm leading-relaxed">"{r.text}"</p>
+            <div class="mt-5 pt-4 border-t border-[var(--color-line)] text-xs">
+              <div class="font-semibold text-[var(--color-ink)]">{r.name}</div>
+              <div class="text-[var(--color-ink-mute)] mt-0.5">{r.role}</div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDERS -->
+<section class="section">
+  <div class="container-x">
+    <div class="grid lg:grid-cols-[1fr_1.2fr] gap-12 lg:gap-20 items-center">
+      <div>
+        <div class="eyebrow">{t('founders.kicker').replace('{n}', String(founders.length))}</div>
+        <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('founders.title')}</h2>
+        <p class="mt-6 leading-relaxed text-base md:text-lg">{t('founders.sub').replace('{year}', String(site.founded))}</p>
+        <a href={localizePath(lang, '/wie-wij-zijn')} class="btn btn-primary mt-9">{t('cta.naarOnsTeam')}</a>
+      </div>
+      <div class="relative">
+        <div class="img-zoom rounded-2xl shadow-[0_24px_60px_-20px_rgba(14,26,61,0.25)]">
+          <img src="/img/team/founders-duo.jpg" alt="Sem Goddijn & Rody Sinke" class="aspect-[4/3] object-cover w-full" loading="lazy" />
+        </div>
+        <div class="absolute -bottom-6 -left-6 bg-white border border-[var(--color-line)] rounded-xl p-5 max-w-[280px] hidden md:block shadow-[0_16px_40px_-12px_rgba(14,26,61,0.2)]">
+          <div class="text-xs uppercase tracking-widest text-[var(--color-spark)] font-bold">Sem & Rody</div>
+          <div class="mt-1.5 font-semibold text-sm leading-snug">{t('founders.tag.role')} · {t('founders.tag.years')}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section class="section bg-mesh-dark text-white relative overflow-hidden">
+  <div class="absolute inset-0 pattern-grid opacity-40 pointer-events-none"></div>
+  <div class="container-x relative">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
+      <div class="max-w-xl">
+        <div class="eyebrow eyebrow-light">{t('comm.kicker')}</div>
+        <h2 class="mt-4 !text-white text-3xl md:text-4xl lg:text-5xl">{t('comm.title')}</h2>
+        <p class="mt-5 text-white/65 leading-relaxed">{t('comm.sub')}</p>
+      </div>
+      <a href={localizePath(lang, '/community')} class="btn btn-on-dark">{t('comm.feed')}</a>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4">
+      {facebookFeed.slice(0, 2).map(p => (
+        <article class="rounded-2xl bg-white/5 backdrop-blur border border-white/10 overflow-hidden flex flex-col hover:border-white/20 hover:bg-white/8 transition-all duration-300">
+          <div class="img-zoom">
+            <img src={p.image} alt="" class="w-full aspect-[16/10] object-cover" loading="lazy" />
+          </div>
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="flex items-center gap-2.5 text-xs text-white/60">
+              <Icon name="facebook" size={14} class="text-[#67A0DC]" />
+              <span class="font-semibold">Facebook</span>
+              <span>·</span>
+              <time>{p.date}</time>
+            </div>
+            <h3 class="mt-3 text-base !text-white font-semibold leading-snug">{p.title}</h3>
+            <p class="mt-2 text-sm text-white/65 truncate-3 flex-grow">{p.excerpt}</p>
+            <div class="mt-5 pt-4 border-t border-white/10 flex gap-5 text-xs text-white/55">
+              <span class="inline-flex items-center gap-1.5"><Icon name="heart" size={12} stroke={2} /> {p.likes}</span>
+              <span class="inline-flex items-center gap-1.5"><Icon name="comment" size={12} stroke={2} /> {p.comments}</span>
+            </div>
+          </div>
+        </article>
+      ))}
+      <article class="rounded-2xl border border-[var(--color-spark)]/30 overflow-hidden flex flex-col" style="background:linear-gradient(135deg, rgba(184,65,15,0.4) 0%, rgba(232,93,31,0.25) 100%)">
+        <div class="p-6 flex-grow">
+          <div class="flex items-center gap-2.5 text-xs text-white/70">
+            <Icon name="linkedin" size={14} class="text-[#67A0DC]" />
+            <span class="font-semibold text-white/90">LinkedIn</span>
+            <span>·</span>
+            <time>{linkedinFeed[0].date}</time>
+          </div>
+          <h3 class="mt-3 text-base font-semibold leading-snug !text-white">{linkedinFeed[0].title}</h3>
+          <p class="mt-2 text-sm text-white/80 truncate-4">{linkedinFeed[0].excerpt}</p>
+          <div class="mt-5 pt-4 border-t border-white/15 flex gap-5 text-xs text-white/70">
+            <span class="inline-flex items-center gap-1.5"><Icon name="heart" size={12} stroke={2} /> {linkedinFeed[0].likes}</span>
+            <span class="inline-flex items-center gap-1.5"><Icon name="comment" size={12} stroke={2} /> {linkedinFeed[0].comments}</span>
+          </div>
+        </div>
+        <a href={localizePath(lang, '/community')} class="px-6 py-4 bg-black/20 hover:bg-black/30 transition-colors flex items-center justify-between text-sm">
+          <span>2 {lang === 'nl' ? 'jaar partnership' : 'years partnership'} Damen</span>
+          <span class="text-[var(--color-spark)] inline-flex items-center gap-1.5 font-semibold">{t('cta.lezen')} <Icon name="arrow-right" size={14} stroke={2.25} /></span>
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- CASES PREVIEW -->
+<section class="section bg-[var(--color-axxaz-mist)]/30 border-y border-[var(--color-line)]" data-reveal>
+  <div class="container-x">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-10">
+      <div class="max-w-xl">
+        <div class="eyebrow">{t('cases.kicker')}</div>
+        <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('cases.title')}</h2>
+        <p class="mt-4">{t('cases.sub')}</p>
+      </div>
+      <a href={localizePath(lang, '/cases')} class="text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold inline-flex items-center gap-1.5 text-sm">{t('cases.back')} <Icon name="arrow-right" size={14} stroke={2.25} /></a>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5">
+      {cases.map(cs => (
+        <a href={localizePath(lang, `/cases/${cs.slug}`)} class="group flex flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white hover:border-[var(--color-axxaz-navy)] hover:-translate-y-1 hover:shadow-[0_24px_60px_-24px_rgba(14,26,61,0.2)] transition-all duration-300">
+          <div class="relative aspect-[16/10] overflow-hidden">
+            <img src={cs.cover} alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            <div class="absolute bottom-3 left-4 right-4 text-white">
+              <div class="text-[10px] uppercase tracking-widest font-bold opacity-90">{cs.industry} · {cs.location}</div>
+              <div class="font-bold mt-1 truncate">{cs.client}</div>
+            </div>
+          </div>
+          <div class="p-6 flex flex-col flex-grow">
+            <h3 class="text-lg leading-snug group-hover:text-[var(--color-axxaz-navy)] transition-colors">{lang === 'en' ? cs.titleEn : cs.titleNl}</h3>
+            <p class="mt-3 text-sm flex-grow truncate-3">{lang === 'en' ? cs.excerptEn : cs.excerptNl}</p>
+            <div class="mt-5 inline-flex items-center gap-1.5 font-semibold text-sm text-[var(--color-spark)]">
+              {t('cases.cta')} <Icon name="arrow-right" size={13} stroke={2.5} />
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- BLOG PREVIEW -->
+<section class="section">
+  <div class="container-x">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
+      <div class="max-w-xl">
+        <div class="eyebrow">{t('blog.kicker')}</div>
+        <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('blog.title')}</h2>
+      </div>
+      <a href="#" class="text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold inline-flex items-center gap-1.5 text-sm">{t('blog.all')} <Icon name="arrow-right" size={14} stroke={2.25} /></a>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5">
+      {blogPosts.map(post => (
+        <a href="#" class="group flex flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] hover:border-[var(--color-axxaz-navy)] transition-all duration-300 bg-white hover:-translate-y-1 hover:shadow-[0_24px_60px_-24px_rgba(14,26,61,0.2)]">
+          <div class="relative aspect-[16/10] overflow-hidden">
+            <img src={post.image} alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+            <span class="absolute top-4 left-4 chip chip-spark backdrop-blur-md">{post.category}</span>
+          </div>
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="flex gap-3 text-xs text-[var(--color-ink-mute)] font-mono">
+              <span>{post.readTime}</span>
+              <span>·</span>
+              <time>{post.date}</time>
+            </div>
+            <h3 class="mt-3 text-lg leading-snug group-hover:text-[var(--color-axxaz-navy)] transition-colors">{post.title}</h3>
+            <p class="mt-3 text-sm flex-grow truncate-3">{post.excerpt}</p>
+            <div class="mt-5 inline-flex items-center gap-1.5 font-semibold text-sm text-[var(--color-spark)]">
+              {t('cta.lezen')} <Icon name="arrow-right" size={13} stroke={2.5} />
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS STRIP -->
+<section class="border-y border-[var(--color-line)] bg-[var(--color-axxaz-mist)]/50">
+  <div class="container-x py-10">
+    <div class="flex items-center gap-6 flex-wrap justify-center md:justify-between">
+      <div class="flex items-center gap-3">
+        <Icon name="shield-check" size={20} class="text-[var(--color-axxaz-navy)]" stroke={1.75} />
+        <p class="text-sm font-bold uppercase tracking-widest text-[var(--color-axxaz-navy)]">{t('certstrip.title')}</p>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-center">
+        {validCerts.map(c => (
+          <span class="chip chip-ghost font-mono">{c.name}</span>
+        ))}
+      </div>
+      <a href={localizePath(lang, '/certificaten')} class="text-sm text-[var(--color-spark)] font-semibold hover:text-[var(--color-spark-deep)] inline-flex items-center gap-1">
+        {t('certstrip.all')} <Icon name="arrow-right" size={14} stroke={2.25} />
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- BIG CTA -->
+<section class="section">
+  <div class="container-x">
+    <div class="rounded-3xl bg-mesh-dark text-white p-10 md:p-16 lg:p-20 relative overflow-hidden">
+      <div class="absolute inset-0 pattern-grid opacity-50 pointer-events-none"></div>
+      <div class="absolute -right-24 -bottom-24 w-[500px] h-[500px] rounded-full bg-[var(--color-spark)]/15 blur-[100px] pointer-events-none"></div>
+      <div class="relative max-w-3xl">
+        <div class="eyebrow eyebrow-light">{t('bigcta.kicker')}</div>
+        <h2 class="mt-5 text-3xl md:text-5xl lg:text-6xl !text-white tracking-tight">{t('bigcta.title')}</h2>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a href={localizePath(lang, '/contact')} class="btn btn-spark btn-lg">
+            {t('cta.belOns')}
+            <Icon name="phone" size={16} stroke={2} />
+          </a>
+          <a href={localizePath(lang, '/vacatures')} class="btn btn-on-dark btn-lg">{t('cta.bekijkVacatures')}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

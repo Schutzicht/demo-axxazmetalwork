@@ -1,0 +1,117 @@
+---
+import { useTranslations } from '../i18n/utils';
+import { facebookFeed, linkedinFeed, site } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const events = [
+  { m: 'MEI', d: '17', title: 'Lasdag Tholen', sub: 'Open dag · iedereen welkom' },
+  { m: 'JUN', d: '21', title: 'Metalclub-borrel', sub: 'Willemstad · 16:00–22:00' },
+  { m: 'SEP', d: '04', title: 'EVC info', sub: 'Online · gratis' },
+];
+---
+<PageHero kicker={t('commp.kicker')} title={t('commp.title')} sub={t('commp.sub')} />
+
+<section class="section-tight">
+  <div class="container-x grid lg:grid-cols-[2fr_1fr] gap-10">
+    <div>
+      <div class="flex items-center gap-3 mb-7">
+        <div class="w-10 h-10 rounded-lg bg-[#1877F2]/10 inline-flex items-center justify-center text-[#1877F2]">
+          <Icon name="facebook" size={18} />
+        </div>
+        <div>
+          <h2 class="text-xl !text-[var(--color-axxaz-navy)]">Facebook</h2>
+          <a href={site.socials.facebook} target="_blank" rel="noopener" class="text-sm text-[var(--color-spark)] hover:text-[var(--color-spark-deep)]">@axxazmetalwork</a>
+        </div>
+      </div>
+      <div class="space-y-5">
+        {facebookFeed.map(p => (
+          <article class="card p-0 overflow-hidden grid sm:grid-cols-[2fr_3fr]">
+            <img src={p.image} alt="" class="w-full h-full aspect-video sm:aspect-auto object-cover" loading="lazy" />
+            <div class="p-6 flex flex-col">
+              <div class="flex items-center gap-2 text-xs text-[var(--color-ink-mute)]">
+                <strong class="text-[var(--color-ink)]">AXXAZ Metalwork</strong>
+                <span>·</span>
+                <time>{p.date}</time>
+              </div>
+              <h3 class="mt-2 text-lg !text-[var(--color-axxaz-navy)] leading-snug">{p.title}</h3>
+              <p class="mt-3 text-sm leading-relaxed flex-grow">{p.excerpt}</p>
+              <div class="mt-5 pt-4 border-t border-[var(--color-line)] flex gap-5 text-xs text-[var(--color-ink-mute)]">
+                <span class="inline-flex items-center gap-1.5"><Icon name="heart" size={12} stroke={2} /> {p.likes}</span>
+                <span class="inline-flex items-center gap-1.5"><Icon name="comment" size={12} stroke={2} /> {p.comments}</span>
+                <span class="ml-auto text-[var(--color-spark)] font-semibold inline-flex items-center gap-1">{t('cta.bekijken')} <Icon name="arrow-up-right" size={12} stroke={2.25} /></span>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <aside class="space-y-7">
+      <div>
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-lg bg-[#0A66C2]/10 inline-flex items-center justify-center text-[#0A66C2]">
+            <Icon name="linkedin" size={18} />
+          </div>
+          <h2 class="text-lg !text-[var(--color-axxaz-navy)]">LinkedIn</h2>
+        </div>
+        <div class="space-y-4">
+          {linkedinFeed.map(p => (
+            <article class="card p-5">
+              <div class="text-xs text-[var(--color-ink-mute)] mb-1.5"><strong class="text-[var(--color-ink)]">AXXAZ Metalwork</strong> · {p.date}</div>
+              <h3 class="text-base !text-[var(--color-axxaz-navy)] leading-snug">{p.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed truncate-3">{p.excerpt}</p>
+              <div class="mt-3 flex gap-4 text-xs text-[var(--color-ink-mute)]">
+                <span class="inline-flex items-center gap-1.5"><Icon name="heart" size={12} stroke={2} /> {p.likes}</span>
+                <span class="inline-flex items-center gap-1.5"><Icon name="comment" size={12} stroke={2} /> {p.comments}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-gradient-to-br from-[#833AB4] via-[#E85D75] to-[#F77737] text-white p-6 text-center">
+        <div class="text-lg font-semibold">{t('commp.ig')}</div>
+        <p class="mt-2 text-sm text-white/90 leading-relaxed">{t('commp.igSub')}</p>
+        <div class="mt-5 flex gap-2 justify-center">
+          <a href={site.socials.instagram} target="_blank" rel="noopener" class="bg-white/15 backdrop-blur rounded-full px-4 py-2 font-semibold text-sm hover:bg-white/25 inline-flex items-center gap-1.5"><Icon name="instagram" size={14} stroke={2} /> Instagram</a>
+          <a href={site.socials.tiktok} target="_blank" rel="noopener" class="bg-white/15 backdrop-blur rounded-full px-4 py-2 font-semibold text-sm hover:bg-white/25 inline-flex items-center gap-1.5"><Icon name="tiktok" size={14} /> TikTok</a>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <h3 class="text-base">{t('commp.events')}</h3>
+        <ul class="mt-5 space-y-4 text-sm">
+          {events.map(ev => (
+            <li class="flex gap-3 items-start">
+              <div class="rounded-md border border-[var(--color-line)] px-2 py-1 text-center w-12 flex-shrink-0">
+                <div class="text-[10px] uppercase font-bold text-[var(--color-ink-mute)] tracking-wider">{ev.m}</div>
+                <div class="font-bold text-base leading-none mt-0.5">{ev.d}</div>
+              </div>
+              <div>
+                <div class="font-semibold leading-tight">{ev.title}</div>
+                <div class="text-xs text-[var(--color-ink-mute)] mt-1">{ev.sub}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x py-20 text-center">
+    <h2 class="!text-white text-3xl md:text-4xl">{t('commp.bigTitle')}</h2>
+    <p class="mt-4 text-white/70 max-w-xl mx-auto leading-relaxed">{t('commp.bigSub')}</p>
+    <div class="mt-9 flex flex-wrap gap-3 justify-center">
+      <a href={site.socials.facebook} target="_blank" rel="noopener" class="btn btn-spark"><Icon name="facebook" size={14} /> {t('comm.followFb')}</a>
+      <a href={site.socials.linkedin} target="_blank" rel="noopener" class="btn btn-on-dark"><Icon name="linkedin" size={14} /> {t('comm.followLi')}</a>
+    </div>
+  </div>
+</section>

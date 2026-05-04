@@ -1,0 +1,139 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import { sourcingMap, site } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const flow = [
+  { n: '1', title: t('src.flow.1.t'), text: t('src.flow.1.d') },
+  { n: '2', title: t('src.flow.2.t'), text: t('src.flow.2.d') },
+  { n: '3', title: t('src.flow.3.t'), text: t('src.flow.3.d') },
+  { n: '4', title: t('src.flow.4.t'), text: t('src.flow.4.d') },
+  { n: '5', title: t('src.flow.5.t'), text: t('src.flow.5.d') },
+  { n: '6', title: t('src.flow.6.t'), text: t('src.flow.6.d') },
+];
+---
+<PageHero
+  kicker={t('src.kicker')}
+  title={t('src.title')}
+  sub={t('src.sub').replace('{eu}', String(site.europeOffices)).replace('{az}', String(site.asiaOffices))}
+/>
+
+<section class="section">
+  <div class="container-x">
+    <div class="max-w-2xl">
+      <div class="eyebrow">{t('src.landen.kicker')}</div>
+      <h2 class="mt-3 text-3xl md:text-4xl">{t('src.landen.title')}</h2>
+      <p class="mt-5 leading-relaxed">{t('src.landen.intro')}</p>
+    </div>
+
+    <div class="mt-12 grid lg:grid-cols-2 gap-6">
+      <div class="card p-8">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)]">
+            <Icon name="globe" size={20} />
+          </div>
+          <h3 class="!text-[var(--color-axxaz-navy)] text-xl">{t('src.eu.title').replace('{n}', String(site.europeOffices))}</h3>
+        </div>
+        <ul class="mt-6 grid grid-cols-2 gap-y-2.5">
+          {sourcingMap.europe.map(c => (
+            <li class="flex items-center gap-2.5 text-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-axxaz-navy)] flex-shrink-0"></span>{c}
+            </li>
+          ))}
+        </ul>
+        <div class="mt-7 pt-5 border-t border-[var(--color-line)] text-xs text-[var(--color-ink-mute)]">{t('src.eu.sub')}</div>
+      </div>
+      <div class="card p-8">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-[color-mix(in_srgb,var(--color-spark)_15%,white)] inline-flex items-center justify-center text-[var(--color-spark-deep)]">
+            <Icon name="globe" size={20} />
+          </div>
+          <h3 class="!text-[var(--color-axxaz-navy)] text-xl">{t('src.az.title').replace('{n}', String(site.asiaOffices))}</h3>
+        </div>
+        <ul class="mt-6 space-y-2.5">
+          {sourcingMap.asia.map(c => (
+            <li class="flex items-center gap-2.5 text-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)] flex-shrink-0"></span>{c}
+            </li>
+          ))}
+        </ul>
+        <div class="mt-7 pt-5 border-t border-[var(--color-line)] text-xs text-[var(--color-ink-mute)]">{t('src.az.sub')}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="container-x py-20">
+    <div class="max-w-2xl">
+      <div class="eyebrow eyebrow-light">{t('src.flow.kicker')}</div>
+      <h2 class="mt-3 !text-white text-3xl md:text-4xl">{t('src.flow.title')}</h2>
+    </div>
+    <div class="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {flow.map(s => (
+        <article class="rounded-xl bg-white/5 backdrop-blur p-7 border border-white/10">
+          <span class="num-badge num-badge-spark">{s.n}</span>
+          <h4 class="!text-white mt-5">{s.title}</h4>
+          <p class="text-white/70 text-sm mt-2 leading-relaxed">{s.text}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-x grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <div>
+      <div class="eyebrow">{t('src.hq.kicker')}</div>
+      <h2 class="mt-3 text-3xl">{t('src.hq.title')}</h2>
+      <p class="mt-5 leading-relaxed">{t('src.hq.p1')}</p>
+      <p class="mt-4 leading-relaxed">{t('src.hq.p2')}</p>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-[var(--color-line)]">
+      <img src="/img/site/hero-aerial.jpg" class="w-full aspect-[4/3] object-cover" alt="" loading="lazy" />
+      <div class="p-5 text-sm border-t border-[var(--color-line)]">
+        <div class="font-semibold">{site.hq.name}</div>
+        <p class="text-[var(--color-ink-mute)] mt-1">{site.hq.street}, {site.hq.city}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-mist)]/40 border-y border-[var(--color-line)]">
+  <div class="container-x py-20 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <div class="rounded-xl overflow-hidden bg-white border border-[var(--color-line)] order-last lg:order-first">
+      <img src="/img/site/team-2.jpg" class="w-full aspect-[4/3] object-cover" alt="" loading="lazy" />
+      <div class="p-5 text-sm border-t border-[var(--color-line)]">
+        <div class="font-semibold">Manilla</div>
+        <p class="text-[var(--color-ink-mute)] mt-1">AXXAZ Asia Building, Makati City</p>
+      </div>
+    </div>
+    <div>
+      <div class="eyebrow">{t('src.az.kicker')}</div>
+      <h2 class="mt-3 text-3xl">{t('src.az.titleHub')}</h2>
+      <p class="mt-5 leading-relaxed">{t('src.az.p1')}</p>
+      <ul class="mt-6 space-y-3">
+        {[t('src.az.b1'), t('src.az.b2'), t('src.az.b3')].map(item => (
+          <li class="flex gap-3">
+            <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0"><Icon name="check" size={16} stroke={2.25} /></span>
+            <span class="text-sm leading-relaxed">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section text-center">
+  <div class="container-narrow">
+    <h2 class="text-3xl">{t('src.cta.title')}</h2>
+    <p class="mt-4 max-w-xl mx-auto">{t('src.cta.sub')}</p>
+    <a href={localizePath(lang, '/contact')} class="btn btn-primary mt-7">{t('src.cta.btn')}</a>
+  </div>
+</section>

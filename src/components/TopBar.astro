@@ -1,0 +1,41 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+import { site } from '../data/site';
+import Icon from './Icon.astro';
+import LangSwitcher from './LangSwitcher.astro';
+interface Props { lang: Lang; currentPath: string }
+const { lang, currentPath } = Astro.props;
+const t = useTranslations(lang);
+const tel = site.phoneOffice.replace(/\s/g, '');
+---
+<div class="bg-[var(--color-axxaz-navy-darker)] text-white text-[0.7rem] sm:text-[0.75rem]">
+  <div class="container-x flex items-center justify-between gap-2 sm:gap-4 py-2">
+    <div class="flex items-center gap-3 sm:gap-5 text-white/55 min-w-0">
+      <a href={`tel:${tel}`} class="inline-flex items-center gap-1.5 hover:text-white transition-colors font-medium tracking-wide flex-shrink-0">
+        <Icon name="phone" size={11} stroke={2.25} />
+        <span class="hidden xs:inline sm:inline">{site.phoneOfficeShort}</span>
+      </a>
+      <span class="hidden lg:inline-flex items-center gap-1.5">
+        <Icon name="clock" size={11} stroke={2.25} />
+        {site.hours}
+      </span>
+    </div>
+    <div class="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+      <a href={localizePath(lang, '/open-sollicitatie')}
+         class="inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-white/80 hover:text-white hover:bg-white/5 transition-colors font-semibold tracking-wide whitespace-nowrap">
+        <span class="hidden sm:inline">{t('cta.openSollicitatie')}</span>
+        <span class="sm:hidden">Solliciteer</span>
+        <Icon name="arrow-right" size={11} stroke={2.5} class="hidden sm:inline" />
+      </a>
+      <span class="text-white/10 hidden sm:inline">·</span>
+      <a href={localizePath(lang, '/ats')}
+         class="inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-[var(--color-spark)] hover:text-white hover:bg-[var(--color-spark)]/15 transition-all font-bold tracking-[0.08em] sm:tracking-[0.12em] whitespace-nowrap">
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)] animate-pulse"></span>
+        ATS
+      </a>
+      <span class="text-white/10 hidden sm:inline mx-0.5">·</span>
+      <LangSwitcher currentLang={lang} currentPath={currentPath} onDark />
+    </div>
+  </div>
+</div>

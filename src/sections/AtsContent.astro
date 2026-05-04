@@ -1,0 +1,1758 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import {
+  initialCandidates, statusMeta, statusOrder,
+  activityLog, notifications, atsClients, broadcasts, broadcastTemplates,
+  placementsByMonth, sourcingFunnel, testPassRate, topVakgebieden,
+  commsLog, candidateNotes, candidateDocs,
+  regionFor, regionMeta,
+} from '../data/atsData';
+import { vacancies, certifications } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const today = new Date('2026-05-01');
+function daysUntil(d: string) {
+  return Math.ceil((new Date(d).getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+const certRows = certifications.map(c => {
+  const days = daysUntil(c.expires);
+  const reminderTriggered = (days > 0) && (days <= 14);
+  const isExpiring = days <= 14;
+  return { ...c, days, reminderTriggered, isExpiring };
+});
+
+const reminderCerts = certRows.filter(c => c.reminderTriggered);
+const unreadCount = notifications.filter(n => n.unread).length;
+
+// Chart math (placements line)
+const maxPlace = Math.max(...placementsByMonth.map(p => p.n));
+const chartW = 480;
+const chartH = 140;
+const padX = 24;
+const padY = 18;
+const stepX = (chartW - padX * 2) / (placementsByMonth.length - 1);
+const points = placementsByMonth.map((p, i) => {
+  const x = padX + i * stepX;
+  const y = chartH - padY - ((p.n / maxPlace) * (chartH - padY * 2));
+  return { x, y, ...p };
+});
+const pathD = points.map((p, i) => (i === 0 ? `M${p.x} ${p.y}` : `L${p.x} ${p.y}`)).join(' ');
+const areaD = `${pathD} L${points[points.length - 1].x} ${chartH - padY} L${points[0].x} ${chartH - padY} Z`;
+
+// Donut math
+const circ = 2 * Math.PI * 36;
+const donutDash = (testPassRate.passed / 100) * circ;
+
+// Funnel widths
+const maxFun = sourcingFunnel[0].n;
+
+// Pools, count candidates per region/country
+const candWithRegion = initialCandidates.map(c => ({ ...c, region: regionFor(c.origin) }));
+const euCands = candWithRegion.filter(c => c.region === 'eu');
+const thirdCands = candWithRegion.filter(c => c.region === 'third');
+const euCountries = [...new Set(euCands.map(c => c.origin))].sort();
+const thirdCountries = [...new Set(thirdCands.map(c => c.origin))].sort();
+const allDisciplines = [...new Set(initialCandidates.map(c => c.role))].sort();
+const allCerts = [...new Set(initialCandidates.flatMap(c => c.certs))].sort();
+const allLangs = [...new Set(initialCandidates.flatMap(c => c.languages))].sort();
+const savedPools = [
+  { id: 'sp-1', name: 'TIG VCA NL klaar', filterDesc: 'TIG · VCA basis · status qualified+placed', count: 3 },
+  { id: 'sp-2', name: 'MIG/MAG senior EU', filterDesc: 'MIG/MAG · ervaring 5+ · regio EU', count: 4 },
+  { id: 'sp-3', name: 'Manilla beschikbaar', filterDesc: 'Origin Filipijnen · beschikbaar deze week', count: 2 },
+];
+---
+
+<!-- LOGIN -->
+<section id="ats-login" class="min-h-[calc(100vh-160px)] flex items-center justify-center bg-mesh-dark py-16 px-4 relative">
+  <div class="absolute inset-0 pattern-grid opacity-40 pointer-events-none"></div>
+  <div class="relative w-full max-w-md card p-9 bg-white">
+    <div class="text-center">
+      <span class="chip chip-spark font-mono">{t('ats.demo')}</span>
+      <h1 class="mt-5 text-2xl">AXXAZ ATS</h1>
+      <p class="mt-2 text-sm text-[var(--color-ink-soft)]">Applicant Tracking System, intern beheer-portaal</p>
+    </div>
+    <form class="mt-8 space-y-4" id="ats-login-form">
+      <label>
+        <span class="field-label">E-mail</span>
+        <input value="rody@axxazmetalwork.nl" class="field" />
+      </label>
+      <label>
+        <span class="field-label">Wachtwoord</span>
+        <input type="password" value="••••••••" class="field" />
+      </label>
+      <button type="submit" class="btn btn-primary w-full mt-2">
+        {t('ats.login')}
+        <Icon name="arrow-right" size={14} stroke={2.25} />
+      </button>
+    </form>
+    <p class="mt-6 text-xs text-center text-[var(--color-ink-mute)] leading-relaxed">Klik gewoon op "Inloggen", dit is een demo, geen echte authenticatie.</p>
+  </div>
+</section>
+
+<!-- ATS APP -->
+<section id="ats-app" class="hidden">
+  <div class="bg-[var(--color-axxaz-navy-darker)] text-white border-b border-white/10">
+    <div class="container-x py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
+      <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+        <div class="font-bold text-sm sm:text-base tracking-tight inline-flex items-center gap-1.5 sm:gap-2" style="font-family:Manrope,sans-serif">
+          AXXAZ <span class="text-white/30">/</span> <span class="text-[var(--color-spark)]">ATS</span>
+        </div>
+        <span class="chip chip-dark font-mono text-[9px] sm:text-[10px] hidden sm:inline-flex">DEMO · alle data is fictief</span>
+      </div>
+      <div class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm flex-shrink-0">
+        <button id="notif-toggle" class="relative p-2 rounded-md hover:bg-white/5 transition-colors" aria-label="Notificaties">
+          <Icon name="mail" size={18} stroke={2} />
+          {unreadCount > 0 && (
+            <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-[var(--color-spark)] text-white text-[10px] font-bold inline-flex items-center justify-center px-1">{unreadCount}</span>
+          )}
+        </button>
+        <span class="text-white/15 mx-1 hidden sm:inline">·</span>
+        <span class="text-white/50 hidden md:inline">Ingelogd:</span>
+        <span class="font-semibold hidden sm:inline">Rody Sinke</span>
+        <span class="font-semibold sm:hidden text-xs">RS</span>
+        <button id="ats-logout" class="ml-1 sm:ml-2 text-[var(--color-spark)] hover:text-white text-[11px] sm:text-xs underline transition-colors">Uitloggen</button>
+      </div>
+    </div>
+    <div class="container-x">
+      <nav class="flex gap-0.5 sm:gap-1 -mb-px overflow-x-auto scrollbar-thin">
+        {[
+          { key: 'dashboard', label: t('ats.dashboard') },
+          { key: 'pools', label: 'Pools' },
+          { key: 'kandidaten', label: t('ats.kandidaten') },
+          { key: 'verzoeken', label: 'Verzoeken' },
+          { key: 'planner', label: 'Test-planner' },
+          { key: 'vacatures', label: t('ats.vacatures') },
+          { key: 'klanten', label: 'Klanten' },
+          { key: 'certificaten', label: t('ats.certificaten') },
+        ].map((tab, i) => (
+          <button data-tab={tab.key}
+                  class={`ats-tab px-3 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${i === 0 ? 'border-[var(--color-spark)] text-white' : 'border-transparent text-white/50 hover:text-white'}`}>
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+    </div>
+  </div>
+
+  <div class="bg-[var(--color-paper)] min-h-[calc(100vh-200px)] py-10">
+    <!-- ============= DASHBOARD ============= -->
+    <div data-pane="dashboard" class="container-x">
+      <!-- Stat cards -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card card-elev p-6"><div class="text-xs uppercase tracking-widest text-[var(--color-ink-mute)] font-bold">Kandidaten</div><div class="stat-num text-3xl mt-3">{initialCandidates.length}</div><div class="text-xs text-[var(--color-ink-mute)] mt-2">3 nieuw deze week</div></div>
+        <div class="card card-elev p-6"><div class="text-xs uppercase tracking-widest text-[var(--color-ink-mute)] font-bold">In test</div><div class="stat-num text-3xl mt-3 !text-[var(--color-spark)]">{initialCandidates.filter(c=>c.status==='test').length}</div><div class="text-xs text-[var(--color-ink-mute)] mt-2">deze week ingepland</div></div>
+        <div class="card card-elev p-6"><div class="text-xs uppercase tracking-widest text-[var(--color-ink-mute)] font-bold">Geplaatst</div><div class="stat-num text-3xl mt-3 !text-emerald-700">{initialCandidates.filter(c=>c.status==='placed').length}</div><div class="text-xs text-[var(--color-ink-mute)] mt-2">april 2026</div></div>
+        <div class="card card-elev p-6"><div class="text-xs uppercase tracking-widest text-[var(--color-ink-mute)] font-bold">Open vacatures</div><div class="stat-num text-3xl mt-3">{vacancies.length}</div><div class="text-xs text-[var(--color-ink-mute)] mt-2">{vacancies.filter(v=>v.urgent).length} urgent</div></div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="mt-5 grid lg:grid-cols-3 gap-5">
+        <!-- Placements line chart -->
+        <div class="card card-elev p-6 lg:col-span-2">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+            <h3 class="text-lg">Plaatsingen, laatste 12 maanden</h3>
+            <div class="flex gap-3 text-xs text-[var(--color-ink-mute)]">
+              <span><strong class="text-[var(--color-axxaz-navy)] font-mono">{placementsByMonth.reduce((a,b)=>a+b.n,0)}</strong> totaal</span>
+              <span><strong class="text-emerald-700 font-mono">+18%</strong> vs vorig jaar</span>
+            </div>
+          </div>
+          <svg viewBox={`0 0 ${chartW} ${chartH}`} class="w-full h-auto" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="placeGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--color-spark)" stop-opacity="0.18"/>
+                <stop offset="1" stop-color="var(--color-spark)" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <g>
+              {[0.25, 0.5, 0.75].map(p => (
+                <line x1={padX} x2={chartW - padX} y1={padY + p * (chartH - padY*2)} y2={padY + p * (chartH - padY*2)} stroke="var(--color-line)" stroke-dasharray="2 4"/>
+              ))}
+            </g>
+            <path d={areaD} fill="url(#placeGrad)" />
+            <path d={pathD} fill="none" stroke="var(--color-spark)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            {points.map(p => (
+              <g>
+                <circle cx={p.x} cy={p.y} r="3.5" fill="white" stroke="var(--color-spark)" stroke-width="2"/>
+              </g>
+            ))}
+            {points.map(p => (
+              <text x={p.x} y={chartH - 4} text-anchor="middle" font-size="9" fill="var(--color-ink-mute)" font-family="monospace">{p.m}</text>
+            ))}
+          </svg>
+        </div>
+
+        <!-- Donut: test pass rate -->
+        <div class="card card-elev p-6 flex flex-col">
+          <h3 class="text-lg">Test-slagingspercentage</h3>
+          <div class="flex-grow flex items-center justify-center mt-3 relative">
+            <svg viewBox="0 0 100 100" class="w-44 h-44 -rotate-90">
+              <circle cx="50" cy="50" r="36" fill="none" stroke="var(--color-line)" stroke-width="10"/>
+              <circle cx="50" cy="50" r="36" fill="none" stroke="var(--color-spark)" stroke-width="10" stroke-linecap="round" stroke-dasharray={`${donutDash} ${circ}`}/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div class="stat-num text-4xl">{testPassRate.passed}<span class="text-xl text-[var(--color-spark)]">%</span></div>
+              <div class="text-xs text-[var(--color-ink-mute)] mt-1">geslaagd</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-4 text-xs">
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[var(--color-spark)]"></span>Geslaagd <strong>{testPassRate.passed}%</strong></div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[var(--color-line)]"></span>Niet <strong>{testPassRate.failed}%</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Funnel + Top vakgebieden -->
+      <div class="mt-5 grid lg:grid-cols-2 gap-5">
+        <div class="card card-elev p-6">
+          <h3 class="text-lg">Sourcing-funnel</h3>
+          <p class="text-xs text-[var(--color-ink-mute)] mt-1">Van eerste contact tot plaatsing, laatste 6 maanden.</p>
+          <div class="mt-5 space-y-3">
+            {sourcingFunnel.map((s, i) => {
+              const pct = (s.n / maxFun) * 100;
+              const next = sourcingFunnel[i + 1];
+              const conv = next ? ((next.n / s.n) * 100).toFixed(0) : null;
+              return (
+                <div>
+                  <div class="flex items-center justify-between text-sm mb-1.5">
+                    <span class="font-semibold">{s.stage}</span>
+                    <span class="font-mono text-[var(--color-ink-soft)]">{s.n}</span>
+                  </div>
+                  <div class="h-9 rounded-md relative overflow-hidden bg-[var(--color-line-soft)]">
+                    <div class="h-full transition-all" style={`width:${pct}%;background:${s.color}`}></div>
+                  </div>
+                  {conv && <div class="text-[11px] text-[var(--color-ink-mute)] mt-1 font-mono">↓ {conv}% conversie naar volgende stap</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div class="card card-elev p-6">
+          <h3 class="text-lg">Top vakgebieden, plaatsingen</h3>
+          <p class="text-xs text-[var(--color-ink-mute)] mt-1">Aantal plaatsingen per vakgebied dit jaar.</p>
+          <div class="mt-5 space-y-3.5">
+            {topVakgebieden.map(v => {
+              const pct = (v.n / topVakgebieden[0].n) * 100;
+              return (
+                <div>
+                  <div class="flex items-center justify-between text-sm mb-1.5">
+                    <span class="font-semibold">{v.name}</span>
+                    <span class="font-mono text-[var(--color-ink-soft)]">{v.n}</span>
+                  </div>
+                  <div class="h-2.5 rounded-full bg-[var(--color-line-soft)] overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-[var(--color-axxaz-navy)] to-[var(--color-spark)]" style={`width:${pct}%`}></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline + Reminders -->
+      <div class="mt-5 grid lg:grid-cols-[2fr_1fr] gap-5">
+        <div class="card card-elev p-6">
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="text-lg">Pipeline overzicht</h3>
+            <button data-tab="kandidaten" class="ats-tab text-xs text-[var(--color-spark)] font-semibold hover:text-[var(--color-spark-deep)] inline-flex items-center gap-1">Naar kandidaten <Icon name="arrow-right" size={12} stroke={2.25} /></button>
+          </div>
+          <div class="grid grid-cols-4 gap-2 text-center">
+            {statusOrder.map(s => {
+              const count = initialCandidates.filter(c => c.status === s).length;
+              const meta = statusMeta[s];
+              return (
+                <div class={`rounded-xl ${meta.bg} p-5`}>
+                  <div class={`stat-num text-2xl ${meta.color}`}>{count}</div>
+                  <div class="text-[10px] uppercase tracking-widest mt-2 font-bold">{meta.label}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div class="card card-elev p-6">
+          <h3 class="text-lg">Cert-reminders</h3>
+          <ul class="mt-5 space-y-4 text-sm">
+            {reminderCerts.map(c => (
+              <li class="flex gap-3 items-start">
+                <span class="w-8 h-8 rounded-md bg-[var(--color-spark)]/15 inline-flex items-center justify-center flex-shrink-0 text-[var(--color-spark-deep)]">
+                  <Icon name="mail" size={14} stroke={2} />
+                </span>
+                <div><div class="font-semibold">{c.code} verloopt</div><div class="text-xs text-[var(--color-ink-mute)] mt-0.5">over {c.days} dagen, {c.expires}</div></div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <!-- Activity feed -->
+      <div class="mt-5 card card-elev p-6">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-lg">Activiteit</h3>
+          <span class="text-xs text-[var(--color-ink-mute)] font-mono">laatste 7 dagen</span>
+        </div>
+        <ul class="space-y-4 text-sm border-l-2 border-[var(--color-line)] pl-5">
+          {activityLog.map(a => (
+            <li>
+              <div class="flex items-center gap-2 text-xs text-[var(--color-ink-mute)] font-mono">
+                <span>{a.at}</span>
+                <span>·</span>
+                <span class="text-[var(--color-axxaz-navy)] font-semibold">{a.actor}</span>
+              </div>
+              <div class="mt-1 leading-relaxed">{a.text}</div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <!-- ============= KANDIDATEN ============= -->
+    <div data-pane="kandidaten" class="container-x hidden">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 class="text-2xl">Kandidaten-pipeline</h2>
+          <p class="text-sm text-[var(--color-ink-soft)] mt-1">Sleep een kaart naar een andere kolom om de status te wijzigen. Klik voor detailprofiel.</p>
+        </div>
+        <div class="flex gap-2">
+          <button id="ats-export-csv" class="btn btn-outline btn-sm"><Icon name="download" size={13} stroke={2.25} /> Export CSV</button>
+          <button id="ats-add-candidate" class="btn btn-primary btn-sm"><Icon name="plus" size={13} stroke={2.5} /> Nieuwe kandidaat</button>
+        </div>
+      </div>
+
+      <div id="kanban" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {statusOrder.map(s => (
+          <div class="rounded-xl bg-white border border-[var(--color-line)] flex flex-col" data-col={s}>
+            <div class={`px-4 py-3 border-b border-[var(--color-line)] flex items-center justify-between ${statusMeta[s].bg} rounded-t-xl`}>
+              <h3 class={`text-xs font-bold uppercase tracking-widest ${statusMeta[s].color}`}>{statusMeta[s].label}</h3>
+              <span class="text-xs font-bold text-[var(--color-ink-mute)] font-mono" data-count={s}>0</span>
+            </div>
+            <div class="p-3 space-y-2 min-h-[200px]" data-dropzone={s}></div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- ============= POOLS ============= -->
+    <div data-pane="pools" class="container-x hidden">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 class="text-2xl">Pools & sub-pools</h2>
+          <p class="text-sm text-[var(--color-ink-soft)] mt-1 max-w-2xl">Filter kandidaten per regio, vakgebied of certificaat. Selecteer een groep en stuur direct een verzoek aan iedereen tegelijk.</p>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-[260px_1fr] gap-5">
+        <!-- Sidebar: pool tree -->
+        <aside class="card p-4 self-start lg:sticky lg:top-4 lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto">
+          <h3 class="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-mute)] px-2 mb-2">Regio</h3>
+          <button data-pool="all" class="pool-link w-full flex items-center justify-between px-2 py-2 rounded-md text-sm font-semibold hover:bg-[var(--color-axxaz-mist)] data-[active=true]:bg-[var(--color-axxaz-mist)] data-[active=true]:text-[var(--color-axxaz-navy)]" data-active="true">
+            <span>Alle kandidaten</span>
+            <span class="text-xs font-mono text-[var(--color-ink-mute)]">{initialCandidates.length}</span>
+          </button>
+
+          <div class="mt-4">
+            <button data-pool="region:eu" class="pool-link w-full flex items-center justify-between px-2 py-2 rounded-md text-sm font-semibold hover:bg-[var(--color-axxaz-mist)] data-[active=true]:bg-[var(--color-axxaz-mist)] data-[active=true]:text-[var(--color-axxaz-navy)]">
+              <span class="inline-flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[var(--color-axxaz-navy)]"></span>Europa</span>
+              <span class="text-xs font-mono text-[var(--color-ink-mute)]">{euCands.length}</span>
+            </button>
+            <ul class="mt-1 space-y-0.5 pl-4 border-l border-[var(--color-line)] ml-3">
+              {euCountries.map(country => (
+                <li>
+                  <button data-pool={`origin:${country}`} class="pool-link w-full flex items-center justify-between px-2 py-1.5 rounded-md text-xs hover:bg-[var(--color-axxaz-mist)] text-[var(--color-ink-soft)] hover:text-[var(--color-axxaz-navy)] data-[active=true]:bg-[var(--color-axxaz-mist)] data-[active=true]:text-[var(--color-axxaz-navy)] data-[active=true]:font-semibold">
+                    <span>{country}</span>
+                    <span class="font-mono text-[var(--color-ink-mute)]">{euCands.filter(c => c.origin === country).length}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="mt-4">
+            <button data-pool="region:third" class="pool-link w-full flex items-center justify-between px-2 py-2 rounded-md text-sm font-semibold hover:bg-[var(--color-axxaz-mist)] data-[active=true]:bg-[var(--color-axxaz-mist)] data-[active=true]:text-[var(--color-axxaz-navy)]">
+              <span class="inline-flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[var(--color-spark)]"></span>Derdelanders</span>
+              <span class="text-xs font-mono text-[var(--color-ink-mute)]">{thirdCands.length}</span>
+            </button>
+            <ul class="mt-1 space-y-0.5 pl-4 border-l border-[var(--color-line)] ml-3">
+              {thirdCountries.map(country => (
+                <li>
+                  <button data-pool={`origin:${country}`} class="pool-link w-full flex items-center justify-between px-2 py-1.5 rounded-md text-xs hover:bg-[var(--color-axxaz-mist)] text-[var(--color-ink-soft)] hover:text-[var(--color-axxaz-navy)] data-[active=true]:bg-[var(--color-axxaz-mist)] data-[active=true]:text-[var(--color-axxaz-navy)] data-[active=true]:font-semibold">
+                    <span>{country}</span>
+                    <span class="font-mono text-[var(--color-ink-mute)]">{thirdCands.filter(c => c.origin === country).length}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-[var(--color-line)]">
+            <h3 class="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-mute)] px-2 mb-2">Mijn pools</h3>
+            {savedPools.map(sp => (
+              <button data-pool={`saved:${sp.id}`} class="pool-link w-full flex items-center justify-between px-2 py-2 rounded-md text-sm hover:bg-[var(--color-axxaz-mist)] text-[var(--color-ink-soft)] hover:text-[var(--color-axxaz-navy)] data-[active=true]:bg-[var(--color-axxaz-mist)] data-[active=true]:text-[var(--color-axxaz-navy)] data-[active=true]:font-semibold">
+                <span class="truncate">{sp.name}</span>
+                <span class="text-xs font-mono text-[var(--color-ink-mute)] flex-shrink-0 ml-2">{sp.count}</span>
+              </button>
+            ))}
+            <button id="pool-save" class="w-full mt-3 btn btn-outline btn-sm justify-center">
+              <Icon name="plus" size={12} stroke={2.5} /> Sla huidige selectie op
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main: filters + results -->
+        <div class="space-y-4">
+          <!-- Filter bar -->
+          <div class="card p-5 space-y-4">
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ink-mute)] mb-2">Status</div>
+              <div class="flex gap-1.5 flex-wrap">
+                {statusOrder.map(s => (
+                  <label class="cursor-pointer">
+                    <input type="checkbox" name="pf-status" value={s} class="sr-only peer" />
+                    <span class={`chip chip-ghost peer-checked:bg-[var(--color-axxaz-navy)] peer-checked:text-white peer-checked:border-[var(--color-axxaz-navy)] transition-colors`}>{statusMeta[s].label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ink-mute)] mb-2">Vakgebied</div>
+              <div class="flex gap-1.5 flex-wrap">
+                {allDisciplines.map(d => (
+                  <label class="cursor-pointer">
+                    <input type="checkbox" name="pf-discipline" value={d} class="sr-only peer" />
+                    <span class={`chip chip-ghost peer-checked:bg-[var(--color-axxaz-navy)] peer-checked:text-white peer-checked:border-[var(--color-axxaz-navy)] transition-colors`}>{d}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ink-mute)] mb-2">Certificaten (alle vereist)</div>
+              <div class="flex gap-1.5 flex-wrap">
+                {allCerts.map(c => (
+                  <label class="cursor-pointer">
+                    <input type="checkbox" name="pf-cert" value={c} class="sr-only peer" />
+                    <span class={`chip chip-ghost peer-checked:bg-[var(--color-spark)] peer-checked:text-white peer-checked:border-[var(--color-spark)] transition-colors`}>{c}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ink-mute)] mb-2">Talen (één vereist)</div>
+              <div class="flex gap-1.5 flex-wrap">
+                {allLangs.map(l => (
+                  <label class="cursor-pointer">
+                    <input type="checkbox" name="pf-lang" value={l} class="sr-only peer" />
+                    <span class={`chip chip-ghost peer-checked:bg-[var(--color-axxaz-blue)] peer-checked:text-white peer-checked:border-[var(--color-axxaz-blue)] transition-colors`}>{l}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ink-mute)] mb-2">Beschikbaarheid</div>
+              <div class="flex gap-1.5 flex-wrap">
+                {[{v:'now',l:'Nu'},{v:'this-week',l:'Deze week'},{v:'next-week',l:'Volgende week'},{v:'placed',l:'Geplaatst (overplaatsbaar)'}].map(a => (
+                  <label class="cursor-pointer">
+                    <input type="checkbox" name="pf-avail" value={a.v} class="sr-only peer" />
+                    <span class={`chip chip-ghost peer-checked:bg-[var(--color-axxaz-navy)] peer-checked:text-white peer-checked:border-[var(--color-axxaz-navy)] transition-colors`}>{a.l}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div class="flex items-center gap-3 pt-2 border-t border-[var(--color-line)]">
+              <button id="pool-clear" class="text-xs text-[var(--color-ink-mute)] hover:text-[var(--color-axxaz-navy)] underline">Filters wissen</button>
+              <span class="text-xs text-[var(--color-ink-mute)] ml-auto"><strong id="pool-result-count" class="font-mono text-[var(--color-axxaz-navy)] text-base">{initialCandidates.length}</strong> match · <span id="pool-pool-name" class="text-[var(--color-axxaz-navy)] font-semibold">Alle kandidaten</span></span>
+            </div>
+          </div>
+
+          <!-- Bulk select bar -->
+          <div class="card p-3 flex items-center gap-3">
+            <label class="cursor-pointer flex items-center gap-2">
+              <input id="pool-select-all" type="checkbox" class="accent-[var(--color-axxaz-navy)]" />
+              <span class="text-xs font-semibold">Selecteer alles</span>
+            </label>
+            <span class="text-xs text-[var(--color-ink-mute)]" id="pool-selected-count">0 geselecteerd</span>
+            <div class="ml-auto flex gap-2">
+              <button id="pool-bulk-broadcast" class="btn btn-spark btn-sm" disabled>
+                <Icon name="send" size={12} stroke={2.25} /> Stuur verzoek
+              </button>
+              <button id="pool-bulk-vacancy" class="btn btn-outline btn-sm" disabled>
+                <Icon name="briefcase" size={12} stroke={2} /> Koppel aan vacature
+              </button>
+            </div>
+          </div>
+
+          <!-- Result list -->
+          <div id="pool-results" class="grid sm:grid-cols-2 gap-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= VERZOEKEN (PUSH) ============= -->
+    <div data-pane="verzoeken" class="container-x hidden">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 class="text-2xl">Verzoeken aan kandidaten</h2>
+          <p class="text-sm text-[var(--color-ink-soft)] mt-1 max-w-2xl">Stuur snel een vraag aan beschikbare vakmensen, shift-overname, spoed-vacature, beschikbaarheidscheck. Reacties komen live binnen.</p>
+        </div>
+        <button id="bcast-new" class="btn btn-spark"><Icon name="send" size={14} stroke={2} /> Nieuw verzoek</button>
+      </div>
+
+      <div id="bcast-list" class="space-y-4">
+        {broadcasts.map(b => {
+          const yes = b.responses.filter(r => r.status === 'yes').length;
+          const no = b.responses.filter(r => r.status === 'no').length;
+          const maybe = b.responses.filter(r => r.status === 'maybe').length;
+          const pending = b.recipients.length - b.responses.filter(r => r.status !== 'pending').length;
+          return (
+            <article class="card card-elev p-6" data-bcast={b.id}>
+              <div class="flex items-start justify-between gap-4 flex-wrap">
+                <div class="flex-grow min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    {b.type === 'urgent' && <span class="chip chip-spark"><Icon name="flame" size={11} stroke={2} /> Spoed</span>}
+                    {b.type === 'shift' && <span class="chip"><Icon name="clock" size={11} stroke={2} /> Shift</span>}
+                    {b.type === 'question' && <span class="chip chip-ghost">Vraag</span>}
+                    {b.status === 'open' && <span class="chip"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Open</span>}
+                    {b.status === 'closed' && b.assignedTo && <span class="chip"><Icon name="check" size={11} stroke={2.5} /> Toegewezen</span>}
+                    <span class="text-xs text-[var(--color-ink-mute)] font-mono">{b.sentAt} · {b.sentBy}</span>
+                  </div>
+                  <h3 class="mt-3 text-lg">{b.subject}</h3>
+                  <p class="mt-2 text-sm text-[var(--color-ink-soft)] leading-relaxed truncate-2">{b.message}</p>
+                  <div class="mt-3 flex gap-2 flex-wrap text-xs">
+                    {b.channels.includes('whatsapp') && <span class="chip chip-ghost"><Icon name="whatsapp" size={11} class="text-[#25D366]" /> WhatsApp</span>}
+                    {b.channels.includes('sms') && <span class="chip chip-ghost"><Icon name="phone" size={11} stroke={2} /> SMS</span>}
+                    {b.channels.includes('email') && <span class="chip chip-ghost"><Icon name="mail" size={11} stroke={2} /> Email</span>}
+                  </div>
+                </div>
+                <div class="flex gap-2 sm:gap-3 text-center flex-shrink-0">
+                  <div class="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 min-w-[64px]">
+                    <div class="stat-num text-2xl !text-emerald-700">{yes}</div>
+                    <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700 mt-1">Ja</div>
+                  </div>
+                  <div class="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 min-w-[64px]">
+                    <div class="stat-num text-2xl !text-amber-700">{maybe}</div>
+                    <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mt-1">Mss</div>
+                  </div>
+                  <div class="rounded-lg bg-red-50 border border-red-200 px-3 py-2 min-w-[64px]">
+                    <div class="stat-num text-2xl !text-red-700">{no}</div>
+                    <div class="text-[10px] uppercase tracking-wider font-bold text-red-700 mt-1">Nee</div>
+                  </div>
+                  <div class="rounded-lg bg-[var(--color-line-soft)] border border-[var(--color-line)] px-3 py-2 min-w-[64px]">
+                    <div class="stat-num text-2xl">{pending}</div>
+                    <div class="text-[10px] uppercase tracking-wider font-bold text-[var(--color-ink-mute)] mt-1">Wacht</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-5 pt-5 border-t border-[var(--color-line)] space-y-2">
+                {b.responses.map(r => {
+                  const cand = initialCandidates.find(c => c.id === r.candidateId);
+                  if (!cand) return null;
+                  return (
+                    <div class="flex items-center gap-3 text-sm">
+                      <div class="w-8 h-8 rounded-full bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)] font-bold text-xs flex-shrink-0">{cand.initials}</div>
+                      <div class="font-semibold">{cand.name}</div>
+                      <div class="text-[var(--color-ink-mute)] text-xs hidden sm:inline">{cand.role}</div>
+                      <div class="ml-auto flex items-center gap-2">
+                        {r.respondedAt && <span class="text-[10px] text-[var(--color-ink-mute)] font-mono">{r.respondedAt}</span>}
+                        {r.status === 'yes' && <span class="chip" style="background:#d1fae5;color:#065f46;border-color:#6ee7b7"><Icon name="check" size={10} stroke={3} /> JA</span>}
+                        {r.status === 'no' && <span class="chip" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5">NEE</span>}
+                        {r.status === 'maybe' && <span class="chip" style="background:#fef3c7;color:#92400e;border-color:#fcd34d">MSS</span>}
+                        {r.status === 'pending' && <span class="chip chip-ghost">wacht…</span>}
+                        {b.status === 'open' && r.status === 'yes' && (
+                          <button data-bcast-assign={`${b.id}|${r.candidateId}`} class="btn btn-spark btn-sm !py-1 !px-2.5 !text-[11px]">Vergrendel</button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {b.assignedTo && (
+                <div class="mt-4 pt-4 border-t border-[var(--color-line)] text-sm">
+                  <span class="text-[var(--color-ink-mute)]">Toegewezen aan </span>
+                  <strong class="text-[var(--color-axxaz-navy)]">{initialCandidates.find(c => c.id === b.assignedTo)?.name}</strong>
+                  <span class="text-[var(--color-ink-mute)]">, opdracht in zijn timeline.</span>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- ============= TEST-PLANNER ============= -->
+    <div data-pane="planner" class="container-x hidden">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 class="text-2xl">Test-planner, Tholen</h2>
+          <p class="text-sm text-[var(--color-ink-soft)] mt-1 max-w-2xl">Sleep een kandidaat uit de wachtlijst naar een vrij tijdslot. Capaciteit: 4 kandidaten per slot, 4 slots per dag.</p>
+        </div>
+        <div class="flex items-center gap-2 text-sm">
+          <button id="planner-prev" class="btn btn-outline btn-sm">← Vorige week</button>
+          <span class="font-mono text-[var(--color-ink-soft)] mx-2" id="planner-week-label">Week 19 · 4 – 8 mei 2026</span>
+          <button id="planner-next" class="btn btn-outline btn-sm">Volgende week →</button>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-[280px_1fr] gap-5">
+        <!-- Wachtlijst -->
+        <aside class="card card-elev p-5 self-start lg:sticky lg:top-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold uppercase tracking-widest text-[var(--color-ink-mute)]">Wachtlijst</h3>
+            <span id="planner-waitlist-count" class="text-xs font-mono text-[var(--color-ink-mute)]">0</span>
+          </div>
+          <p class="text-xs text-[var(--color-ink-mute)] mb-4">Kandidaten met status "in test" zonder testdatum.</p>
+          <ul id="planner-waitlist" class="space-y-2"></ul>
+        </aside>
+
+        <!-- Week-grid (horizontal scroll on mobile) -->
+        <div class="card card-elev p-3 sm:p-5 overflow-hidden">
+          <div class="overflow-x-auto -mx-3 sm:-mx-5 px-3 sm:px-5">
+            <div class="grid grid-cols-5 gap-2 min-w-[640px]">
+              {['MA 4', 'DI 5', 'WO 6', 'DO 7', 'VR 8'].map((day, di) => (
+                <div class="flex flex-col gap-2">
+                  <div class="text-center pb-2 border-b border-[var(--color-line)]">
+                    <div class="text-[10px] uppercase tracking-widest font-bold text-[var(--color-ink-mute)]">{day.split(' ')[0]}</div>
+                    <div class="stat-num text-xl sm:text-2xl mt-0.5">{day.split(' ')[1]}</div>
+                  </div>
+                  {['09:00', '11:00', '13:30', '15:30'].map((time, ti) => {
+                    const slotId = `slot-${di}-${ti}`;
+                    return (
+                      <div data-slot={slotId} class="planner-slot rounded-lg border border-[var(--color-line)] bg-[var(--color-paper)] p-2 min-h-[110px] transition-colors">
+                        <div class="text-[10px] font-mono font-bold text-[var(--color-ink-mute)]">{time}</div>
+                        <div class="text-[9px] text-[var(--color-ink-mute)] uppercase tracking-wider">cap. 4</div>
+                        <div class="mt-1.5 space-y-1" data-slot-cards={slotId}></div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-[var(--color-line)] flex items-center flex-wrap gap-3 sm:gap-4 text-xs text-[var(--color-ink-mute)]">
+            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-[var(--color-axxaz-mist)] border border-[var(--color-axxaz-mist-deep)]"></span>Vrij</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-100 border border-amber-300"></span>Gedeeltelijk</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-red-100 border border-red-300"></span>Vol</span>
+            <button id="planner-export" class="ml-auto btn btn-outline btn-sm"><Icon name="download" size={11} stroke={2.25} /> Export</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= VACATURES ============= -->
+    <div data-pane="vacatures" class="container-x hidden">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <h2 class="text-2xl">Vacaturebeheer</h2>
+        <button class="btn btn-primary btn-sm"><Icon name="plus" size={13} stroke={2.5} /> Nieuwe vacature</button>
+      </div>
+      <div class="rounded-xl border border-[var(--color-line)] bg-white overflow-x-auto">
+        <table class="w-full text-sm min-w-[600px]">
+          <thead class="bg-[var(--color-axxaz-mist)]/40">
+            <tr class="text-left text-xs uppercase tracking-widest text-[var(--color-ink-mute)] font-semibold">
+              <th class="px-5 py-4">Functie</th>
+              <th class="px-5 py-4 hidden md:table-cell">Locatie</th>
+              <th class="px-5 py-4 hidden md:table-cell">Salaris</th>
+              <th class="px-5 py-4">Status</th>
+              <th class="px-5 py-4">Kandidaten</th>
+              <th class="px-5 py-4"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {vacancies.map(v => {
+              const matched = initialCandidates.filter(c => c.vacancySlug === v.slug || c.role.toLowerCase().includes(v.title.split(' ')[0].toLowerCase()));
+              return (
+                <tr class="border-t border-[var(--color-line)] hover:bg-[var(--color-axxaz-mist)]/20 transition-colors">
+                  <td class="px-5 py-4 font-semibold">{v.title}</td>
+                  <td class="px-5 py-4 hidden md:table-cell text-[var(--color-ink-soft)]">{v.location}</td>
+                  <td class="px-5 py-4 hidden md:table-cell text-[var(--color-ink-soft)] font-mono text-xs">{v.salary}</td>
+                  <td class="px-5 py-4">{v.urgent ? <span class="chip chip-spark"><Icon name="flame" size={10} stroke={2} /> urgent</span> : <span class="chip chip-ghost">open</span>}</td>
+                  <td class="px-5 py-4 font-mono">{matched.length}</td>
+                  <td class="px-5 py-4 text-right"><button class="text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold text-xs inline-flex items-center gap-1">Bekijk <Icon name="arrow-right" size={11} stroke={2.25} /></button></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============= KLANTEN ============= -->
+    <div data-pane="klanten" class="container-x hidden">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 class="text-2xl">Opdrachtgevers</h2>
+          <p class="text-sm text-[var(--color-ink-soft)] mt-1">{atsClients.length} klanten · {atsClients.filter(c=>c.status==='active').length} actief · {atsClients.filter(c=>c.status==='prospect').length} prospect</p>
+        </div>
+        <button class="btn btn-primary btn-sm"><Icon name="plus" size={13} stroke={2.5} /> Nieuwe klant</button>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {atsClients.map(cl => (
+          <article class={`card card-elev p-6 flex flex-col ${cl.status === 'paused' ? 'opacity-75' : ''}`}>
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <div class="min-w-0">
+                <h3 class="text-lg leading-tight truncate">{cl.name}</h3>
+                <p class="text-xs text-[var(--color-ink-mute)] mt-1">{cl.industry} · {cl.city}</p>
+              </div>
+              {cl.status === 'active' && <span class="chip" style="background:#d1fae5;color:#065f46;border-color:#6ee7b7">actief</span>}
+              {cl.status === 'paused' && <span class="chip chip-ghost">pauze</span>}
+              {cl.status === 'prospect' && <span class="chip chip-spark">prospect</span>}
+            </div>
+            {cl.notes && <p class="text-xs text-[var(--color-ink-soft)] italic mb-3">{cl.notes}</p>}
+
+            <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[var(--color-line)]">
+              <div>
+                <div class="stat-num text-xl">{cl.openVacancies}</div>
+                <div class="text-[10px] uppercase font-bold text-[var(--color-ink-mute)] mt-0.5">Open</div>
+              </div>
+              <div>
+                <div class="stat-num text-xl !text-emerald-700">{cl.placed}</div>
+                <div class="text-[10px] uppercase font-bold text-[var(--color-ink-mute)] mt-0.5">Geplaatst</div>
+              </div>
+              <div>
+                <div class="text-sm font-bold mt-1.5 font-mono">{cl.totalRevenue}</div>
+                <div class="text-[10px] uppercase font-bold text-[var(--color-ink-mute)] mt-0.5">Omzet</div>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-[var(--color-line)] flex items-center justify-between text-xs">
+              <div>
+                <div class="font-semibold text-sm text-[var(--color-ink)]">{cl.contactName}</div>
+                <a href={`tel:${cl.contactPhone.replace(/\s/g,'')}`} class="text-[var(--color-spark)] font-mono">{cl.contactPhone}</a>
+              </div>
+              <button class="text-[var(--color-axxaz-navy)] font-semibold hover:text-[var(--color-spark)] inline-flex items-center gap-1">Open <Icon name="arrow-right" size={11} stroke={2.5} /></button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <!-- ============= CERTIFICATEN ============= -->
+    <div data-pane="certificaten" class="container-x hidden">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <h2 class="text-2xl">Certificatenbeheer</h2>
+        <button class="btn btn-primary btn-sm"><Icon name="upload" size={13} stroke={2.25} /> Certificaat uploaden</button>
+      </div>
+      <div class="rounded-xl border border-[var(--color-line)] bg-white overflow-x-auto">
+        <table class="w-full text-sm min-w-[600px]">
+          <thead class="bg-[var(--color-axxaz-mist)]/40">
+            <tr class="text-left text-xs uppercase tracking-widest text-[var(--color-ink-mute)] font-semibold">
+              <th class="px-5 py-4">Code</th>
+              <th class="px-5 py-4 hidden sm:table-cell">Naam</th>
+              <th class="px-5 py-4">Geldig tot</th>
+              <th class="px-5 py-4">Dagen</th>
+              <th class="px-5 py-4">Reminder</th>
+              <th class="px-5 py-4"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {certRows.map(c => (
+              <tr class="border-t border-[var(--color-line)] hover:bg-[var(--color-axxaz-mist)]/20 transition-colors">
+                <td class="px-5 py-4 font-bold font-mono text-xs uppercase tracking-wider">{c.code}</td>
+                <td class="px-5 py-4 hidden sm:table-cell text-[var(--color-ink-soft)]">{c.name}</td>
+                <td class="px-5 py-4 font-mono">{c.expires}</td>
+                <td class={`px-5 py-4 font-bold font-mono ${c.isExpiring ? 'text-[var(--color-spark-deep)]' : ''}`}>{c.days}d</td>
+                <td class="px-5 py-4">
+                  {c.reminderTriggered ? (
+                    <span class="chip chip-spark"><Icon name="mail" size={11} stroke={2} /> actief</span>
+                  ) : (
+                    <span class="text-[var(--color-ink-mute)] text-xs">-</span>
+                  )}
+                </td>
+                <td class="px-5 py-4 text-right"><a href={c.pdf} class="text-[var(--color-spark)] hover:text-[var(--color-spark-deep)] font-semibold text-xs inline-flex items-center gap-1">PDF <Icon name="download" size={11} stroke={2.25} /></a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= NOTIFICATION PANEL ============= -->
+  <aside id="notif-panel" class="fixed top-0 right-0 h-screen w-full sm:max-w-sm bg-white border-l border-[var(--color-line)] shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="px-5 py-4 border-b border-[var(--color-line)] flex items-center justify-between">
+      <div>
+        <h3 class="text-lg">Notificaties</h3>
+        <p class="text-xs text-[var(--color-ink-mute)]">{unreadCount} ongelezen · vandaag</p>
+      </div>
+      <button id="notif-close" class="p-2 -mr-2 rounded-md hover:bg-[var(--color-axxaz-mist)] transition-colors" aria-label="Sluiten">
+        <Icon name="close" size={18} stroke={2.25} />
+      </button>
+    </div>
+    <div class="flex-grow overflow-y-auto">
+      <ul class="divide-y divide-[var(--color-line)]">
+        {notifications.map(n => (
+          <li class={`px-5 py-4 hover:bg-[var(--color-axxaz-mist)]/40 transition-colors ${n.unread ? 'bg-[var(--color-spark)]/5' : ''}`}>
+            <div class="flex gap-3">
+              <span class={`w-9 h-9 rounded-md inline-flex items-center justify-center flex-shrink-0 ${n.type === 'urgent' ? 'bg-[var(--color-spark)]/15 text-[var(--color-spark-deep)]' : n.type === 'cert-expiring' ? 'bg-amber-100 text-amber-700' : n.type === 'broadcast-response' ? 'bg-emerald-100 text-emerald-700' : 'bg-[var(--color-axxaz-mist)] text-[var(--color-axxaz-navy)]'}`}>
+                {n.type === 'urgent' && <Icon name="flame" size={15} stroke={2} />}
+                {n.type === 'cert-expiring' && <Icon name="shield-check" size={15} stroke={2} />}
+                {n.type === 'broadcast-response' && <Icon name="check" size={15} stroke={2.5} />}
+                {n.type === 'no-reply' && <Icon name="clock" size={15} stroke={2} />}
+                {n.type === 'test-scheduled' && <Icon name="calendar" size={15} stroke={2} />}
+                {n.type === 'placement' && <Icon name="badge-check" size={15} stroke={2} />}
+              </span>
+              <div class="flex-grow min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <h4 class="text-sm font-semibold leading-tight">{n.title}</h4>
+                  {n.unread && <span class="w-2 h-2 rounded-full bg-[var(--color-spark)] mt-1.5 flex-shrink-0"></span>}
+                </div>
+                <p class="text-xs text-[var(--color-ink-soft)] mt-1 leading-relaxed">{n.body}</p>
+                <span class="text-[11px] text-[var(--color-ink-mute)] font-mono mt-2 inline-block">{n.at}</span>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </aside>
+
+  <!-- ============= CANDIDATE DRAWER ============= -->
+  <aside id="cand-drawer" class="fixed top-0 right-0 h-screen w-full sm:max-w-2xl bg-[var(--color-paper)] border-l border-[var(--color-line)] shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col" data-cand-id="">
+    <header class="px-6 py-5 border-b border-[var(--color-line)] bg-white flex items-center gap-4">
+      <div id="cand-avatar" class="w-12 h-12 rounded-full bg-[var(--color-axxaz-mist)] inline-flex items-center justify-center text-[var(--color-axxaz-navy)] font-bold flex-shrink-0">--</div>
+      <div class="flex-grow min-w-0">
+        <h3 id="cand-name" class="text-lg leading-tight truncate">-</h3>
+        <p id="cand-role" class="text-xs text-[var(--color-ink-mute)] mt-0.5 truncate">-</p>
+      </div>
+      <span id="cand-status" class="chip">-</span>
+      <button id="cand-close" class="p-2 -mr-2 rounded-md hover:bg-[var(--color-axxaz-mist)] transition-colors" aria-label="Sluiten">
+        <Icon name="close" size={18} stroke={2.25} />
+      </button>
+    </header>
+
+    <nav class="px-6 border-b border-[var(--color-line)] bg-white flex gap-1 -mb-px overflow-x-auto">
+      {[
+        { key: 'profiel', label: 'Profiel' },
+        { key: 'tests', label: 'Tests' },
+        { key: 'comms', label: 'Communicatie' },
+        { key: 'notes', label: 'Notities' },
+        { key: 'docs', label: 'Documenten' },
+      ].map((tb, i) => (
+        <button data-cand-tab={tb.key} class={`cand-tab px-4 py-3 text-xs font-semibold whitespace-nowrap border-b-2 transition-colors ${i === 0 ? 'border-[var(--color-spark)] text-[var(--color-axxaz-navy)]' : 'border-transparent text-[var(--color-ink-mute)] hover:text-[var(--color-axxaz-navy)]'}`}>{tb.label}</button>
+      ))}
+    </nav>
+
+    <div class="flex-grow overflow-y-auto">
+      <div data-cand-pane="profiel" class="p-6 space-y-5">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="card p-4"><div class="text-xs text-[var(--color-ink-mute)] uppercase font-bold tracking-wider">Origin</div><div id="cand-origin" class="font-semibold mt-1">-</div></div>
+          <div class="card p-4"><div class="text-xs text-[var(--color-ink-mute)] uppercase font-bold tracking-wider">Ervaring</div><div id="cand-exp" class="font-semibold mt-1">-</div></div>
+          <div class="card p-4"><div class="text-xs text-[var(--color-ink-mute)] uppercase font-bold tracking-wider">Telefoon</div><div id="cand-phone" class="font-semibold mt-1 font-mono text-sm">-</div></div>
+          <div class="card p-4"><div class="text-xs text-[var(--color-ink-mute)] uppercase font-bold tracking-wider">E-mail</div><div id="cand-email" class="font-semibold mt-1 text-sm break-all">-</div></div>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-mute)] mb-2">Talen</h4>
+          <div id="cand-langs" class="flex gap-2 flex-wrap"></div>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-mute)] mb-2">Certificaten</h4>
+          <div id="cand-certs" class="flex gap-2 flex-wrap"></div>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-mute)] mb-2">Aangemeld</h4>
+          <div id="cand-applied" class="text-sm font-mono">-</div>
+        </div>
+      </div>
+
+      <div data-cand-pane="tests" class="p-6 hidden">
+        <div id="cand-test" class="card p-5">-</div>
+      </div>
+
+      <div data-cand-pane="comms" class="p-6 hidden">
+        <ul id="cand-comms" class="space-y-3"></ul>
+      </div>
+
+      <div data-cand-pane="notes" class="p-6 hidden space-y-3">
+        <div id="cand-notes-list" class="space-y-3"></div>
+        <div class="card p-4">
+          <textarea placeholder="Nieuwe notitie toevoegen…" rows="3" class="field text-sm"></textarea>
+          <button class="btn btn-primary btn-sm mt-3">Notitie opslaan</button>
+        </div>
+      </div>
+
+      <div data-cand-pane="docs" class="p-6 hidden">
+        <ul id="cand-docs" class="space-y-2"></ul>
+        <button class="btn btn-outline btn-sm mt-4 w-full"><Icon name="upload" size={13} stroke={2.25} /> Document uploaden</button>
+      </div>
+    </div>
+
+    <footer class="border-t border-[var(--color-line)] bg-white p-4 flex gap-2 flex-wrap">
+      <button class="btn btn-spark btn-sm flex-grow"><Icon name="whatsapp" size={13} /> WhatsApp</button>
+      <button class="btn btn-primary btn-sm flex-grow"><Icon name="phone" size={13} stroke={2} /> Bel</button>
+      <button class="btn btn-outline btn-sm flex-grow"><Icon name="mail" size={13} stroke={2} /> Email</button>
+      <button class="btn btn-outline btn-sm flex-grow"><Icon name="calendar" size={13} stroke={2} /> Plan test</button>
+    </footer>
+  </aside>
+
+  <!-- ============= BROADCAST WIZARD ============= -->
+  <div id="bcast-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-2xl max-h-[92vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+      <header class="px-6 py-5 border-b border-[var(--color-line)] flex items-center justify-between">
+        <div>
+          <h3 class="text-lg">Nieuw verzoek versturen</h3>
+          <p class="text-xs text-[var(--color-ink-mute)] mt-0.5">Stap <span id="bcast-step">1</span> van 3</p>
+        </div>
+        <button id="bcast-close" class="p-2 -mr-2 rounded-md hover:bg-[var(--color-axxaz-mist)]" aria-label="Sluiten">
+          <Icon name="close" size={18} stroke={2.25} />
+        </button>
+      </header>
+
+      <div class="flex-grow overflow-y-auto p-6">
+        <!-- Step 1: filters -->
+        <div data-bcast-step="1" class="space-y-5">
+          <div>
+            <label class="field-label">Type verzoek</label>
+            <div class="grid grid-cols-3 gap-2">
+              {['Shift', 'Spoed', 'Vraag'].map(typ => (
+                <label class="cursor-pointer rounded-lg border border-[var(--color-line)] px-3 py-2.5 text-center font-semibold text-sm has-checked:border-[var(--color-spark)] has-checked:bg-[var(--color-spark)]/10 transition-colors">
+                  <input type="radio" name="bcast-type" value={typ.toLowerCase()} class="sr-only" />{typ}
+                </label>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Vakgebied</label>
+            <select id="bcast-discipline" class="field">
+              <option value="">Alle</option>
+              <option>MIG/MAG-lasser</option>
+              <option>TIG-lasser</option>
+              <option>Pijpfitter</option>
+              <option>Constructiebankwerker</option>
+              <option>CNC-verspaner</option>
+              <option>Apparatenbouwer</option>
+              <option>Plaatwerker</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Beschikbaarheid</label>
+            <div class="grid grid-cols-3 gap-2">
+              {[{v:'now',l:'Nu beschikbaar'},{v:'this-week',l:'Deze week'},{v:'next-week',l:'Volgende week'}].map(a => (
+                <label class="cursor-pointer rounded-lg border border-[var(--color-line)] px-3 py-2.5 text-center font-semibold text-xs has-checked:border-[var(--color-spark)] has-checked:bg-[var(--color-spark)]/10 transition-colors">
+                  <input type="checkbox" name="bcast-avail" value={a.v} checked={a.v==='now'} class="sr-only" />{a.l}
+                </label>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Vereiste certificaten</label>
+            <div class="flex gap-2 flex-wrap">
+              {['VCA basis','VCA VOL','MIG/MAG procedure','TIG procedure','NEN 3140'].map(c => (
+                <label class="cursor-pointer inline-flex items-center gap-1.5 rounded-full border border-[var(--color-line)] px-3 py-1.5 text-xs has-checked:border-[var(--color-spark)] has-checked:bg-[var(--color-spark)]/10 transition-colors">
+                  <input type="checkbox" name="bcast-certs" value={c} class="sr-only" />{c}
+                </label>
+              ))}
+            </div>
+          </div>
+          <div class="rounded-lg bg-[var(--color-axxaz-mist)]/50 p-4 flex items-center justify-between">
+            <div>
+              <div class="text-xs uppercase font-bold tracking-widest text-[var(--color-ink-mute)]">Geselecteerd</div>
+              <div class="text-2xl font-bold mt-1"><span id="bcast-match">10</span> kandidaten</div>
+            </div>
+            <Icon name="users" size={32} class="text-[var(--color-axxaz-navy)]/40" stroke={1.5} />
+          </div>
+        </div>
+
+        <!-- Step 2: message -->
+        <div data-bcast-step="2" class="hidden space-y-5">
+          <div>
+            <label class="field-label">Sjabloon</label>
+            <select id="bcast-template" class="field">
+              {broadcastTemplates.map(tpl => (
+                <option value={tpl.id}>{tpl.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Onderwerp</label>
+            <input id="bcast-subject" class="field" placeholder="Damen Vlissingen morgen 06:30" />
+          </div>
+          <div>
+            <label class="field-label">Bericht</label>
+            <textarea id="bcast-message" rows="6" class="field font-mono text-sm" placeholder="Hoi {name}, kun jij…"></textarea>
+            <p class="text-xs text-[var(--color-ink-mute)] mt-1.5">Variabelen: <code class="font-mono">{'{name}'}</code> <code class="font-mono">{'{date}'}</code> <code class="font-mono">{'{location}'}</code> <code class="font-mono">{'{discipline}'}</code></p>
+          </div>
+        </div>
+
+        <!-- Step 3: send -->
+        <div data-bcast-step="3" class="hidden space-y-5">
+          <div>
+            <label class="field-label">Verzendkanaal</label>
+            <div class="grid grid-cols-3 gap-2">
+              {[{v:'whatsapp',l:'WhatsApp',i:'whatsapp' as const},{v:'sms',l:'SMS',i:'phone' as const},{v:'email',l:'E-mail',i:'mail' as const}].map(ch => (
+                <label class="cursor-pointer rounded-lg border border-[var(--color-line)] px-3 py-3 text-center has-checked:border-[var(--color-spark)] has-checked:bg-[var(--color-spark)]/10 transition-colors">
+                  <input type="checkbox" name="bcast-channel" value={ch.v} checked={ch.v==='whatsapp'} class="sr-only" />
+                  <div class="flex flex-col items-center gap-1.5">
+                    <Icon name={ch.i} size={18} stroke={2} />
+                    <span class="font-semibold text-xs">{ch.l}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Reactie-deadline</label>
+            <select class="field">
+              <option>Binnen 1 uur</option>
+              <option>Vandaag voor 17:00</option>
+              <option>Morgen voor 12:00</option>
+              <option>48 uur</option>
+            </select>
+          </div>
+          <div class="rounded-lg bg-[var(--color-spark)]/10 border border-[var(--color-spark)]/30 p-5">
+            <div class="flex items-start gap-3">
+              <Icon name="send" size={20} class="text-[var(--color-spark-deep)] mt-0.5 flex-shrink-0" stroke={2} />
+              <div class="text-sm">
+                <div class="font-bold text-[var(--color-spark-deep)]">Klaar om te versturen</div>
+                <div class="text-[var(--color-ink-soft)] mt-1 leading-relaxed">Bericht gaat naar <strong id="bcast-final-count">10</strong> kandidaten via geselecteerde kanalen. Reacties verschijnen live in het Verzoeken-overzicht.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="px-6 py-4 border-t border-[var(--color-line)] flex justify-between gap-2">
+        <button id="bcast-prev" class="btn btn-outline btn-sm" disabled>Vorige</button>
+        <div class="flex gap-2">
+          <button id="bcast-cancel-btn" class="btn btn-ghost btn-sm">Annuleren</button>
+          <button id="bcast-next" class="btn btn-primary btn-sm">Volgende <Icon name="arrow-right" size={13} stroke={2.5} /></button>
+          <button id="bcast-send" class="btn btn-spark btn-sm hidden"><Icon name="send" size={13} stroke={2} /> Versturen</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{
+  candidates: initialCandidates,
+  statusMeta, statusOrder,
+  comms: commsLog,
+  notes: candidateNotes,
+  docs: candidateDocs,
+  templates: broadcastTemplates,
+}}>
+  // Idempotent init, safe to call multiple times (handles Astro view transitions)
+  function initAts() {
+    if (window.__atsInited) return;
+    window.__atsInited = true;
+
+  // ===== APP STATE =====
+  const KEY = 'axxaz-ats-candidates';
+  let state;
+  try {
+    const stored = localStorage.getItem(KEY);
+    state = stored ? JSON.parse(stored) : structuredClone(candidates);
+    if (!Array.isArray(state) || state.length === 0) state = structuredClone(candidates);
+  } catch (err) {
+    console.warn('ATS: localStorage corrupt, resetting', err);
+    state = structuredClone(candidates);
+    localStorage.removeItem(KEY);
+  }
+  const persist = () => localStorage.setItem(KEY, JSON.stringify(state));
+
+  // ===== LOGIN =====
+  document.getElementById('ats-login-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('ats-login').classList.add('hidden');
+    document.getElementById('ats-app').classList.remove('hidden');
+    renderKanban();
+    window.scrollTo({ top: 0 });
+  });
+  document.getElementById('ats-logout')?.addEventListener('click', () => {
+    document.getElementById('ats-app').classList.add('hidden');
+    document.getElementById('ats-login').classList.remove('hidden');
+    closeDrawer(); closeNotif();
+    window.scrollTo({ top: 0 });
+  });
+
+  // ===== TABS =====
+  function showTab(key) {
+    document.querySelectorAll('.ats-tab').forEach(b => {
+      const active = b.getAttribute('data-tab') === key;
+      b.classList.toggle('border-[var(--color-spark)]', active);
+      b.classList.toggle('text-white', active);
+      b.classList.toggle('text-white/50', !active);
+      b.classList.toggle('border-transparent', !active);
+    });
+    document.querySelectorAll('[data-pane]').forEach(p => {
+      p.classList.toggle('hidden', p.getAttribute('data-pane') !== key);
+    });
+    if (key === 'kandidaten') renderKanban();
+  }
+  document.querySelectorAll('.ats-tab').forEach(b => {
+    b.addEventListener('click', () => showTab(b.getAttribute('data-tab')));
+  });
+
+  // ===== KANBAN =====
+  function cardHTML(c) {
+    const tags = c.certs.slice(0, 2).map(t => `<span class="chip" style="font-size:10px;padding:1px 8px">${t}</span>`).join('');
+    const score = c.testScore ? `<span class="text-xs font-bold text-emerald-700 font-mono">${c.testScore}/100</span>` : '';
+    return `
+      <div draggable="true" data-id="${c.id}"
+           class="cursor-grab active:cursor-grabbing rounded-lg border border-[var(--color-line)] bg-white p-3.5 hover:border-[var(--color-axxaz-navy)] hover:shadow-md transition-all">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-[var(--color-axxaz-mist)] text-[var(--color-axxaz-navy)] inline-flex items-center justify-center font-bold text-xs flex-shrink-0">${c.initials}</div>
+          <div class="min-w-0 flex-grow">
+            <div class="font-semibold text-sm leading-tight truncate">${c.name}</div>
+            <div class="text-xs text-[var(--color-ink-mute)] truncate mt-0.5">${c.role}</div>
+          </div>
+          ${score}
+        </div>
+        <div class="mt-3 flex flex-wrap gap-1">
+          ${tags}
+          <span class="chip chip-ghost" style="font-size:10px;padding:1px 8px">${c.origin}</span>
+        </div>
+      </div>`;
+  }
+  function renderKanban() {
+    statusOrder.forEach(s => {
+      const zone = document.querySelector(`[data-dropzone="${s}"]`);
+      if (!zone) return;
+      const filtered = state.filter(c => c.status === s);
+      zone.innerHTML = filtered.map(cardHTML).join('');
+      const counter = document.querySelector(`[data-count="${s}"]`);
+      if (counter) counter.textContent = filtered.length;
+    });
+    bindCardEvents();
+  }
+  function bindCardEvents() {
+    let dragId = null;
+    document.querySelectorAll('[data-id]').forEach(card => {
+      card.addEventListener('dragstart', (e) => {
+        dragId = card.getAttribute('data-id');
+        card.classList.add('opacity-50');
+      });
+      card.addEventListener('dragend', () => card.classList.remove('opacity-50'));
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('[draggable]')) {
+          openDrawer(card.getAttribute('data-id'));
+        }
+      });
+    });
+    document.querySelectorAll('[data-dropzone]').forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('bg-[var(--color-axxaz-mist)]'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('bg-[var(--color-axxaz-mist)]'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('bg-[var(--color-axxaz-mist)]');
+        const newStatus = zone.getAttribute('data-dropzone');
+        const cand = state.find(c => c.id === dragId);
+        if (cand && cand.status !== newStatus) {
+          cand.status = newStatus;
+          if (newStatus === 'test' && !cand.testDate) cand.testDate = '2026-05-12';
+          persist();
+          renderKanban();
+        }
+      });
+    });
+  }
+
+  // ===== CANDIDATE DRAWER =====
+  const drawer = document.getElementById('cand-drawer');
+  function openDrawer(id) {
+    const c = state.find(x => x.id === id);
+    if (!c) return;
+    drawer.dataset.candId = id;
+    document.getElementById('cand-avatar').textContent = c.initials;
+    document.getElementById('cand-name').textContent = c.name;
+    document.getElementById('cand-role').textContent = c.role;
+    const sm = statusMeta[c.status];
+    const statusEl = document.getElementById('cand-status');
+    statusEl.textContent = sm.label;
+    statusEl.className = `chip ${sm.bg.replace('bg-','')} ${sm.color}`;
+
+    document.getElementById('cand-origin').textContent = c.origin;
+    document.getElementById('cand-exp').textContent = (c.yearsExp ?? '?') + ' jaar';
+    document.getElementById('cand-phone').textContent = c.phone || '-';
+    document.getElementById('cand-email').textContent = c.email || '-';
+    document.getElementById('cand-applied').textContent = c.appliedAt;
+    document.getElementById('cand-langs').innerHTML = c.languages.map(l => `<span class="chip">${l}</span>`).join('');
+    document.getElementById('cand-certs').innerHTML = c.certs.map(l => `<span class="chip chip-spark">${l}</span>`).join('') || '<span class="text-xs text-[var(--color-ink-mute)]">Geen certificaten geregistreerd</span>';
+
+    // Tests
+    const testEl = document.getElementById('cand-test');
+    if (c.testScore) {
+      testEl.innerHTML = `
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div class="text-xs uppercase font-bold tracking-wider text-[var(--color-ink-mute)]">Procedure-test</div>
+            <div class="text-xl font-bold mt-1">${c.testDate}</div>
+          </div>
+          <div class="text-right">
+            <div class="stat-num text-3xl !text-emerald-700">${c.testScore}<span class="text-base">/100</span></div>
+            <div class="text-xs text-emerald-700 font-bold uppercase mt-1">Geslaagd</div>
+          </div>
+        </div>`;
+    } else if (c.testDate) {
+      testEl.innerHTML = `<div class="text-sm">Test ingepland op <strong>${c.testDate}</strong> in Tholen.</div>`;
+    } else {
+      testEl.innerHTML = `<div class="text-sm text-[var(--color-ink-mute)]">Nog geen test ingepland.</div>`;
+    }
+
+    // Comms
+    const commsEl = document.getElementById('cand-comms');
+    const log = comms[id] || [];
+    commsEl.innerHTML = log.length ? log.map(m => `
+      <li class="card p-3 ${m.direction === 'out' ? 'bg-[var(--color-axxaz-mist)]/40' : ''}">
+        <div class="flex items-center gap-2 text-xs text-[var(--color-ink-mute)]">
+          <strong class="text-[var(--color-ink)]">${m.direction === 'out' ? 'AXXAZ' : c.name}</strong>
+          <span>·</span>
+          <span class="font-mono">${m.channel}</span>
+          <span>·</span>
+          <time class="font-mono">${m.at}</time>
+        </div>
+        <p class="text-sm mt-1.5 leading-relaxed">${m.text}</p>
+      </li>
+    `).join('') : '<li class="text-sm text-[var(--color-ink-mute)]">Geen communicatie geregistreerd.</li>';
+
+    // Notes
+    const notesEl = document.getElementById('cand-notes-list');
+    const nlist = notes[id] || [];
+    notesEl.innerHTML = nlist.length ? nlist.map(n => `
+      <article class="card p-4">
+        <div class="flex items-center gap-2 text-xs text-[var(--color-ink-mute)] mb-2">
+          <strong class="text-[var(--color-axxaz-navy)]">${n.by}</strong>
+          <span>·</span>
+          <time class="font-mono">${n.at}</time>
+        </div>
+        <p class="text-sm leading-relaxed">${n.text}</p>
+      </article>
+    `).join('') : '<p class="text-sm text-[var(--color-ink-mute)]">Nog geen notities.</p>';
+
+    // Docs
+    const docsEl = document.getElementById('cand-docs');
+    const dlist = docs[id] || [];
+    docsEl.innerHTML = dlist.length ? dlist.map(d => `
+      <li class="card p-3 flex items-center gap-3">
+        <span class="w-9 h-9 rounded-md bg-[var(--color-axxaz-mist)] text-[var(--color-axxaz-navy)] inline-flex items-center justify-center flex-shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </span>
+        <div class="flex-grow min-w-0">
+          <div class="font-semibold text-sm truncate">${d.name}</div>
+          <div class="text-xs text-[var(--color-ink-mute)] mt-0.5 font-mono">${d.size} · ${d.uploaded}</div>
+        </div>
+        <button class="text-[var(--color-spark)] font-semibold text-xs">↓ PDF</button>
+      </li>
+    `).join('') : '<li class="text-sm text-[var(--color-ink-mute)]">Geen documenten.</li>';
+
+    // Reset to first tab
+    showCandTab('profiel');
+
+    drawer.classList.remove('translate-x-full');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    drawer.classList.add('translate-x-full');
+    document.body.style.overflow = '';
+  }
+  function showCandTab(key) {
+    document.querySelectorAll('.cand-tab').forEach(b => {
+      const a = b.getAttribute('data-cand-tab') === key;
+      b.classList.toggle('border-[var(--color-spark)]', a);
+      b.classList.toggle('text-[var(--color-axxaz-navy)]', a);
+      b.classList.toggle('text-[var(--color-ink-mute)]', !a);
+      b.classList.toggle('border-transparent', !a);
+    });
+    document.querySelectorAll('[data-cand-pane]').forEach(p => {
+      p.classList.toggle('hidden', p.getAttribute('data-cand-pane') !== key);
+    });
+  }
+  document.getElementById('cand-close')?.addEventListener('click', closeDrawer);
+  document.querySelectorAll('.cand-tab').forEach(b => {
+    b.addEventListener('click', () => showCandTab(b.getAttribute('data-cand-tab')));
+  });
+
+  // ===== NOTIFICATION PANEL =====
+  const notifPanel = document.getElementById('notif-panel');
+  function openNotif() {
+    notifPanel.classList.remove('translate-x-full');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNotif() {
+    notifPanel.classList.add('translate-x-full');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('notif-toggle')?.addEventListener('click', openNotif);
+  document.getElementById('notif-close')?.addEventListener('click', closeNotif);
+
+  // ===== EXPORT CSV =====
+  document.getElementById('ats-export-csv')?.addEventListener('click', () => {
+    const headers = ['ID','Naam','Functie','Origin','Status','Test score','Talen','Certs'];
+    const rows = state.map(c => [c.id, c.name, c.role, c.origin, c.status, c.testScore ?? '', c.languages.join('|'), c.certs.join('|')]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'axxaz-ats-export.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ===== ADD CANDIDATE =====
+  document.getElementById('ats-add-candidate')?.addEventListener('click', () => {
+    const name = prompt('Naam van nieuwe kandidaat:');
+    if (!name) return;
+    const role = prompt('Functie?') || 'Onbekend';
+    state.unshift({
+      id: 'c-' + Math.random().toString(36).slice(2, 8),
+      name, role, origin: 'Onbekend',
+      languages: ['Engels'], certs: [],
+      status: 'sourced',
+      appliedAt: new Date().toISOString().slice(0, 10),
+      initials: name.split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase(),
+    });
+    persist();
+    renderKanban();
+  });
+
+  // ===== BROADCAST WIZARD =====
+  const bcastModal = document.getElementById('bcast-modal');
+  let bcastStep = 1;
+
+  function openBcast() {
+    bcastStep = 1;
+    bcastModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    showBcastStep(1);
+    updateMatchCount();
+  }
+  function closeBcast() {
+    bcastModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  function showBcastStep(n) {
+    bcastStep = n;
+    document.getElementById('bcast-step').textContent = n;
+    document.querySelectorAll('[data-bcast-step]').forEach(p => {
+      p.classList.toggle('hidden', p.getAttribute('data-bcast-step') !== String(n));
+    });
+    document.getElementById('bcast-prev').disabled = n === 1;
+    const next = document.getElementById('bcast-next');
+    const send = document.getElementById('bcast-send');
+    if (n === 3) {
+      next.classList.add('hidden');
+      send.classList.remove('hidden');
+    } else {
+      next.classList.remove('hidden');
+      send.classList.add('hidden');
+    }
+  }
+  function updateMatchCount() {
+    const discipline = document.getElementById('bcast-discipline').value;
+    const certs = Array.from(document.querySelectorAll('input[name=bcast-certs]:checked')).map(i => i.value);
+    const avail = Array.from(document.querySelectorAll('input[name=bcast-avail]:checked')).map(i => i.value);
+    const matches = state.filter(c => {
+      if (c.status === 'placed' && !avail.includes('placed')) return false;
+      if (discipline && !c.role.toLowerCase().includes(discipline.toLowerCase().split(' ')[0])) return false;
+      if (certs.length && !certs.every(rc => c.certs.some(cc => cc.includes(rc)))) return false;
+      if (avail.length && c.available && !avail.includes(c.available)) return false;
+      return true;
+    });
+    document.getElementById('bcast-match').textContent = matches.length;
+    document.getElementById('bcast-final-count').textContent = matches.length;
+  }
+  document.getElementById('bcast-new')?.addEventListener('click', openBcast);
+  document.getElementById('bcast-close')?.addEventListener('click', closeBcast);
+  document.getElementById('bcast-cancel-btn')?.addEventListener('click', closeBcast);
+  document.getElementById('bcast-prev')?.addEventListener('click', () => showBcastStep(Math.max(1, bcastStep - 1)));
+  document.getElementById('bcast-next')?.addEventListener('click', () => showBcastStep(Math.min(3, bcastStep + 1)));
+  document.querySelectorAll('input[name=bcast-certs], input[name=bcast-avail]').forEach(i => i.addEventListener('change', updateMatchCount));
+  document.getElementById('bcast-discipline')?.addEventListener('change', updateMatchCount);
+
+  document.getElementById('bcast-template')?.addEventListener('change', (e) => {
+    const tpl = templates.find(t => t.id === e.target.value);
+    if (tpl) {
+      document.getElementById('bcast-subject').value = tpl.subject;
+      document.getElementById('bcast-message').value = tpl.body;
+    }
+  });
+
+  document.getElementById('bcast-send')?.addEventListener('click', () => {
+    const count = document.getElementById('bcast-final-count').textContent;
+    closeBcast();
+    showTab('verzoeken');
+    // Add new broadcast at top of list with simulated live responses
+    const list = document.getElementById('bcast-list');
+    const subject = document.getElementById('bcast-subject').value || 'Nieuw verzoek';
+    const newCard = document.createElement('article');
+    newCard.className = 'card card-elev p-6 ring-2 ring-[var(--color-spark)] animate-pulse';
+    newCard.innerHTML = `
+      <div class="flex items-center gap-2 mb-3">
+        <span class="chip chip-spark">VERSTUURD</span>
+        <span class="text-xs text-[var(--color-ink-mute)] font-mono">zojuist · Rody Sinke</span>
+      </div>
+      <h3 class="text-lg">${subject}</h3>
+      <p class="text-sm text-[var(--color-ink-soft)] mt-2">Verstuurd naar ${count} kandidaten. Reacties komen live binnen…</p>
+      <div class="mt-4 flex gap-3 text-sm" id="live-${Date.now()}">
+        <span class="text-emerald-700 font-bold">0 ja</span>
+        <span class="text-amber-700 font-bold">0 mss</span>
+        <span class="text-red-700 font-bold">0 nee</span>
+        <span class="text-[var(--color-ink-mute)] font-bold ml-auto">${count} wacht</span>
+      </div>
+    `;
+    list.prepend(newCard);
+    // Simulate live ticking responses
+    let yes = 0, no = 0, maybe = 0, waiting = parseInt(count);
+    const liveEl = newCard.querySelector('[id^=live-]');
+    const tick = setInterval(() => {
+      if (waiting <= 0) {
+        clearInterval(tick);
+        newCard.classList.remove('animate-pulse', 'ring-2', 'ring-[var(--color-spark)]');
+        return;
+      }
+      const r = Math.random();
+      if (r < 0.5) yes++; else if (r < 0.75) maybe++; else no++;
+      waiting--;
+      liveEl.innerHTML = `
+        <span class="text-emerald-700 font-bold">${yes} ja</span>
+        <span class="text-amber-700 font-bold">${maybe} mss</span>
+        <span class="text-red-700 font-bold">${no} nee</span>
+        <span class="text-[var(--color-ink-mute)] font-bold ml-auto">${waiting} wacht</span>
+      `;
+    }, 800);
+  });
+
+  // ===== ASSIGN BROADCAST =====
+  document.querySelectorAll('[data-bcast-assign]').forEach(b => {
+    b.addEventListener('click', () => {
+      const [bid, cid] = b.getAttribute('data-bcast-assign').split('|');
+      const cand = state.find(c => c.id === cid);
+      if (!cand) return;
+      alert(`Vergrendeld: ${cand.name} toegewezen aan dit verzoek. Opdracht is in zijn timeline gezet.`);
+    });
+  });
+
+  // ===== POOLS =====
+  const poolEuCountries = ['Nederland','België','Duitsland','Polen','Tsjechië','Roemenië','Hongarije','Italië','Spanje','Portugal','Frankrijk','Oostenrijk','Slowakije','Bulgarije','Kroatië'];
+  const regionOf = (origin) => poolEuCountries.includes(origin) ? 'eu' : 'third';
+
+  const savedPoolsDef = {
+    'sp-1': { name: 'TIG VCA NL klaar', filter: c => /TIG/i.test(c.role) && c.certs.some(x => x.includes('VCA')) && (c.status === 'qualified' || c.status === 'placed') },
+    'sp-2': { name: 'MIG/MAG senior EU', filter: c => /MIG\/MAG/i.test(c.role) && (c.yearsExp ?? 0) >= 5 && regionOf(c.origin) === 'eu' },
+    'sp-3': { name: 'Manilla beschikbaar', filter: c => c.origin === 'Filipijnen' && c.available === 'this-week' },
+  };
+
+  let activePool = 'all';
+  let poolSelected = new Set();
+
+  function poolBaseList() {
+    if (activePool === 'all') return state;
+    if (activePool.startsWith('region:')) {
+      const r = activePool.split(':')[1];
+      return state.filter(c => regionOf(c.origin) === r);
+    }
+    if (activePool.startsWith('origin:')) {
+      const o = activePool.split(':')[1];
+      return state.filter(c => c.origin === o);
+    }
+    if (activePool.startsWith('saved:')) {
+      const id = activePool.split(':')[1];
+      const sp = savedPoolsDef[id];
+      return sp ? state.filter(sp.filter) : state;
+    }
+    return state;
+  }
+
+  function poolFilters() {
+    return {
+      status: Array.from(document.querySelectorAll('input[name=pf-status]:checked')).map(i => i.value),
+      discipline: Array.from(document.querySelectorAll('input[name=pf-discipline]:checked')).map(i => i.value),
+      certs: Array.from(document.querySelectorAll('input[name=pf-cert]:checked')).map(i => i.value),
+      langs: Array.from(document.querySelectorAll('input[name=pf-lang]:checked')).map(i => i.value),
+      avail: Array.from(document.querySelectorAll('input[name=pf-avail]:checked')).map(i => i.value),
+    };
+  }
+
+  function poolFiltered() {
+    const f = poolFilters();
+    return poolBaseList().filter(c => {
+      if (f.status.length && !f.status.includes(c.status)) return false;
+      if (f.discipline.length && !f.discipline.some(d => c.role === d)) return false;
+      if (f.certs.length && !f.certs.every(rc => c.certs.includes(rc))) return false;
+      if (f.langs.length && !f.langs.some(l => c.languages.includes(l))) return false;
+      if (f.avail.length && c.available && !f.avail.includes(c.available)) return false;
+      return true;
+    });
+  }
+
+  function poolCardHTML(c, selected) {
+    const region = regionOf(c.origin);
+    const sm = statusMeta[c.status];
+    return `
+      <label class="card p-4 cursor-pointer hover:border-[var(--color-axxaz-navy)] transition-colors flex gap-3 ${selected ? 'border-[var(--color-spark)] bg-[var(--color-spark)]/5' : ''}">
+        <input type="checkbox" data-pool-pick="${c.id}" ${selected ? 'checked' : ''} class="mt-1 accent-[var(--color-spark)]" />
+        <div class="flex-grow min-w-0">
+          <div class="flex items-center gap-2 mb-1.5">
+            <div class="w-8 h-8 rounded-full bg-[var(--color-axxaz-mist)] text-[var(--color-axxaz-navy)] inline-flex items-center justify-center font-bold text-xs flex-shrink-0">${c.initials}</div>
+            <div class="min-w-0 flex-grow">
+              <div class="font-semibold text-sm leading-tight truncate">${c.name}</div>
+              <div class="text-xs text-[var(--color-ink-mute)] truncate mt-0.5">${c.role}</div>
+            </div>
+            <span class="chip ${region === 'eu' ? '' : 'chip-spark'} text-[10px] !py-0.5 !px-2">${region === 'eu' ? 'EU' : '3L'}</span>
+          </div>
+          <div class="flex flex-wrap gap-1 mt-2">
+            <span class="chip chip-ghost text-[10px] !py-0 !px-1.5">${sm.label}</span>
+            <span class="chip chip-ghost text-[10px] !py-0 !px-1.5">${c.origin}</span>
+            ${c.certs.slice(0,2).map(t => `<span class="chip text-[10px] !py-0 !px-1.5">${t}</span>`).join('')}
+          </div>
+        </div>
+      </label>`;
+  }
+
+  function renderPools() {
+    const list = poolFiltered();
+    const wrap = document.getElementById('pool-results');
+    if (!wrap) return;
+    wrap.innerHTML = list.length
+      ? list.map(c => poolCardHTML(c, poolSelected.has(c.id))).join('')
+      : '<p class="text-sm text-[var(--color-ink-mute)] col-span-2 py-8 text-center">Geen kandidaten matchen deze filters.</p>';
+    document.getElementById('pool-result-count').textContent = list.length;
+    bindPoolPicks();
+    updateBulkBar();
+  }
+
+  function bindPoolPicks() {
+    document.querySelectorAll('input[data-pool-pick]').forEach(i => {
+      i.addEventListener('change', () => {
+        const id = i.getAttribute('data-pool-pick');
+        if (i.checked) poolSelected.add(id); else poolSelected.delete(id);
+        i.closest('label').classList.toggle('border-[var(--color-spark)]', i.checked);
+        i.closest('label').classList.toggle('bg-[var(--color-spark)]/5', i.checked);
+        updateBulkBar();
+      });
+    });
+  }
+
+  function updateBulkBar() {
+    const c = poolSelected.size;
+    const cnt = document.getElementById('pool-selected-count');
+    if (cnt) cnt.textContent = `${c} geselecteerd`;
+    const bcastBtn = document.getElementById('pool-bulk-broadcast');
+    const vacBtn = document.getElementById('pool-bulk-vacancy');
+    if (bcastBtn) bcastBtn.disabled = c === 0;
+    if (vacBtn) vacBtn.disabled = c === 0;
+  }
+
+  // Pool sidebar clicks
+  document.querySelectorAll('.pool-link').forEach(b => {
+    b.addEventListener('click', () => {
+      activePool = b.getAttribute('data-pool');
+      document.querySelectorAll('.pool-link').forEach(x => x.dataset.active = 'false');
+      b.dataset.active = 'true';
+      poolSelected.clear();
+      const nameEl = document.getElementById('pool-pool-name');
+      if (nameEl) nameEl.textContent = b.textContent.trim().split(/\s+/).slice(0, -1).join(' ') || 'Pool';
+      renderPools();
+    });
+  });
+
+  // Filter changes
+  ['pf-status','pf-discipline','pf-cert','pf-lang','pf-avail'].forEach(name => {
+    document.querySelectorAll(`input[name=${name}]`).forEach(i => i.addEventListener('change', renderPools));
+  });
+
+  document.getElementById('pool-clear')?.addEventListener('click', () => {
+    document.querySelectorAll('input[name^=pf-]').forEach(i => { i.checked = false; });
+    renderPools();
+  });
+
+  document.getElementById('pool-select-all')?.addEventListener('change', (e) => {
+    const checked = e.target.checked;
+    poolSelected.clear();
+    if (checked) poolFiltered().forEach(c => poolSelected.add(c.id));
+    renderPools();
+  });
+
+  document.getElementById('pool-save')?.addEventListener('click', () => {
+    const name = prompt('Naam voor deze pool:');
+    if (!name) return;
+    alert(`Pool "${name}" opgeslagen met ${poolFiltered().length} kandidaten.\n\n(Demo, in productie zou dit persistent zijn met automatische updates wanneer nieuwe kandidaten matchen.)`);
+  });
+
+  // Bulk actions
+  document.getElementById('pool-bulk-broadcast')?.addEventListener('click', () => {
+    if (poolSelected.size === 0) return;
+    openBcastWithPreselect(Array.from(poolSelected));
+  });
+  document.getElementById('pool-bulk-vacancy')?.addEventListener('click', () => {
+    if (poolSelected.size === 0) return;
+    alert(`${poolSelected.size} kandidaten gekoppeld aan vacature.\n\n(Demo, selectie van vacature volgt in popup.)`);
+  });
+
+  // Open broadcast pre-filled with pool selection
+  function openBcastWithPreselect(ids) {
+    openBcast();
+    bcastStep = 2;
+    showBcastStep(2);
+    document.getElementById('bcast-final-count').textContent = ids.length;
+    document.getElementById('bcast-match').textContent = ids.length;
+    // Suggest a template + subject based on first selected
+    const tplSel = document.getElementById('bcast-template');
+    if (tplSel) tplSel.value = 'tpl-2';
+    const tpl = templates.find(x => x.id === 'tpl-2');
+    if (tpl) {
+      document.getElementById('bcast-subject').value = tpl.subject;
+      document.getElementById('bcast-message').value = tpl.body;
+    }
+  }
+
+  // Initialize pools view when its tab is opened
+  document.querySelectorAll('.ats-tab[data-tab="pools"]').forEach(b => {
+    b.addEventListener('click', () => {
+      const wrap = document.getElementById('pool-results');
+      if (wrap && wrap.children.length === 0) renderPools();
+    });
+  });
+
+  // ===== TEST-PLANNER =====
+  const PLANNER_KEY = 'axxaz-ats-planner';
+  let plannerSlots = {};
+  try {
+    const stored = localStorage.getItem(PLANNER_KEY);
+    plannerSlots = stored ? JSON.parse(stored) : {};
+  } catch (err) { plannerSlots = {}; }
+  const plannerPersist = () => localStorage.setItem(PLANNER_KEY, JSON.stringify(plannerSlots));
+
+  function plannerWaitlist() {
+    return state.filter(c => c.status === 'test' && !Object.values(plannerSlots).flat().includes(c.id));
+  }
+
+  function renderPlannerWaitlist() {
+    const list = plannerWaitlist();
+    const wrap = document.getElementById('planner-waitlist');
+    if (!wrap) return;
+    wrap.innerHTML = list.length ? list.map(c => `
+      <li draggable="true" data-cand-drag="${c.id}"
+          class="cursor-grab active:cursor-grabbing rounded-lg border border-[var(--color-line)] bg-white p-2.5 hover:border-[var(--color-axxaz-navy)] transition-colors flex items-center gap-2">
+        <div class="w-7 h-7 rounded-full bg-[var(--color-axxaz-mist)] text-[var(--color-axxaz-navy)] inline-flex items-center justify-center font-bold text-[10px] flex-shrink-0">${c.initials}</div>
+        <div class="min-w-0 flex-grow">
+          <div class="font-semibold text-xs leading-tight truncate">${c.name}</div>
+          <div class="text-[10px] text-[var(--color-ink-mute)] truncate">${c.role}</div>
+        </div>
+      </li>
+    `).join('') : '<li class="text-xs text-[var(--color-ink-mute)] py-3 text-center">Wachtlijst leeg.</li>';
+    document.getElementById('planner-waitlist-count').textContent = list.length;
+    bindPlannerDrag();
+  }
+
+  function renderPlannerSlots() {
+    document.querySelectorAll('[data-slot-cards]').forEach(el => {
+      const slotId = el.getAttribute('data-slot-cards');
+      const ids = plannerSlots[slotId] || [];
+      const cards = ids.map(id => state.find(c => c.id === id)).filter(Boolean);
+      el.innerHTML = cards.map(c => `
+        <div data-slot-card="${slotId}|${c.id}" class="rounded-md bg-emerald-50 border border-emerald-200 px-1.5 py-1 flex items-center gap-1.5 group">
+          <div class="w-5 h-5 rounded-full bg-[var(--color-axxaz-navy)] text-white inline-flex items-center justify-center font-bold text-[8px] flex-shrink-0">${c.initials}</div>
+          <span class="text-[10px] font-semibold text-[var(--color-ink)] truncate flex-grow">${c.name.split(' ')[0]}</span>
+          <button data-slot-remove="${slotId}|${c.id}" class="text-[var(--color-ink-mute)] hover:text-red-600 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+        </div>
+      `).join('');
+      // Color slot by capacity
+      const slot = el.closest('[data-slot]');
+      if (slot) {
+        slot.classList.remove('bg-[var(--color-paper)]', 'bg-amber-50', 'bg-red-50', 'border-amber-300', 'border-red-300');
+        if (cards.length === 0) slot.classList.add('bg-[var(--color-paper)]');
+        else if (cards.length < 4) slot.classList.add('bg-amber-50', 'border-amber-300');
+        else slot.classList.add('bg-red-50', 'border-red-300');
+      }
+    });
+    // Bind remove
+    document.querySelectorAll('[data-slot-remove]').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const [slotId, candId] = b.getAttribute('data-slot-remove').split('|');
+        plannerSlots[slotId] = (plannerSlots[slotId] || []).filter(id => id !== candId);
+        plannerPersist();
+        renderPlannerSlots();
+        renderPlannerWaitlist();
+      });
+    });
+  }
+
+  let plannerDragId = null;
+  function bindPlannerDrag() {
+    document.querySelectorAll('[data-cand-drag]').forEach(card => {
+      card.addEventListener('dragstart', () => {
+        plannerDragId = card.getAttribute('data-cand-drag');
+        card.classList.add('opacity-50');
+      });
+      card.addEventListener('dragend', () => card.classList.remove('opacity-50'));
+    });
+    document.querySelectorAll('[data-slot]').forEach(slot => {
+      slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('ring-2', 'ring-[var(--color-spark)]'); });
+      slot.addEventListener('dragleave', () => slot.classList.remove('ring-2', 'ring-[var(--color-spark)]'));
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+        slot.classList.remove('ring-2', 'ring-[var(--color-spark)]');
+        const slotId = slot.getAttribute('data-slot');
+        if (!plannerDragId) return;
+        const current = plannerSlots[slotId] || [];
+        if (current.length >= 4) {
+          alert('Slot is vol (max 4 kandidaten).');
+          return;
+        }
+        if (current.includes(plannerDragId)) return;
+        // Remove from any previous slot
+        Object.keys(plannerSlots).forEach(sid => {
+          plannerSlots[sid] = (plannerSlots[sid] || []).filter(id => id !== plannerDragId);
+        });
+        plannerSlots[slotId] = [...current, plannerDragId];
+        plannerPersist();
+        renderPlannerSlots();
+        renderPlannerWaitlist();
+      });
+    });
+  }
+
+  function initPlanner() {
+    if (document.querySelector('[data-pane="planner"][data-pinit]')) return;
+    document.querySelector('[data-pane="planner"]')?.setAttribute('data-pinit', 'true');
+    renderPlannerSlots();
+    renderPlannerWaitlist();
+  }
+
+  document.querySelectorAll('.ats-tab[data-tab="planner"]').forEach(b => {
+    b.addEventListener('click', initPlanner);
+  });
+
+  document.getElementById('planner-export')?.addEventListener('click', () => {
+    const rows = [['Slot','Kandidaat','Functie']];
+    Object.entries(plannerSlots).forEach(([slotId, ids]) => {
+      ids.forEach(id => {
+        const c = state.find(x => x.id === id);
+        if (c) rows.push([slotId, c.name, c.role]);
+      });
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'tholen-test-schema.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ===== ESCAPE TO CLOSE =====
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (drawer && !drawer.classList.contains('translate-x-full')) closeDrawer();
+      else if (notifPanel && !notifPanel.classList.contains('translate-x-full')) closeNotif();
+      else if (bcastModal && !bcastModal.classList.contains('hidden')) closeBcast();
+    }
+  });
+
+  } // end initAts
+
+  // Run now if ATS form is already in DOM, else wait for it
+  if (document.getElementById('ats-login-form')) initAts();
+  else document.addEventListener('DOMContentLoaded', initAts);
+  // Re-init on Astro view transitions
+  document.addEventListener('astro:page-load', () => {
+    window.__atsInited = false;
+    if (document.getElementById('ats-login-form')) initAts();
+  });
+</script>

@@ -1,0 +1,102 @@
+---
+import { useTranslations, localizePath } from '../i18n/utils';
+import { cases } from '../data/site';
+import type { Lang } from '../i18n/ui';
+import Icon from '../components/Icon.astro';
+
+interface Props { lang: Lang; slug: string }
+const { lang, slug } = Astro.props;
+const t = useTranslations(lang);
+const isEn = lang === 'en';
+const cs = cases.find(c => c.slug === slug);
+if (!cs) return Astro.redirect(localizePath(lang, '/cases'));
+const otherCases = cases.filter(c => c.slug !== slug).slice(0, 2);
+---
+<section class="relative overflow-hidden bg-[var(--color-axxaz-navy-deep)] text-white">
+  <div class="absolute inset-0 z-0">
+    <img src={cs.cover} alt="" class="w-full h-full object-cover opacity-30" />
+    <div class="absolute inset-0 bg-gradient-to-r from-[var(--color-axxaz-navy-deep)] via-[var(--color-axxaz-navy-deep)]/95 to-[var(--color-axxaz-navy-deep)]/50"></div>
+  </div>
+  <div class="absolute inset-0 pattern-grid opacity-30 pointer-events-none z-0"></div>
+  <div class="relative z-10 container-x py-12 sm:py-16 md:py-24">
+    <a href={localizePath(lang, '/cases')} class="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors">
+      <Icon name="arrow-right" size={14} stroke={2} class="rotate-180" /> {t('cases.back')}
+    </a>
+    <div class="mt-6 max-w-3xl">
+      <div class="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-[var(--color-spark)]">{cs.client} · {cs.industry} · {cs.location}</div>
+      <h1 class="mt-4 text-2xl sm:text-3xl md:text-5xl lg:text-6xl !text-white tracking-tight leading-[1.05]">{isEn ? cs.titleEn : cs.titleNl}</h1>
+      <p class="mt-5 sm:mt-6 text-base sm:text-lg text-white/75 max-w-2xl leading-relaxed">{isEn ? cs.excerptEn : cs.excerptNl}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-x grid lg:grid-cols-[1fr_320px] gap-8 lg:gap-12">
+    <article class="max-w-2xl">
+      <div class="eyebrow">{t('cases.metrics')}</div>
+      <div class="mt-5 grid sm:grid-cols-2 gap-3">
+        {(isEn ? cs.metricsEn : cs.metricsNl).map((m, i) => (
+          <div class="card p-5">
+            <div class="text-[10px] uppercase tracking-widest font-bold text-[var(--color-spark)]">0{i + 1}</div>
+            <div class="mt-2 font-bold text-base">{m}</div>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-12">
+        <div class="eyebrow">{t('cases.story')}</div>
+        <div class="mt-5 text-base md:text-lg leading-relaxed text-[var(--color-ink-soft)] space-y-5">
+          <p>{isEn ? cs.bodyEn : cs.bodyNl}</p>
+        </div>
+      </div>
+
+      <blockquote class="mt-12 rounded-2xl bg-[var(--color-axxaz-mist)]/50 border-l-4 border-[var(--color-spark)] p-7 md:p-10">
+        <p class="text-xl md:text-2xl font-medium leading-snug !text-[var(--color-axxaz-navy-deep)]" style="font-family:Manrope,sans-serif">{isEn ? cs.quoteEn : cs.quoteNl}</p>
+        <footer class="mt-5 text-sm text-[var(--color-ink-soft)]">- {cs.quoteBy}</footer>
+      </blockquote>
+    </article>
+
+    <aside class="space-y-5 lg:sticky lg:top-32 self-start">
+      <div class="card p-6">
+        <h4 class="font-semibold uppercase text-xs tracking-widest text-[var(--color-ink-mute)]">Snelle feiten</h4>
+        <dl class="mt-4 space-y-3 text-sm">
+          <div>
+            <dt class="text-[var(--color-ink-mute)] text-xs">{t('cases.industry')}</dt>
+            <dd class="font-semibold">{cs.industry}</dd>
+          </div>
+          <div>
+            <dt class="text-[var(--color-ink-mute)] text-xs">{t('cases.location')}</dt>
+            <dd class="font-semibold">{cs.location}</dd>
+          </div>
+          <div>
+            <dt class="text-[var(--color-ink-mute)] text-xs">Klant</dt>
+            <dd class="font-semibold">{cs.client}</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="card p-6 bg-[var(--color-axxaz-navy-deep)] text-white !border-transparent">
+        <h4 class="!text-white text-base">Werken met AXXAZ?</h4>
+        <p class="mt-2 text-sm text-white/75 leading-relaxed">Vergelijkbare opdracht? Plan een vrijblijvend gesprek.</p>
+        <a href={localizePath(lang, '/contact')} class="btn btn-spark btn-sm mt-4 w-full justify-center">{t('cta.kennismaken')}</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="bg-[var(--color-axxaz-mist)]/40 border-y border-[var(--color-line)]">
+  <div class="container-x py-16">
+    <h2 class="text-2xl md:text-3xl">{t('cases.back')}</h2>
+    <div class="mt-8 grid md:grid-cols-2 gap-5">
+      {otherCases.map(other => (
+        <a href={localizePath(lang, `/cases/${other.slug}`)} class="group flex gap-4 p-5 rounded-xl border border-[var(--color-line)] bg-white hover:border-[var(--color-axxaz-navy)] transition-colors">
+          <img src={other.cover} alt="" class="w-32 h-24 rounded-lg object-cover flex-shrink-0" loading="lazy" />
+          <div class="flex-grow min-w-0">
+            <div class="text-[10px] uppercase tracking-widest font-bold text-[var(--color-spark)]">{other.industry}</div>
+            <h3 class="mt-1 text-base leading-snug truncate group-hover:text-[var(--color-axxaz-navy)] transition-colors">{isEn ? other.titleEn : other.titleNl}</h3>
+            <div class="mt-2 inline-flex items-center gap-1 text-xs text-[var(--color-spark)] font-semibold">{t('cases.cta')} <Icon name="arrow-right" size={11} stroke={2.5} /></div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

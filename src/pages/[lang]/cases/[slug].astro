@@ -1,0 +1,19 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import CaseDetail from '../../../sections/CaseDetail.astro';
+import { cases } from '../../../data/site';
+import { ui, type Lang } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+  const langs = (Object.keys(ui) as Lang[]).filter(l => l !== 'nl');
+  return langs.flatMap(lang => cases.map(c => ({
+    params: { lang, slug: c.slug },
+    props: { title: c.client },
+  })));
+}
+const { lang, slug } = Astro.params as { lang: Lang; slug: string };
+const { title } = Astro.props;
+---
+<Layout title={`Case · ${title}`}>
+  <CaseDetail lang={lang} slug={slug} />
+</Layout>
