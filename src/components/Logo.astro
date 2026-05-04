@@ -1,15 +1,19 @@
 ---
 interface Props { variant?: 'light' | 'dark'; class?: string; height?: number }
 const { variant = 'dark', class: className = '', height = 32 } = Astro.props;
+// natural aspect 1545:340 ~ 4.544
+const width = Math.round(height * 4.544);
 ---
 
 <a href="/" class={`inline-flex items-center ${className}`} aria-label="AXXAZ Metalwork">
   <img
     src="/img/site/axxaz-logo.png"
     alt="AXXAZ Metalwork"
+    width={width}
     height={height}
     style={`height:${height}px;width:auto;${variant === 'light' ? 'filter:brightness(0) invert(1);' : ''}`}
     loading="eager"
+    fetchpriority="high"
     decoding="async"
   />
 </a>
