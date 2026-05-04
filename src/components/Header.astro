@@ -113,7 +113,7 @@ const navTree: Array<
   </div>
   <div id="header-progress" class="header-progress" aria-hidden="true"></div>
 
-  <div id="mobile-menu" class="lg:hidden hidden border-t border-[var(--color-line)] bg-white max-h-[calc(100vh-60px)] overflow-y-auto">
+  <div id="mobile-menu" class="lg:hidden hidden border-t border-[var(--color-line)] bg-white overflow-y-auto overscroll-contain" style="max-height: calc(100dvh - 56px);">
     <nav class="container-x py-5 flex flex-col text-sm">
       {navTree.map(item => {
         if (item.type === 'link') {
@@ -193,7 +193,6 @@ const navTree: Array<
 
     const setBodyLock = (locked: boolean) => {
       document.body.style.overflow = locked ? 'hidden' : '';
-      document.body.style.touchAction = locked ? 'none' : '';
     };
 
     if (btn && !btn.dataset.bound) {
