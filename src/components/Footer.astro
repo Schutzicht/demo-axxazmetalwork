@@ -68,28 +68,28 @@ const colBedrijf = [
     </div>
 
     <div class="lg:col-span-2">
-      <h4 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.werknemers')}</h4>
+      <h3 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.werknemers')}</h3>
       <ul class="space-y-2.5 text-sm">
         {colWerknemers.map(l => (<li><a href={localizePath(lang, l.href)} class="text-white/60 hover:text-white transition-colors">{l.label}</a></li>))}
       </ul>
     </div>
 
     <div class="lg:col-span-2">
-      <h4 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.werkgevers')}</h4>
+      <h3 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.werkgevers')}</h3>
       <ul class="space-y-2.5 text-sm">
         {colWerkgevers.map(l => (<li><a href={localizePath(lang, l.href)} class="text-white/60 hover:text-white transition-colors">{l.label}</a></li>))}
       </ul>
     </div>
 
     <div class="lg:col-span-2">
-      <h4 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.bedrijf')}</h4>
+      <h3 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">{t('footer.bedrijf')}</h3>
       <ul class="space-y-2.5 text-sm">
         {colBedrijf.map(l => (<li><a href={localizePath(lang, l.href)} class="text-white/60 hover:text-white transition-colors">{l.label}</a></li>))}
       </ul>
     </div>
 
     <div class="lg:col-span-2">
-      <h4 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">Contact</h4>
+      <h3 class="!text-white font-semibold text-xs uppercase tracking-widest mb-4">Contact</h3>
       <ul class="space-y-2.5 text-sm">
         <li><a href={`tel:${site.phoneOffice.replace(/\s/g,'')}`} class="text-white/85 hover:text-[var(--color-spark)] transition-colors font-semibold inline-flex items-center gap-1.5"><Icon name="phone" size={12} stroke={2} />{site.phoneOfficeShort}</a></li>
         <li><a href={`mailto:${site.email}`} class="text-white/60 hover:text-white transition-colors break-all">{site.email}</a></li>
@@ -99,11 +99,11 @@ const colBedrijf = [
   </div>
 
   <div class="border-t border-white/10">
-    <div class="container-x py-5 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-xs text-white/40">
+    <div class="container-x py-5 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center text-xs text-white/65">
       <p>© {year} AXXAZ Metalwork, {t('footer.rights')}</p>
       <div class="flex gap-5">
-        <a href="#" class="hover:text-white/70 transition-colors">Privacy</a>
-        <a href="#" class="hover:text-white/70 transition-colors">Algemene voorwaarden</a>
+        <a href="#" class="hover:text-white transition-colors">Privacy</a>
+        <a href="#" class="hover:text-white transition-colors">Algemene voorwaarden</a>
       </div>
     </div>
   </div>

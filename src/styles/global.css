@@ -11,9 +11,9 @@
   --color-axxaz-mist: #EEF2FA;
   --color-axxaz-mist-deep: #DCE5F2;
 
-  /* Accent */
-  --color-spark: #E85D1F;
-  --color-spark-deep: #B8410F;
+  /* Accent — spark licht donkerder gezet voor AA contrast op wit (#E85D1F -> #C44E15) */
+  --color-spark: #C44E15;
+  --color-spark-deep: #9A360A;
   --color-spark-bright: #FF6F2C;
   --color-ember: #F4A93C;
 
@@ -22,7 +22,7 @@
   --color-surface: #FFFFFF;
   --color-ink: #0A1020;
   --color-ink-soft: #4B5577;
-  --color-ink-mute: #7B86A3;
+  --color-ink-mute: #5F6985;
   --color-line: #E4E8EF;
   --color-line-soft: #EFF1F6;
 

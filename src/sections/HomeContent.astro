@@ -75,11 +75,11 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
                      class="field pl-11" />
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <select name="loc" class="field">
+              <select name="loc" class="field" aria-label="Locatie">
                 <option value="">Alle locaties</option>
                 {[...new Set(vacancies.map(v => v.location))].sort().map(l => <option value={l}>{l}</option>)}
               </select>
-              <select name="cat" class="field">
+              <select name="cat" class="field" aria-label="Type vacature">
                 <option value="all">Alle types</option>
                 <option value="urgent">Urgent</option>
                 <option value="vast">Vast</option>
