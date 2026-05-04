@@ -4,13 +4,20 @@ interface Props {
   title: string;
   sub?: string;
   align?: 'left' | 'center';
-  variant?: 'navy' | 'mist';
+  variant?: 'navy' | 'mist' | 'light';
 }
-const { kicker, title, sub, align = 'left', variant = 'navy' } = Astro.props;
+const { kicker, title, sub, align = 'left', variant = 'light' } = Astro.props;
 const isDark = variant === 'navy';
+const isMist = variant === 'mist';
 ---
-<section class={`${isDark ? 'bg-[var(--color-axxaz-navy-deep)] text-white' : 'bg-[var(--color-axxaz-mist)]/60'}`}>
-  <div class={`container-x py-12 sm:py-16 md:py-20 lg:py-24 ${align === 'center' ? 'text-center' : ''}`}>
+<section class={`relative overflow-hidden ${isDark ? 'bg-[var(--color-axxaz-navy-deep)] text-white' : isMist ? 'bg-[var(--color-axxaz-mist)]/40' : 'bg-[var(--color-paper)]'}`}>
+  {!isDark && !isMist && (
+    <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-32 -right-32 w-[36rem] h-[36rem] rounded-full bg-[var(--color-spark)]/[0.05] blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-[34rem] h-[34rem] rounded-full bg-[var(--color-axxaz-blue)]/[0.06] blur-3xl"></div>
+    </div>
+  )}
+  <div class={`relative z-10 container-x pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 lg:pb-24 ${align === 'center' ? 'text-center' : ''}`}>
     {kicker && <div class={`${isDark ? 'eyebrow eyebrow-light' : 'eyebrow eyebrow-dark'} ${align === 'center' ? 'justify-center' : ''}`}>{kicker}</div>}
     <h1 class={`mt-4 sm:mt-5 text-3xl sm:text-4xl md:text-5xl lg:text-6xl max-w-4xl tracking-tight ${isDark ? '!text-white' : ''}`} style={align === 'center' ? 'margin-left:auto;margin-right:auto;' : ''}>
       {title}

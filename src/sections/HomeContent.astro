@@ -34,36 +34,36 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 ---
 
 <!-- HERO -->
-<section class="relative overflow-hidden bg-[var(--color-axxaz-navy-deep)] text-white">
-  <div class="absolute inset-0 z-0">
-    <img src="/img/site/workshop-1.jpg" alt="" class="w-full h-full object-cover opacity-20" />
-    <div class="absolute inset-0 bg-gradient-to-r from-[var(--color-axxaz-navy-deep)] via-[var(--color-axxaz-navy-deep)]/95 to-[var(--color-axxaz-navy-deep)]/70"></div>
+<section class="relative overflow-hidden bg-[var(--color-paper)]">
+  <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+    <div class="absolute -top-32 -right-32 w-[42rem] h-[42rem] rounded-full bg-[var(--color-spark)]/[0.06] blur-3xl"></div>
+    <div class="absolute -bottom-40 -left-40 w-[40rem] h-[40rem] rounded-full bg-[var(--color-axxaz-blue)]/[0.08] blur-3xl"></div>
   </div>
 
-  <div class="relative z-10 container-x py-14 sm:py-20 md:py-28 lg:py-32">
+  <div class="relative z-10 container-x pt-24 sm:pt-28 md:pt-32 lg:pt-36 pb-14 sm:pb-20 md:pb-24">
     <div class="grid lg:grid-cols-[1.1fr_1fr] gap-10 sm:gap-12 lg:gap-20 items-center">
       <!-- LEFT: copy for jobseekers -->
       <div>
-        <div class="eyebrow eyebrow-light">{t('hero.kicker')}</div>
-        <h1 class="mt-5 sm:mt-6 text-[2.25rem] sm:text-5xl md:text-6xl lg:text-7xl !text-white leading-[0.95] font-extrabold tracking-[-0.04em]">
+        <div class="eyebrow eyebrow-dark">{t('hero.kicker')}</div>
+        <h1 class="mt-5 sm:mt-6 text-[2.25rem] sm:text-5xl md:text-6xl lg:text-7xl text-[var(--color-ink)] leading-[0.95] font-extrabold tracking-[-0.04em]">
           {t('hero.titleA')}<br/>
           <span class="text-gradient-spark">{t('hero.titleB')}</span>,<br/>
           {t('hero.titleC')}
         </h1>
-        <p class="mt-7 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">{t('hero.sub')}</p>
+        <p class="mt-7 text-base md:text-lg text-[var(--color-ink-soft)] max-w-xl leading-relaxed">{t('hero.sub')}</p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href={localizePath(lang, '/open-sollicitatie')} class="btn btn-on-dark"><Icon name="send" size={14} stroke={2} /> {t('cta.openSollicitatie')}</a>
-          <a href={localizePath(lang, '/werkgevers')} class="btn btn-ghost !text-white/70 hover:!text-white hover:!bg-white/5">{t('cta.zoekWerknemers')} →</a>
+          <a href={localizePath(lang, '/open-sollicitatie')} class="btn btn-primary"><Icon name="send" size={14} stroke={2} /> {t('cta.openSollicitatie')}</a>
+          <a href={localizePath(lang, '/werkgevers')} class="btn btn-ghost">{t('cta.zoekWerknemers')} <Icon name="arrow-right" size={14} stroke={2.25} /></a>
         </div>
       </div>
 
       <!-- RIGHT: vacature search card -->
       <aside class="relative">
-        <div class="absolute -inset-3 rounded-3xl bg-gradient-to-br from-[var(--color-spark)]/20 via-transparent to-[var(--color-axxaz-blue)]/20 blur-2xl pointer-events-none"></div>
-        <div class="relative rounded-2xl bg-white/[0.06] border border-white/15 backdrop-blur-xl p-5 sm:p-6 md:p-8 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.5)]">
+        <div class="absolute -inset-3 rounded-3xl bg-gradient-to-br from-[var(--color-spark)]/10 via-transparent to-[var(--color-axxaz-blue)]/10 blur-2xl pointer-events-none"></div>
+        <div class="relative rounded-2xl bg-white border border-[var(--color-line)] p-5 sm:p-6 md:p-8 shadow-[0_24px_60px_-20px_rgba(14,26,61,0.18)]">
           <div class="flex items-baseline justify-between gap-3 mb-1">
-            <h2 class="!text-white text-2xl md:text-3xl tracking-tight">Direct zoeken</h2>
-            <span class="chip chip-dark text-[10px] font-mono">{totalVacs} open</span>
+            <h2 class="text-2xl md:text-3xl tracking-tight">Direct zoeken</h2>
+            <span class="chip chip-ghost text-[10px] font-mono">{totalVacs} open</span>
           </div>
 
           <form action={localizePath(lang, '/vacatures')} class="mt-6 space-y-3">
@@ -72,14 +72,14 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
                 <Icon name="briefcase" size={16} stroke={1.75} />
               </span>
               <input type="text" name="q" placeholder={t('hero.searchPlaceholder')}
-                     class="w-full bg-white text-[var(--color-ink)] rounded-lg pl-11 pr-4 py-3 text-sm placeholder:text-[var(--color-ink-mute)] focus:outline-none focus:ring-3 focus:ring-[var(--color-spark)]/30" />
+                     class="field pl-11" />
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <select name="loc" class="bg-white text-[var(--color-ink)] rounded-lg px-3.5 py-3 text-sm focus:outline-none focus:ring-3 focus:ring-[var(--color-spark)]/30">
+              <select name="loc" class="field">
                 <option value="">Alle locaties</option>
                 {[...new Set(vacancies.map(v => v.location))].sort().map(l => <option value={l}>{l}</option>)}
               </select>
-              <select name="cat" class="bg-white text-[var(--color-ink)] rounded-lg px-3.5 py-3 text-sm focus:outline-none focus:ring-3 focus:ring-[var(--color-spark)]/30">
+              <select name="cat" class="field">
                 <option value="all">Alle types</option>
                 <option value="urgent">Urgent</option>
                 <option value="vast">Vast</option>
@@ -92,12 +92,12 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
             </button>
           </form>
 
-          <div class="mt-6 pt-5 border-t border-white/10">
-            <div class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3">Populair</div>
+          <div class="mt-6 pt-5 border-t border-[var(--color-line)]">
+            <div class="text-[10px] uppercase tracking-widest font-bold text-[var(--color-ink-mute)] mb-3">Populair</div>
             <div class="flex flex-wrap gap-1.5">
               {vakgebieden.slice(0, 5).map(v => (
                 <a href={localizePath(lang, `/vacatures?cat=${v.slug}`)}
-                   class="chip chip-dark hover:bg-[var(--color-spark)] hover:border-[var(--color-spark)] hover:text-white transition-colors">
+                   class="chip chip-ghost hover:bg-[var(--color-spark)] hover:border-[var(--color-spark)] hover:text-white transition-colors">
                   {v.name}
                 </a>
               ))}
@@ -107,8 +107,6 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
       </aside>
     </div>
   </div>
-
-  <div class="absolute bottom-0 left-0 right-0 accent-line"></div>
 </section>
 
 <!-- DUO CTA -->
@@ -149,7 +147,7 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
   </div>
 </section>
 
-<!-- TRUST STRIP — auto-scrolling marquee -->
+<!-- TRUST STRIP, auto-scrolling marquee -->
 <section class="border-y border-[var(--color-line)] bg-white mt-16 md:mt-24" data-reveal>
   <div class="py-9 md:py-11">
     <div class="marquee">
@@ -162,7 +160,7 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
   </div>
 </section>
 
-<!-- BIG STATS — horizontale rij met dunne dividers -->
+<!-- BIG STATS, horizontale rij met dunne dividers -->
 <section class="section" data-reveal>
   <div class="container-x">
     <div class="max-w-2xl mb-12 md:mb-16">
@@ -190,7 +188,7 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 </section>
 
 <!-- 3 SERVICES -->
-<section class="section bg-[var(--color-axxaz-mist)]/40 border-y border-[var(--color-line)]">
+<section class="section border-t border-[var(--color-line)]">
   <div class="container-x">
     <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
       <div class="max-w-xl">
@@ -201,7 +199,7 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
     </div>
     <div class="grid md:grid-cols-3 gap-3 md:gap-4">
       {services.map(s => (
-        <article class="card card-hover p-7 md:p-8 bg-white flex flex-col">
+        <article class="card card-hover p-7 md:p-8 bg-[var(--color-paper)] flex flex-col">
           <h3 class="text-lg md:text-xl">{s.title}</h3>
           <ul class="mt-5 space-y-2.5 flex-grow">
             {s.items.map(it => (
@@ -251,21 +249,21 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 </section>
 
 <!-- TEST CENTER -->
-<section class="bg-[var(--color-axxaz-navy-deep)] text-white">
+<section class="border-t border-[var(--color-line)]">
   <div class="container-x py-20 md:py-28 lg:py-32 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
     <div>
-      <div class="eyebrow eyebrow-light">{t('tc.kicker')}</div>
-      <h2 class="mt-5 text-3xl md:text-4xl lg:text-5xl !text-white">{t('tc.title')}</h2>
-      <p class="mt-6 text-white/70 leading-relaxed text-lg">{t('tc.sub')}</p>
+      <div class="eyebrow eyebrow-dark">{t('tc.kicker')}</div>
+      <h2 class="mt-5 text-3xl md:text-4xl lg:text-5xl">{t('tc.title')}</h2>
+      <p class="mt-6 text-[var(--color-ink-soft)] leading-relaxed text-lg">{t('tc.sub')}</p>
       <ul class="mt-10 space-y-4">
         {tcBullets.map(item => (
-          <li class="flex gap-3.5 text-white/85">
-            <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-spark)]/15 inline-flex items-center justify-center"><Icon name="check" size={14} stroke={2.5} /></span>
+          <li class="flex gap-3.5 text-[var(--color-ink)]">
+            <span class="text-[var(--color-spark)] mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-spark)]/12 inline-flex items-center justify-center"><Icon name="check" size={14} stroke={2.5} /></span>
             <span class="leading-relaxed">{item}</span>
           </li>
         ))}
       </ul>
-      <a href={localizePath(lang, '/vak-en-lastestcentrum')} class="btn btn-spark btn-lg mt-10">
+      <a href={localizePath(lang, '/vak-en-lastestcentrum')} class="btn btn-primary btn-lg mt-10">
         {t('tc.cta')}
         <Icon name="arrow-right" size={16} stroke={2.5} />
       </a>
@@ -310,8 +308,8 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
   </div>
 </section>
 
-<!-- REVIEWS BLOCK — featured quote -->
-<section class="section bg-[var(--color-axxaz-mist)]/40 border-y border-[var(--color-line)]">
+<!-- REVIEWS BLOCK, featured quote -->
+<section class="section border-t border-[var(--color-line)]">
   <div class="container-x">
     <div class="grid lg:grid-cols-[auto_1fr] gap-12 lg:gap-20 items-center max-w-5xl">
       <div class="lg:max-w-[200px]">
@@ -365,55 +363,55 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 </section>
 
 <!-- COMMUNITY -->
-<section class="section bg-[var(--color-axxaz-navy-deep)] text-white">
+<section class="section border-t border-[var(--color-line)]">
   <div class="container-x">
     <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
       <div class="max-w-xl">
-        <div class="eyebrow eyebrow-light">{t('comm.kicker')}</div>
-        <h2 class="mt-4 !text-white text-3xl md:text-4xl lg:text-5xl">{t('comm.title')}</h2>
-        <p class="mt-5 text-white/65 leading-relaxed">{t('comm.sub')}</p>
+        <div class="eyebrow eyebrow-dark">{t('comm.kicker')}</div>
+        <h2 class="mt-4 text-3xl md:text-4xl lg:text-5xl">{t('comm.title')}</h2>
+        <p class="mt-5 text-[var(--color-ink-soft)] leading-relaxed">{t('comm.sub')}</p>
       </div>
-      <a href={localizePath(lang, '/community')} class="btn btn-on-dark">{t('comm.feed')}</a>
+      <a href={localizePath(lang, '/community')} class="btn btn-outline">{t('comm.feed')}</a>
     </div>
     <div class="grid md:grid-cols-3 gap-4">
       {facebookFeed.slice(0, 2).map(p => (
-        <article class="rounded-2xl bg-white/5 backdrop-blur border border-white/10 overflow-hidden flex flex-col hover:border-white/20 hover:bg-white/8 transition-all duration-300">
+        <article class="rounded-2xl bg-white border border-[var(--color-line)] overflow-hidden flex flex-col hover:border-[var(--color-axxaz-navy)] hover:-translate-y-0.5 hover:shadow-[0_24px_60px_-24px_rgba(14,26,61,0.2)] transition-all duration-300">
           <div class="img-zoom">
             <img src={p.image} alt="" class="w-full aspect-[16/10] object-cover" loading="lazy" />
           </div>
           <div class="p-6 flex flex-col flex-grow">
-            <div class="flex items-center gap-2.5 text-xs text-white/60">
-              <Icon name="facebook" size={14} class="text-[#67A0DC]" />
+            <div class="flex items-center gap-2.5 text-xs text-[var(--color-ink-mute)]">
+              <Icon name="facebook" size={14} class="text-[#1877F2]" />
               <span class="font-semibold">Facebook</span>
               <span>·</span>
               <time>{p.date}</time>
             </div>
-            <h3 class="mt-3 text-base !text-white font-semibold leading-snug">{p.title}</h3>
-            <p class="mt-2 text-sm text-white/65 truncate-3 flex-grow">{p.excerpt}</p>
-            <div class="mt-5 pt-4 border-t border-white/10 flex gap-5 text-xs text-white/55">
+            <h3 class="mt-3 text-base font-semibold leading-snug">{p.title}</h3>
+            <p class="mt-2 text-sm text-[var(--color-ink-soft)] truncate-3 flex-grow">{p.excerpt}</p>
+            <div class="mt-5 pt-4 border-t border-[var(--color-line)] flex gap-5 text-xs text-[var(--color-ink-mute)]">
               <span class="inline-flex items-center gap-1.5"><Icon name="heart" size={12} stroke={2} /> {p.likes}</span>
               <span class="inline-flex items-center gap-1.5"><Icon name="comment" size={12} stroke={2} /> {p.comments}</span>
             </div>
           </div>
         </article>
       ))}
-      <article class="rounded-2xl border border-[var(--color-spark)]/30 overflow-hidden flex flex-col" style="background:linear-gradient(135deg, rgba(184,65,15,0.4) 0%, rgba(232,93,31,0.25) 100%)">
+      <article class="rounded-2xl bg-white border border-[var(--color-line)] overflow-hidden flex flex-col hover:border-[var(--color-axxaz-navy)] hover:-translate-y-0.5 hover:shadow-[0_24px_60px_-24px_rgba(14,26,61,0.2)] transition-all duration-300">
         <div class="p-6 flex-grow">
-          <div class="flex items-center gap-2.5 text-xs text-white/70">
-            <Icon name="linkedin" size={14} class="text-[#67A0DC]" />
-            <span class="font-semibold text-white/90">LinkedIn</span>
+          <div class="flex items-center gap-2.5 text-xs text-[var(--color-ink-mute)]">
+            <Icon name="linkedin" size={14} class="text-[#0A66C2]" />
+            <span class="font-semibold">LinkedIn</span>
             <span>·</span>
             <time>{linkedinFeed[0].date}</time>
           </div>
-          <h3 class="mt-3 text-base font-semibold leading-snug !text-white">{linkedinFeed[0].title}</h3>
-          <p class="mt-2 text-sm text-white/80 truncate-4">{linkedinFeed[0].excerpt}</p>
-          <div class="mt-5 pt-4 border-t border-white/15 flex gap-5 text-xs text-white/70">
+          <h3 class="mt-3 text-base font-semibold leading-snug">{linkedinFeed[0].title}</h3>
+          <p class="mt-2 text-sm text-[var(--color-ink-soft)] truncate-4">{linkedinFeed[0].excerpt}</p>
+          <div class="mt-5 pt-4 border-t border-[var(--color-line)] flex gap-5 text-xs text-[var(--color-ink-mute)]">
             <span class="inline-flex items-center gap-1.5"><Icon name="heart" size={12} stroke={2} /> {linkedinFeed[0].likes}</span>
             <span class="inline-flex items-center gap-1.5"><Icon name="comment" size={12} stroke={2} /> {linkedinFeed[0].comments}</span>
           </div>
         </div>
-        <a href={localizePath(lang, '/community')} class="px-6 py-4 bg-black/20 hover:bg-black/30 transition-colors flex items-center justify-between text-sm">
-          <span>2 {lang === 'nl' ? 'jaar partnership' : 'years partnership'} Damen</span>
+        <a href={localizePath(lang, '/community')} class="px-6 py-4 bg-[var(--color-paper)] border-t border-[var(--color-line)] hover:bg-[var(--color-axxaz-mist)]/40 transition-colors flex items-center justify-between text-sm">
+          <span class="font-semibold">2 {lang === 'nl' ? 'jaar partnership' : 'years partnership'} Damen</span>
           <span class="text-[var(--color-spark)] inline-flex items-center gap-1.5 font-semibold">{t('cta.lezen')} <Icon name="arrow-right" size={14} stroke={2.25} /></span>
         </a>
       </article>
@@ -422,7 +420,7 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 </section>
 
 <!-- CASES PREVIEW -->
-<section class="section bg-[var(--color-axxaz-mist)]/30 border-y border-[var(--color-line)]" data-reveal>
+<section class="section border-t border-[var(--color-line)]" data-reveal>
   <div class="container-x">
     <div class="flex items-end justify-between flex-wrap gap-6 mb-10">
       <h2 class="text-3xl md:text-4xl lg:text-5xl">{t('cases.title')}</h2>
@@ -454,7 +452,7 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 
 
 <!-- CERTIFICATIONS STRIP -->
-<section class="border-y border-[var(--color-line)] bg-[var(--color-axxaz-mist)]/50">
+<section class="border-y border-[var(--color-line)]">
   <div class="container-x py-10">
     <div class="flex items-center gap-6 flex-wrap justify-center md:justify-between">
       <div class="flex items-center gap-3">

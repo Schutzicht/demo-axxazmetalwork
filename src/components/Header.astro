@@ -41,7 +41,7 @@ const navTree: Array<
 ];
 ---
 
-<header id="site-header" class="sticky top-0 z-40 glass" data-scrolled="false">
+<header id="site-header" class="sticky top-0 z-40 smart-header" data-scrolled="false" data-at-top="true" data-hidden="false">
   <div class="container-x flex items-center gap-4 lg:gap-6 py-3.5 transition-[padding] duration-300" id="header-inner">
     <Logo height={28} />
 
@@ -111,6 +111,7 @@ const navTree: Array<
       </button>
     </div>
   </div>
+  <div id="header-progress" class="header-progress" aria-hidden="true"></div>
 
   <div id="mobile-menu" class="lg:hidden hidden border-t border-[var(--color-line)] bg-white max-h-[calc(100vh-60px)] overflow-y-auto">
     <nav class="container-x py-5 flex flex-col text-sm">
@@ -151,19 +152,36 @@ const navTree: Array<
 </header>
 
 <script>
-  const header = document.getElementById('site-header');
-  const inner = document.getElementById('header-inner');
-  const btn = document.getElementById('mobile-menu-btn');
-  const menu = document.getElementById('mobile-menu');
+  function initHeader() {
+    const header = document.getElementById('site-header');
+    const inner = document.getElementById('header-inner');
+    const progress = document.getElementById('header-progress');
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    if (!header || !inner) return;
 
-  let lastY = -1;
-  const onScroll = () => {
-    const y = window.scrollY;
-    if (y === lastY) return;
-    lastY = y;
-    const scrolled = y > 8;
-    if (header) header.dataset.scrolled = String(scrolled);
-    if (inner) {
+    let lastY = window.scrollY;
+    let lastDir: 'up' | 'down' = 'up';
+    let ticking = false;
+
+    const update = () => {
+      const y = Math.max(0, window.scrollY);
+      const dy = y - lastY;
+      const docH = (document.documentElement.scrollHeight - window.innerHeight) || 1;
+      const pct = Math.min(100, Math.max(0, (y / docH) * 100));
+
+      const atTop = y <= 4;
+      const scrolled = y > 8;
+      header.dataset.atTop = String(atTop);
+      header.dataset.scrolled = String(scrolled);
+
+      // Hide on scroll-down past threshold; show on scroll-up; never hide near top
+      if (y > 200 && dy > 4) {
+        if (lastDir !== 'down') { header.dataset.hidden = 'true'; lastDir = 'down'; }
+      } else if (dy < -4 || y < 200) {
+        if (lastDir !== 'up') { header.dataset.hidden = 'false'; lastDir = 'up'; }
+      }
+
       if (scrolled) {
         inner.style.paddingTop = '0.625rem';
         inner.style.paddingBottom = '0.625rem';
@@ -171,10 +189,32 @@ const navTree: Array<
         inner.style.paddingTop = '';
         inner.style.paddingBottom = '';
       }
-    }
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 
-  btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+      if (progress) progress.style.width = pct + '%';
+
+      lastY = y;
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    btn?.addEventListener('click', () => {
+      menu?.classList.toggle('hidden');
+      // never hide while menu open
+      header.dataset.hidden = 'false';
+    });
+  }
+
+  if (document.readyState !== 'loading') initHeader();
+  else document.addEventListener('DOMContentLoaded', initHeader);
+  document.addEventListener('astro:page-load', initHeader);
 </script>

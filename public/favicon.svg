@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="40" y2="40">
-      <stop offset="0" stop-color="#0A2D5C"/>
-      <stop offset="1" stop-color="#FF7A1A"/>
-    </linearGradient>
-  </defs>
-  <rect width="40" height="40" rx="8" fill="url(#g)"/>
-  <path d="M8 30 L20 8 L32 30 L27 30 L20 17 L13 30 Z" fill="white"/>
-  <path d="M14 26 L20 16 L26 26" stroke="#FF7A1A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="12" fill="#1A2C5C"/>
+  <!-- Ribbon X - diagonal 1: top-left → bottom-right -->
+  <path d="M14 11 L24 11 L52 53 L42 53 Z" fill="#FFFFFF"/>
+  <!-- Ribbon X - diagonal 2: top-right → bottom-left -->
+  <path d="M52 11 L42 11 L14 53 L24 53 Z" fill="#FFFFFF"/>
+  <!-- Light blue accent triangle (top fold) -->
+  <path d="M28 22 L36 22 L32 28 Z" fill="#4A7EC8"/>
+  <!-- Soft blue accent triangle (bottom fold) -->
+  <path d="M28 42 L36 42 L32 36 Z" fill="#8BB1DF"/>
 </svg>
