@@ -9,19 +9,37 @@ const links = alternateLinks(currentLang, currentPath);
 ---
 
 <details class={`lang-switcher relative ${onDark ? 'on-dark' : ''}`}>
-  <summary class="cursor-pointer list-none inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors hover:bg-[var(--color-axxaz-mist)] data-[on-dark=true]:hover:bg-white/10" data-on-dark={onDark}>
+  <summary class="cursor-pointer list-none inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors hover:bg-[var(--color-axxaz-mist)]" data-on-dark={onDark}>
     <Icon name="globe" size={14} />
     <span class="tracking-wider">{currentLang.toUpperCase()}</span>
     <Icon name="chevron-down" size={12} class="opacity-60" />
   </summary>
-  <div class="absolute right-0 mt-2 w-48 rounded-lg border border-[var(--color-line)] bg-white py-1.5 shadow-lg z-50">
-    {links.map(({ lang, href }) => (
-      <a href={href}
-         class={`flex items-center justify-between px-3 py-2 text-sm transition-colors ${lang === currentLang ? 'text-[var(--color-axxaz-navy)] font-semibold bg-[var(--color-axxaz-mist)]' : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-axxaz-mist)] hover:text-[var(--color-axxaz-navy)]'}`}>
-        <span>{languages[lang].label}</span>
-        <span class="text-[10px] tracking-widest font-mono opacity-60">{lang.toUpperCase()}</span>
-      </a>
-    ))}
+  <div class="lang-panel absolute right-0 mt-2 w-60 rounded-xl border border-[var(--color-line)] bg-white shadow-[0_24px_60px_-20px_rgba(14,26,61,0.25)] z-50 overflow-hidden">
+    <div class="p-2 border-b border-[var(--color-line-soft)]">
+      <div class="relative">
+        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--color-ink-mute)] pointer-events-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <input
+          type="text"
+          class="lang-search w-full pl-8 pr-2.5 py-1.5 text-xs bg-[var(--color-paper)] border border-[var(--color-line)] rounded-md focus:outline-none focus:border-[var(--color-axxaz-navy)] focus:ring-2 focus:ring-[var(--color-axxaz-navy)]/12"
+          placeholder="Zoek taal..."
+          aria-label="Zoek taal"
+        />
+      </div>
+    </div>
+    <div class="lang-list max-h-[20rem] overflow-y-auto py-1.5" role="listbox">
+      {links.map(({ lang, href }) => (
+        <a href={href}
+           data-lang-item={lang}
+           data-lang-label={languages[lang].label.toLowerCase()}
+           class={`lang-item flex items-center justify-between px-3 py-2 text-sm transition-colors ${lang === currentLang ? 'text-[var(--color-axxaz-navy)] font-semibold bg-[var(--color-axxaz-mist)]' : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-axxaz-mist)] hover:text-[var(--color-axxaz-navy)]'}`}>
+          <span>{languages[lang].label}</span>
+          <span class="text-[10px] tracking-widest font-mono opacity-60">{lang.toUpperCase()}</span>
+        </a>
+      ))}
+      <p class="lang-empty hidden text-xs text-[var(--color-ink-mute)] px-3 py-4 text-center">Geen taal gevonden.</p>
+    </div>
   </div>
 </details>
 
@@ -31,4 +49,47 @@ const links = alternateLinks(currentLang, currentPath);
   .lang-switcher.on-dark summary:hover { background: rgba(255,255,255,0.08); color: white; }
   .lang-switcher[open] summary { background: var(--color-axxaz-mist); color: var(--color-axxaz-navy); }
   .lang-switcher.on-dark[open] summary { background: rgba(255,255,255,0.12); color: white; }
+  /* show ~10 items before scroll: 10 × ~36px = ~360px, but cap at 20rem (320px) for visual balance */
+  .lang-list::-webkit-scrollbar { width: 6px; }
+  .lang-list::-webkit-scrollbar-track { background: transparent; }
+  .lang-list::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 3px; }
+  .lang-list::-webkit-scrollbar-thumb:hover { background: var(--color-ink-mute); }
 </style>
+
+<script>
+  function initLangSearch() {
+    document.querySelectorAll('.lang-switcher').forEach(sw => {
+      const input = sw.querySelector<HTMLInputElement>('.lang-search');
+      const items = sw.querySelectorAll<HTMLElement>('.lang-item');
+      const empty = sw.querySelector<HTMLElement>('.lang-empty');
+      if (!input) return;
+
+      const filter = () => {
+        const q = input.value.trim().toLowerCase();
+        let visible = 0;
+        items.forEach(item => {
+          const label = item.getAttribute('data-lang-label') ?? '';
+          const code = (item.getAttribute('data-lang-item') ?? '').toLowerCase();
+          const match = !q || label.includes(q) || code.includes(q);
+          item.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+        if (empty) empty.classList.toggle('hidden', visible !== 0);
+      };
+
+      input.addEventListener('input', filter);
+      // focus search when dropdown opens
+      sw.addEventListener('toggle', () => {
+        if ((sw as HTMLDetailsElement).open) {
+          setTimeout(() => input.focus(), 50);
+          input.value = '';
+          filter();
+        }
+      });
+    });
+  }
+
+  if (document.readyState !== 'loading') initLangSearch();
+  else document.addEventListener('DOMContentLoaded', initLangSearch);
+  document.addEventListener('astro:page-load', initLangSearch);
+</script>

@@ -41,8 +41,8 @@ const navTree: Array<
 ];
 ---
 
-<header id="site-header" class="sticky top-0 z-40 smart-header" data-scrolled="false" data-at-top="true" data-hidden="false">
-  <div class="container-x flex items-center gap-4 lg:gap-6 py-3.5 transition-[padding] duration-300" id="header-inner">
+<header id="site-header" class="sticky top-0 z-40 smart-header" data-scrolled="false" data-at-top="true">
+  <div class="container-x flex items-center gap-4 lg:gap-6 py-3.5" id="header-inner">
     <Logo height={28} />
 
     <nav class="hidden lg:flex items-center gap-0.5 ml-auto text-[0.875rem]">
@@ -160,13 +160,10 @@ const navTree: Array<
     const menu = document.getElementById('mobile-menu');
     if (!header || !inner) return;
 
-    let lastY = window.scrollY;
-    let lastDir: 'up' | 'down' = 'up';
     let ticking = false;
 
     const update = () => {
       const y = Math.max(0, window.scrollY);
-      const dy = y - lastY;
       const docH = (document.documentElement.scrollHeight - window.innerHeight) || 1;
       const pct = Math.min(100, Math.max(0, (y / docH) * 100));
 
@@ -175,24 +172,8 @@ const navTree: Array<
       header.dataset.atTop = String(atTop);
       header.dataset.scrolled = String(scrolled);
 
-      // Hide on scroll-down past threshold; show on scroll-up; never hide near top
-      if (y > 200 && dy > 4) {
-        if (lastDir !== 'down') { header.dataset.hidden = 'true'; lastDir = 'down'; }
-      } else if (dy < -4 || y < 200) {
-        if (lastDir !== 'up') { header.dataset.hidden = 'false'; lastDir = 'up'; }
-      }
-
-      if (scrolled) {
-        inner.style.paddingTop = '0.625rem';
-        inner.style.paddingBottom = '0.625rem';
-      } else {
-        inner.style.paddingTop = '';
-        inner.style.paddingBottom = '';
-      }
-
       if (progress) progress.style.width = pct + '%';
 
-      lastY = y;
       ticking = false;
     };
 
@@ -209,8 +190,6 @@ const navTree: Array<
 
     btn?.addEventListener('click', () => {
       menu?.classList.toggle('hidden');
-      // never hide while menu open
-      header.dataset.hidden = 'false';
     });
   }
 
