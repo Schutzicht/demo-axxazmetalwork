@@ -200,17 +200,17 @@ export const reviewSummary = {
   trustpilotCount: 62,
 };
 
-// Trust-strip op homepage. Logo wordt geladen via Clearbit Logo CDN (gratis, public).
-// Sem kan dit voor launch vervangen door echte AXXAZ-klanten:
-//   - vervang { name, domain } in deze lijst met echte klanten + hun .com/.nl domein
-//   - of drop een lokale PNG/SVG in public/img/clients/{slug}.png voor priority-override
+// Trust-strip op homepage. Logo's lokaal opgeslagen in public/img/clients/.
+// Sem kan deze lijst aanpassen voor launch — vervang met echte AXXAZ-klanten:
+//   1. Drop logo-bestand in public/img/clients/{slug}.{svg|png|jpg}
+//   2. Update name/domain/logo hieronder
 export const trustClients = [
-  { name: 'Damen Shipyards',  industry: 'Scheepsbouw',  domain: 'damen.com',       slug: 'damen' },
-  { name: 'Royal IHC',        industry: 'Scheepsbouw',  domain: 'royalihc.com',    slug: 'royal-ihc' },
-  { name: 'Boskalis',         industry: 'Maritiem',     domain: 'boskalis.com',    slug: 'boskalis' },
-  { name: 'Heerema',          industry: 'Offshore',     domain: 'heerema.com',     slug: 'heerema' },
-  { name: 'Vopak',            industry: 'Petrochemie',  domain: 'vopak.com',       slug: 'vopak' },
-  { name: 'Smulders',         industry: 'Staalbouw',    domain: 'smulders.com',    slug: 'smulders' },
+  { name: 'Damen Shipyards',  industry: 'Scheepsbouw',  domain: 'damen.com',       slug: 'damen',     logo: '/img/clients/damen.jpg' },
+  { name: 'Royal IHC',        industry: 'Scheepsbouw',  domain: 'royalihc.com',    slug: 'royal-ihc', logo: '/img/clients/royal-ihc.png' },
+  { name: 'Boskalis',         industry: 'Maritiem',     domain: 'boskalis.com',    slug: 'boskalis',  logo: '/img/clients/boskalis.svg' },
+  { name: 'Heerema',          industry: 'Offshore',     domain: 'heerema.com',     slug: 'heerema',   logo: '/img/clients/heerema.svg' },
+  { name: 'Vopak',            industry: 'Petrochemie',  domain: 'vopak.com',       slug: 'vopak',     logo: '/img/clients/vopak.svg' },
+  { name: 'Smulders',         industry: 'Staalbouw',    domain: 'smulders.com',    slug: 'smulders',  logo: '/img/clients/smulders.svg' },
 ];
 
 export const cases = [
