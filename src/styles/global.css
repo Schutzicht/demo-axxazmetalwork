@@ -321,14 +321,14 @@
     transform-origin: left center;
   }
   .smart-header[data-at-top="false"] {
-    background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: saturate(180%) blur(22px);
+    -webkit-backdrop-filter: saturate(180%) blur(22px);
   }
   .smart-header[data-scrolled="true"] {
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: saturate(190%) blur(24px);
+    -webkit-backdrop-filter: saturate(190%) blur(24px);
     border-bottom-color: var(--color-line-soft);
     box-shadow: 0 8px 32px -16px rgba(14, 26, 61, 0.10);
   }
