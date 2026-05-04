@@ -191,11 +191,29 @@ const navTree: Array<
     }
     update();
 
+    const setBodyLock = (locked: boolean) => {
+      document.body.style.overflow = locked ? 'hidden' : '';
+      document.body.style.touchAction = locked ? 'none' : '';
+    };
+
     if (btn && !btn.dataset.bound) {
       btn.dataset.bound = 'true';
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        menu?.classList.toggle('hidden');
+        if (!menu) return;
+        menu.classList.toggle('hidden');
+        setBodyLock(!menu.classList.contains('hidden'));
+      });
+    }
+
+    // Sluit mobiele menu bij klik op een link binnenin
+    if (menu && !menu.dataset.bound) {
+      menu.dataset.bound = 'true';
+      menu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          menu.classList.add('hidden');
+          setBodyLock(false);
+        });
       });
     }
   }
