@@ -200,13 +200,17 @@ export const reviewSummary = {
   trustpilotCount: 62,
 };
 
+// Trust-strip op homepage. Logo wordt geladen via Clearbit Logo CDN (gratis, public).
+// Sem kan dit voor launch vervangen door echte AXXAZ-klanten:
+//   - vervang { name, domain } in deze lijst met echte klanten + hun .com/.nl domein
+//   - of drop een lokale PNG/SVG in public/img/clients/{slug}.png voor priority-override
 export const trustClients = [
-  { name: 'Damen Shipyards', industry: 'Scheepsbouw' },
-  { name: 'Petrochem Botlek', industry: 'Petrochemie' },
-  { name: 'Werkendam Jachten', industry: 'Jachtbouw' },
-  { name: 'Apparatenbouw Sliedrecht', industry: 'Procestechniek' },
-  { name: 'Bergen Offshore', industry: 'Offshore wind' },
-  { name: 'CNC Roosendaal', industry: 'Machinebouw' },
+  { name: 'Damen Shipyards',  industry: 'Scheepsbouw',  domain: 'damen.com',       slug: 'damen' },
+  { name: 'Royal IHC',        industry: 'Scheepsbouw',  domain: 'royalihc.com',    slug: 'royal-ihc' },
+  { name: 'Boskalis',         industry: 'Maritiem',     domain: 'boskalis.com',    slug: 'boskalis' },
+  { name: 'Heerema',          industry: 'Offshore',     domain: 'heerema.com',     slug: 'heerema' },
+  { name: 'Vopak',            industry: 'Petrochemie',  domain: 'vopak.com',       slug: 'vopak' },
+  { name: 'Smulders',         industry: 'Staalbouw',    domain: 'smulders.com',    slug: 'smulders' },
 ];
 
 export const cases = [

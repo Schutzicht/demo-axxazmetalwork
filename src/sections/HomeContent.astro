@@ -3,6 +3,7 @@ import { useTranslations, localizePath } from '../i18n/utils';
 import { site, founders, certifications, facebookFeed, linkedinFeed, vacancies, vakgebieden, reviews, reviewSummary, blogPosts, trustClients, cases } from '../data/site';
 import type { Lang } from '../i18n/ui';
 import Icon from '../components/Icon.astro';
+import ClientLogo from '../components/ClientLogo.astro';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -162,21 +163,15 @@ const tcBullets = [t('tc.b1'), t('tc.b2'), t('tc.b3'), t('tc.b4')];
 </section>
 
 <!-- TRUST STRIP -->
-<section class="border-y border-[var(--color-line)] bg-[var(--color-axxaz-mist)]/40 mt-12 md:mt-20" data-reveal>
+<section class="border-y border-[var(--color-line)] bg-white mt-12 md:mt-20" data-reveal>
   <div class="container-x py-8 md:py-10">
-    <div class="flex items-center gap-6 flex-wrap justify-center md:justify-between">
+    <div class="text-center mb-6 md:mb-7">
       <div class="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-mute)]">{t('trust.title')}</div>
-      <div class="flex gap-x-7 gap-y-3 flex-wrap items-center justify-center">
-        {trustClients.map(c => (
-          <div class="flex items-center gap-2 grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition-all duration-300">
-            <div class="w-9 h-9 rounded-md bg-[var(--color-axxaz-navy)] inline-flex items-center justify-center text-white font-extrabold text-xs" style="font-family:Manrope,sans-serif">{c.name.split(' ').map(w => w[0]).slice(0,2).join('')}</div>
-            <div class="text-sm">
-              <div class="font-bold leading-tight text-[var(--color-axxaz-navy)]">{c.name}</div>
-              <div class="text-[10px] uppercase tracking-wider text-[var(--color-ink-mute)] font-semibold">{c.industry}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+    </div>
+    <div class="flex gap-x-8 sm:gap-x-12 md:gap-x-16 gap-y-5 flex-wrap items-center justify-center">
+      {trustClients.map(c => (
+        <ClientLogo name={c.name} domain={c.domain} slug={c.slug} industry={c.industry} />
+      ))}
     </div>
   </div>
 </section>
