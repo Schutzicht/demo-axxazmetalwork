@@ -271,8 +271,10 @@
   }
   .marquee-track > * {
     flex-shrink: 0;
-    padding-right: 4rem;
+    padding-right: 1.5rem;
   }
+  @media (min-width: 640px) { .marquee-track > * { padding-right: 2.5rem; } }
+  @media (min-width: 1024px) { .marquee-track > * { padding-right: 4rem; } }
   @media (prefers-reduced-motion: reduce) {
     .marquee-track { animation: none; }
   }

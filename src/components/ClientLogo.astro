@@ -10,11 +10,11 @@ const { name, domain, slug, logo, industry } = Astro.props;
 const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 ---
 <a href={`https://${domain}`} target="_blank" rel="noopener" class="client-logo group" title={`${name}${industry ? ' · ' + industry : ''}`} aria-label={name}>
-  <div class="relative h-10 sm:h-11 md:h-12 w-auto flex items-center justify-center px-1">
+  <div class="relative h-9 sm:h-11 md:h-12 w-auto flex items-center justify-center px-0.5">
     <img
       src={logo}
       alt={name}
-      class="logo-img max-h-full w-auto max-w-[160px] object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+      class="logo-img max-h-full w-auto max-w-[112px] sm:max-w-[140px] md:max-w-[160px] object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
       loading="lazy"
       decoding="async"
     />
